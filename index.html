@@ -1,60 +1,183 @@
-from pathlib import Path
-html = r'''<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Teen Map 🌎</title>
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111f;font-family:system-ui,-apple-system,sans-serif}
-#globe{width:100%;height:100%;display:block}
-#loading{position:fixed;inset:0;display:grid;place-items:center;color:white;font-size:18px;background:#07111f;z-index:2}
-#info{position:fixed;top:16px;left:16px;color:white;background:#0008;padding:10px 14px;border-radius:14px;backdrop-filter:blur(8px);z-index:3}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teen Map 🌎</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #071426;
+      font-family: Arial, sans-serif;
+    }
+
+    #globe {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      touch-action: none;
+    }
+
+    #title {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      background: rgba(0,0,0,0.35);
+      padding: 10px 16px;
+      border-radius: 15px;
+    }
+  </style>
 </head>
+
 <body>
-<div id="loading">Loading Teen Map…</div>
-<div id="info">🌎 Teen Map</div>
-<canvas id="globe"></canvas>
-<script>
-const canvas=document.getElementById('globe'),ctx=canvas.getContext('2d');
-let w,h,dpr,rx=0,ry=0,drag=false,lastX=0,lastY=0;
-function resize(){dpr=Math.min(devicePixelRatio||1,2);w=innerWidth;h=innerHeight;canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);draw()}
-function draw(){
- ctx.clearRect(0,0,w,h);
- const r=Math.min(w,h)*.34,cx=w/2,cy=h/2;
- const g=ctx.createRadialGradient(cx-r*.35,cy-r*.4,r*.1,cx,cy,r*1.2);
- g.addColorStop(0,'#4db7ff');g.addColorStop(1,'#07508f');
- ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
- ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
- ctx.strokeStyle='#ffffff35';ctx.lineWidth=1;
- for(let i=-60;i<=60;i+=30){let y=cy+r*Math.sin(i*Math.PI/180);let xspan=Math.sqrt(Math.max(0,r*r-(y-cy)**2));ctx.beginPath();ctx.ellipse(cx,y,xspan,r*.12,0,0,Math.PI*2);ctx.stroke()}
- for(let i=-150;i<=150;i+=30){let x=cx+r*Math.sin(i*Math.PI/180);let xspan=r*Math.cos(i*Math.PI/180);ctx.beginPath();ctx.ellipse(x,c y=cy,xspan,r,0,0,Math.PI*2);ctx.stroke()}
- ctx.restore();
- // stylised continents: intentionally local/vector, no external libraries
- const land=[
- [[-.55,-.05],[-.68,-.18],[-.62,-.38],[-.43,-.47],[-.28,-.30],[-.34,-.08],[-.47,.02]],
- [[-.28,.02],[-.18,.15],[-.23,.38],[-.12,.62],[-.22,.76],[-.38,.50],[-.34,.25]],
- [[-.02,-.34],[.18,-.40],[.34,-.30],[.42,-.12],[.29,.03],[.08,-.03]],
- [[.28,.08],[.48,.05],[.65,.20],[.58,.38],[.37,.34],[.25,.20]],
- [[.05,.13],[.18,.25],[.13,.45],[.02,.50],[-.06,.31]],
- [[.62,-.50],[.78,-.40],[.72,-.25],[.55,-.30]]
- ];
- ctx.fillStyle='#65b96e';
- land.forEach(poly=>{ctx.beginPath();poly.forEach((p,i)=>{let x=cx+p[0]*r,y=cy+p[1]*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.closePath();ctx.fill()});
- // atmosphere
- ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#8bdcff80';ctx.lineWidth=3;ctx.stroke();
-}
-canvas.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;ry+=(e.clientX-lastX)*.01;rx+=(e.clientY-lastY)*.01;lastX=e.clientX;lastY=e.clientY;draw()});
-canvas.addEventListener('pointerup',()=>drag=false);canvas.addEventListener('pointercancel',()=>drag=false);
-addEventListener('resize',resize);resize();document.getElementById('loading').remove();
-</script>
-</body>
-</html>'''
-# fix the one harmless-but-invalid accidental assignment in the generated JS
-html = html.replace("let x=cx+r*Math.sin(i*Math.PI/180);let xspan=r*Math.cos(i*Math.PI/180);ctx.beginPath();ctx.ellipse(x,c y=cy,xspan,r,0,0,Math.PI*2);",
-                    "let x=cx+r*Math.sin(i*Math.PI/180);let xspan=r*Math.cos(i*Math.PI/180);ctx.beginPath();ctx.ellipse(x,cy,xspan,r,0,0,Math.PI*2);")
-path=Path("/mnt/data/index.html")
-path.write_text(html,encoding="utf-8")
-print(f"Archivo creado: {path}")
+
+  <div id="title">🌎 Teen Map</div>
+  <canvas id="globe"></canvas>
+
+  <script>
+    const canvas = document.getElementById("globe");
+    const ctx = canvas.getContext("2d");
+
+    let width;
+    let height;
+    let radius;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+
+      const ratio = window.devicePixelRatio || 1;
+
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+      radius = Math.min(width, height) * 0.36;
+
+      drawGlobe();
+    }
+
+    function drawGlobe() {
+      ctx.clearRect(0, 0, width, height);
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      // Océano
+      const ocean = ctx.createRadialGradient(
+        centerX - radius * 0.35,
+        centerY - radius * 0.35,
+        radius * 0.1,
+        centerX,
+        centerY,
+        radius
+      );
+
+      ocean.addColorStop(0, "#55c7ff");
+      ocean.addColorStop(1, "#07518f");
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.fillStyle = ocean;
+      ctx.fill();
+
+      // Recortar todo al interior del planeta
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Líneas de latitud
+      ctx.strokeStyle = "rgba(255,255,255,0.25)";
+      ctx.lineWidth = 1;
+
+      for (let i = -60; i <= 60; i += 30) {
+        const y = centerY + radius * Math.sin(i * Math.PI / 180);
+
+        const horizontalRadius =
+          Math.sqrt(
+            Math.max(
+              0,
+              radius * radius - (y - centerY) * (y - centerY)
+            )
+          );
+
+        ctx.beginPath();
+        ctx.ellipse(
+          centerX,
+          y,
+          horizontalRadius,
+          radius * 0.12,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
+      }
+
+      // Líneas de longitud
+      for (let i = -150; i <= 150; i += 30) {
+        const x = centerX + radius * Math.sin(i * Math.PI / 180);
+        const horizontalRadius =
+          Math.abs(radius * Math.cos(i * Math.PI / 180));
+
+        ctx.beginPath();
+        ctx.ellipse(
+          x,
+          centerY,
+          horizontalRadius,
+          radius,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
+      }
+
+      // Continentes estilizados
+      ctx.fillStyle = "#65b96b";
+
+      const continents = [
+        [
+          [-0.70,-0.15],
+          [-0.55,-0.38],
+          [-0.30,-0.42],
+          [-0.20,-0.20],
+          [-0.38,-0.02],
+          [-0.55,0.02]
+        ],
+
+        [
+          [-0.25,0.02],
+          [-0.12,0.20],
+          [-0.18,0.42],
+          [-0.08,0.70],
+          [-0.25,0.55],
+          [-0.35,0.25]
+        ],
+
+        [
+          [0.00,-0.42],
+          [0.22,-0.38],
+          [0.38,-0.20],
+          [0.30,0.00],
+          [0.05,-0.02]
+        ],
+
+        [
+          [0.
