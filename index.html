@@ -1,35 +1,683 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Teen Map</title>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Teen Map 🌎</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #061426;
+    font-family: Arial, sans-serif;
+}
+
+canvas {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    touch-action: none;
+}
+
+.title {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 10;
+
+    padding: 10px 16px;
+
+    color: white;
+    font-size: 23px;
+    font-weight: bold;
+
+    background: rgba(0,0,0,.35);
+    border-radius: 16px;
+
+    backdrop-filter: blur(8px);
+}
+</style>
 </head>
 
-<body style="margin:0;background:#071426;">
+<body>
+
+<div class="title">🌎 Teen Map</div>
 
 <canvas id="globe"></canvas>
 
 <script>
+
 const canvas = document.getElementById("globe");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let W = 0;
+let H = 0;
+let DPR = 1;
 
-const x = canvas.width / 2;
-const y = canvas.height / 2;
-const r = Math.min(canvas.width, canvas.height) * 0.35;
+let centerX = 0;
+let centerY = 0;
+let radius = 0;
 
-ctx.beginPath();
-ctx.arc(x, y, r, 0, Math.PI * 2);
-ctx.fillStyle = "skyblue";
-ctx.fill();
+/* Rotación */
+let rotationX = -0.15;
+let rotationY = -0.45;
 
-ctx.beginPath();
-ctx.arc(x, y, r, 0, Math.PI * 2);
-ctx.strokeStyle = "white";
-ctx.lineWidth = 5;
-ctx.stroke();
+/* Interacción */
+let dragging = false;
+let lastX = 0;
+let lastY = 0;
+
+let zoom = 1;
+
+/* -------------------------------------------------
+   CONTINENTES
+------------------------------------------------- */
+
+const continents = [
+
+    /* Norteamérica */
+    [
+        [-168, 72],
+        [-145, 70],
+        [-130, 62],
+        [-120, 55],
+        [-105, 50],
+        [-95, 48],
+        [-85, 46],
+        [-75, 40],
+        [-67, 45],
+        [-60, 50],
+        [-65, 58],
+        [-80, 65],
+        [-100, 70],
+        [-125, 75],
+        [-150, 75]
+    ],
+
+    /* Sudamérica */
+    [
+        [-82, 12],
+        [-75, 5],
+        [-70, -5],
+        [-66, -15],
+        [-60, -25],
+        [-55, -35],
+        [-50, -50],
+        [-55, -55],
+        [-65, -50],
+        [-70, -35],
+        [-75, -20],
+        [-80, -5]
+    ],
+
+    /* Europa */
+    [
+        [-10, 36],
+        [0, 43],
+        [10, 45],
+        [20, 50],
+        [30, 55],
+        [40, 58],
+        [45, 65],
+        [30, 70],
+        [15, 65],
+        [5, 60],
+        [-5, 55],
+        [-10, 48]
+    ],
+
+    /* África */
+    [
+        [-17, 35],
+        [-5, 37],
+        [10, 35],
+        [25, 30],
+        [35, 15],
+        [40, 0],
+        [35, -15],
+        [25, -30],
+        [15, -35],
+        [5, -30],
+        [-5, -15],
+        [-12, 0],
+        [-18, 20]
+    ],
+
+    /* Asia */
+    [
+        [35, 65],
+        [55, 70],
+        [80, 72],
+        [110, 68],
+        [135, 60],
+        [150, 50],
+        [145, 40],
+        [130, 35],
+        [120, 25],
+        [105, 20],
+        [90, 25],
+        [75, 35],
+        [60, 40],
+        [45, 50]
+    ],
+
+    /* Australia */
+    [
+        [112, -10],
+        [130, -12],
+        [145, -18],
+        [153, -28],
+        [150, -40],
+        [135, -42],
+        [120, -35],
+        [112, -25]
+    ],
+
+    /* Groenlandia */
+    [
+        [-55, 60],
+        [-40, 65],
+        [-25, 75],
+        [-40, 82],
+        [-60, 78],
+        [-65, 68]
+    ]
+
+];
+
+
+/* -------------------------------------------------
+   CONVERSIÓN 3D
+------------------------------------------------- */
+
+function latLonTo3D(lat, lon) {
+
+    const latR = lat * Math.PI / 180;
+    const lonR = lon * Math.PI / 180;
+
+    let x = Math.cos(latR) * Math.cos(lonR);
+    let y = Math.sin(latR);
+    let z = Math.cos(latR) * Math.sin(lonR);
+
+    /* Rotación vertical */
+    const cosX = Math.cos(rotationX);
+    const sinX = Math.sin(rotationX);
+
+    let y1 = y * cosX - z * sinX;
+    let z1 = y * sinX + z * cosX;
+
+    /* Rotación horizontal */
+    const cosY = Math.cos(rotationY);
+    const sinY = Math.sin(rotationY);
+
+    let x2 = x * cosY - z1 * sinY;
+    let z2 = x * sinY + z1 * cosY;
+
+    return {
+        x: x2,
+        y: y1,
+        z: z2
+    };
+}
+
+
+/* -------------------------------------------------
+   PROYECCIÓN
+------------------------------------------------- */
+
+function project(p) {
+
+    const scale = radius * zoom;
+
+    return {
+        x: centerX + p.x * scale,
+        y: centerY - p.y * scale,
+        z: p.z
+    };
+}
+
+
+/* -------------------------------------------------
+   RESIZE
+------------------------------------------------- */
+
+function resize() {
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    centerX = W / 2;
+    centerY = H / 2;
+
+    radius = Math.min(W, H) * 0.34;
+
+    draw();
+}
+
+window.addEventListener("resize", resize);
+
+
+/* -------------------------------------------------
+   FONDO
+------------------------------------------------- */
+
+function drawBackground() {
+
+    const gradient = ctx.createRadialGradient(
+        centerX,
+        centerY,
+        radius * .2,
+        centerX,
+        centerY,
+        radius * 2
+    );
+
+    gradient.addColorStop(0, "#102d50");
+    gradient.addColorStop(1, "#030914");
+
+    ctx.fillStyle = gradient;
+
+    ctx.fillRect(0, 0, W, H);
+}
+
+
+/* -------------------------------------------------
+   ESTRELLAS
+------------------------------------------------- */
+
+const stars = [];
+
+for (let i = 0; i < 120; i++) {
+
+    stars.push({
+        x: Math.random(),
+        y: Math.random(),
+        size: Math.random() * 1.8 + .3
+    });
+}
+
+function drawStars() {
+
+    ctx.fillStyle = "rgba(255,255,255,.75)";
+
+    for (const star of stars) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            star.x * W,
+            star.y * H,
+            star.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+/* -------------------------------------------------
+   GLOBO
+------------------------------------------------- */
+
+function drawGlobe() {
+
+    const r = radius * zoom;
+
+    /* Atmósfera */
+
+    const atmosphere = ctx.createRadialGradient(
+        centerX - r * .35,
+        centerY - r * .35,
+        r * .1,
+        centerX,
+        centerY,
+        r * 1.2
+    );
+
+    atmosphere.addColorStop(0, "#66d9ff");
+    atmosphere.addColorStop(.45, "#178bd1");
+    atmosphere.addColorStop(1, "#06345e");
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = atmosphere;
+    ctx.fill();
+
+
+    /* Brillo atmosférico */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        r + 4,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.strokeStyle = "rgba(100,220,255,.5)";
+    ctx.lineWidth = 5;
+
+    ctx.stroke();
+
+
+    /* Recortar al planeta */
+
+    ctx.save();
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.clip();
+
+
+    /* Latitudes */
+
+    drawLatitudeLines(r);
+
+    /* Longitudes */
+
+    drawLongitudeLines(r);
+
+    /* Continentes */
+
+    drawContinents(r);
+
+
+    ctx.restore();
+
+
+    /* Sombra lateral */
+
+    const shadow = ctx.createRadialGradient(
+        centerX + r * .5,
+        centerY,
+        r * .1,
+        centerX + r * .6,
+        centerY,
+        r
+    );
+
+    shadow.addColorStop(0, "rgba(0,0,0,0)");
+    shadow.addColorStop(1, "rgba(0,0,0,.55)");
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = shadow;
+    ctx.fill();
+
+
+    /* Borde */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.strokeStyle = "rgba(160,235,255,.9)";
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+}
+
+
+/* -------------------------------------------------
+   LATITUDES
+------------------------------------------------- */
+
+function drawLatitudeLines(r) {
+
+    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.lineWidth = 1;
+
+    for (let lat = -60; lat <= 60; lat += 30) {
+
+        ctx.beginPath();
+
+        let started = false;
+
+        for (let lon = -180; lon <= 180; lon += 4) {
+
+            const p3 = latLonTo3D(lat, lon);
+
+            if (p3.z < 0) continue;
+
+            const p = project(p3);
+
+            if (!started) {
+                ctx.moveTo(p.x, p.y);
+                started = true;
+            } else {
+                ctx.lineTo(p.x, p.y);
+            }
+        }
+
+        ctx.stroke();
+    }
+}
+
+
+/* -------------------------------------------------
+   LONGITUDES
+------------------------------------------------- */
+
+function drawLongitudeLines(r) {
+
+    ctx.strokeStyle = "rgba(255,255,255,.16)";
+    ctx.lineWidth = 1;
+
+    for (let lon = -150; lon <= 150; lon += 30) {
+
+        ctx.beginPath();
+
+        let started = false;
+
+        for (let lat = -90; lat <= 90; lat += 4) {
+
+            const p3 = latLonTo3D(lat, lon);
+
+            if (p3.z < 0) continue;
+
+            const p = project(p3);
+
+            if (!started) {
+                ctx.moveTo(p.x, p.y);
+                started = true;
+            } else {
+                ctx.lineTo(p.x, p.y);
+            }
+        }
+
+        ctx.stroke();
+    }
+}
+
+
+/* -------------------------------------------------
+   CONTINENTES
+------------------------------------------------- */
+
+function drawContinents() {
+
+    for (const continent of continents) {
+
+        ctx.beginPath();
+
+        let started = false;
+
+        for (const point of continent) {
+
+            const lon = point[0];
+            const lat = point[1];
+
+            const p3 = latLonTo3D(lat, lon);
+
+            if (p3.z < 0) continue;
+
+            const p = project(p3);
+
+            if (!started) {
+
+                ctx.moveTo(p.x, p.y);
+
+                started = true;
+
+            } else {
+
+                ctx.lineTo(p.x, p.y);
+            }
+        }
+
+        ctx.closePath();
+
+        ctx.fillStyle = "#5fc56c";
+
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(20,80,40,.7)";
+        ctx.lineWidth = 1.2;
+
+        ctx.stroke();
+    }
+}
+
+
+/* -------------------------------------------------
+   INTERACCIÓN
+------------------------------------------------- */
+
+canvas.addEventListener("pointerdown", function(e) {
+
+    dragging = true;
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    canvas.setPointerCapture(e.pointerId);
+});
+
+
+canvas.addEventListener("pointermove", function(e) {
+
+    if (!dragging) return;
+
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+
+    rotationY += dx * .008;
+    rotationX += dy * .008;
+
+    rotationX = Math.max(
+        -1.4,
+        Math.min(1.4, rotationX)
+    );
+
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    draw();
+});
+
+
+canvas.addEventListener("pointerup", function() {
+
+    dragging = false;
+
+});
+
+
+canvas.addEventListener("pointercancel", function() {
+
+    dragging = false;
+
+});
+
+
+/* Zoom con rueda */
+
+canvas.addEventListener("wheel", function(e) {
+
+    e.preventDefault();
+
+    zoom += e.deltaY * -0.001;
+
+    zoom = Math.max(
+        .75,
+        Math.min(1.8, zoom)
+    );
+
+    draw();
+
+}, { passive:false });
+
+
+/* -------------------------------------------------
+   DIBUJAR
+------------------------------------------------- */
+
+function draw() {
+
+    drawBackground();
+
+    drawStars();
+
+    drawGlobe();
+}
+
+
+/* -------------------------------------------------
+   INICIAR
+------------------------------------------------- */
+
+resize();
+
 </script>
 
 </body>
