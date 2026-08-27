@@ -1,16 +1,445 @@
+const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
+const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
+
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teen Map</title>
+
+  <title>Teen Map — Join</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #071a2b, #164b68);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 430px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .subtitle {
+      text-align: center;
+      opacity: .8;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 7px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 15px;
+      border: 0;
+      border-radius: 13px;
+      background: #ff78b7;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .secondary {
+      background: rgba(255,255,255,.18);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    .privacy {
+      font-size: 12px;
+      opacity: .7;
+      line-height: 1.5;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>🌎 Teen Map</h1>
+<div class="card">
 
-<p>Login coming soon...</p>
+  <!-- LOGIN -->
+
+  <section id="auth">
+
+    <h1>🌎 Teen Map</h1>
+
+    <p class="subtitle">
+      Connect. Discover. Belong.
+    </p>
+
+    <label>Email</label>
+    <input
+      id="email"
+      type="email"
+      placeholder="your@email.com"
+    >
+
+    <label>Password</label>
+    <input
+      id="password"
+      type="password"
+      placeholder="At least 6 characters"
+    >
+
+    <button onclick="createAccount()">
+      Create account
+    </button>
+
+    <button
+      class="secondary"
+      onclick="login()">
+      Log in
+    </button>
+
+    <p class="privacy">
+      🔒 Teen Map uses general regions only.
+      We do not collect exact GPS locations.
+    </p>
+
+  </section>
+
+
+  <!-- PROFILE -->
+
+  <section
+    id="profile"
+    class="hidden">
+
+    <h1>👤 Your profile</h1>
+
+    <p class="subtitle">
+      Tell us a little about yourself.
+    </p>
+
+    <label>Username</label>
+    <input id="username" type="text">
+
+    <label>Country</label>
+    <input id="country" type="text">
+
+    <label>Region</label>
+    <input id="region" type="text">
+
+    <label>Languages</label>
+    <input id="languages" type="text">
+
+    <label>Interests</label>
+    <input id="interests" type="text">
+
+    <button onclick="saveProfile()">
+      🌎 Join Teen Map
+    </button>
+
+  </section>
+
+  <div id="message"></div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   SUPABASE
+========================================== */
+
+const SUPABASE_URL =
+  "PEGA_AQUI_TU_PROJECT_URL";
+
+const SUPABASE_KEY =
+  "PEGA_AQUI_TU_PUBLISHABLE_KEY";
+
+
+const client =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* ==========================================
+   MENSAJE
+========================================== */
+
+function message(text) {
+
+  document.getElementById("message")
+    .textContent = text;
+
+}
+
+
+/* ==========================================
+   CREAR CUENTA
+========================================== */
+
+async function createAccount() {
+
+  const email =
+    document.getElementById("email")
+      .value.trim();
+
+  const password =
+    document.getElementById("password")
+      .value;
+
+
+  if (!email || !password) {
+
+    message("Enter your email and password.");
+
+    return;
+  }
+
+
+  if (password.length < 6) {
+
+    message("Password must have at least 6 characters.");
+
+    return;
+  }
+
+
+  message("Creating account...");
+
+
+  const { data, error } =
+    await client.auth.signUp({
+
+      email: email,
+
+      password: password
+
+    });
+
+
+  if (error) {
+
+    message(error.message);
+
+    return;
+  }
+
+
+  if (data.session) {
+
+    showProfile();
+
+  } else {
+
+    message(
+      "Account created! Check your email to confirm it."
+    );
+
+  }
+
+}
+
+
+/* ==========================================
+   LOGIN
+========================================== */
+
+async function login() {
+
+  const email =
+    document.getElementById("email")
+      .value.trim();
+
+  const password =
+    document.getElementById("password")
+      .value;
+
+
+  message("Logging in...");
+
+
+  const { data, error } =
+    await client.auth.signInWithPassword({
+
+      email: email,
+
+      password: password
+
+    });
+
+
+  if (error) {
+
+    message(error.message);
+
+    return;
+  }
+
+
+  showProfile();
+
+}
+
+
+/* ==========================================
+   MOSTRAR PERFIL
+========================================== */
+
+function showProfile() {
+
+  document
+    .getElementById("auth")
+    .classList.add("hidden");
+
+  document
+    .getElementById("profile")
+    .classList.remove("hidden");
+
+  message("");
+
+}
+
+
+/* ==========================================
+   GUARDAR PERFIL
+========================================== */
+
+async function saveProfile() {
+
+  const username =
+    document.getElementById("username")
+      .value.trim();
+
+  const country =
+    document.getElementById("country")
+      .value.trim();
+
+  const region =
+    document.getElementById("region")
+      .value.trim();
+
+  const languages =
+    document.getElementById("languages")
+      .value.trim();
+
+  const interests =
+    document.getElementById("interests")
+      .value.trim();
+
+
+  if (
+    !username ||
+    !country ||
+    !region ||
+    !languages ||
+    !interests
+  ) {
+
+    message("Please complete every field.");
+
+    return;
+  }
+
+
+  const {
+    data: {
+      user
+    }
+  } =
+    await client.auth.getUser();
+
+
+  if (!user) {
+
+    message("Please log in again.");
+
+    return;
+  }
+
+
+  message("Saving profile...");
+
+
+  const { error } =
+    await client
+      .from("profiles")
+      .insert({
+
+        username: username,
+
+        country: country,
+
+        region: region,
+
+        languages: languages,
+
+        interests: interests
+
+      });
+
+
+  if (error) {
+
+    console.error(error);
+
+    message(
+      "Error saving profile: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  message(
+    "🎉 Welcome to Teen Map!"
+  );
+
+}
+
+</script>
 
 </body>
 </html>
