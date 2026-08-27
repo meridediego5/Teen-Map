@@ -3,44 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      content="width=device-width, initial-scale=1.0,
+      maximum-scale=5.0,user-scalable=yes">
 
 <title>Teen Map 🌎</title>
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #061426;
-    font-family: Arial, sans-serif;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#061426;
+  font-family:Arial,sans-serif;
 }
 
-canvas {
-    width: 100vw;
-    height: 100vh;
-    display: block;
-    touch-action: none;
+#globe{
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
 }
 
-.title {
-    position: fixed;
-    top: 18px;
-    left: 18px;
-    z-index: 10;
+.title{
+  position:fixed;
+  top:18px;
+  left:18px;
+  z-index:10;
 
-    padding: 10px 16px;
+  color:white;
+  font-size:24px;
+  font-weight:bold;
 
-    color: white;
-    font-size: 23px;
-    font-weight: bold;
+  background:rgba(0,0,0,.4);
+  padding:10px 16px;
+  border-radius:16px;
 
-    background: rgba(0,0,0,.35);
-    border-radius: 16px;
-
-    backdrop-filter: blur(8px);
+  backdrop-filter:blur(8px);
 }
 </style>
 </head>
@@ -53,628 +52,439 @@ canvas {
 
 <script>
 
-const canvas = document.getElementById("globe");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("globe");
+const ctx=canvas.getContext("2d");
 
-let W = 0;
-let H = 0;
-let DPR = 1;
+let W,H,DPR;
+let rotation=0;
+let tilt=0;
+let zoom=1;
 
-let centerX = 0;
-let centerY = 0;
-let radius = 0;
+let dragging=false;
+let lastX=0;
+let lastY=0;
 
-/* Rotación */
-let rotationX = -0.15;
-let rotationY = -0.45;
+function resize(){
 
-/* Interacción */
-let dragging = false;
-let lastX = 0;
-let lastY = 0;
+  W=innerWidth;
+  H=innerHeight;
 
-let zoom = 1;
+  DPR=Math.min(devicePixelRatio||1,2);
 
-/* -------------------------------------------------
-   CONTINENTES
-------------------------------------------------- */
+  canvas.width=W*DPR;
+  canvas.height=H*DPR;
 
-const continents = [
+  canvas.style.width=W+"px";
+  canvas.style.height=H+"px";
 
-    /* Norteamérica */
-    [
-        [-168, 72],
-        [-145, 70],
-        [-130, 62],
-        [-120, 55],
-        [-105, 50],
-        [-95, 48],
-        [-85, 46],
-        [-75, 40],
-        [-67, 45],
-        [-60, 50],
-        [-65, 58],
-        [-80, 65],
-        [-100, 70],
-        [-125, 75],
-        [-150, 75]
-    ],
+  ctx.setTransform(DPR,0,0,DPR,0,0);
 
-    /* Sudamérica */
-    [
-        [-82, 12],
-        [-75, 5],
-        [-70, -5],
-        [-66, -15],
-        [-60, -25],
-        [-55, -35],
-        [-50, -50],
-        [-55, -55],
-        [-65, -50],
-        [-70, -35],
-        [-75, -20],
-        [-80, -5]
-    ],
+  draw();
+}
 
-    /* Europa */
-    [
-        [-10, 36],
-        [0, 43],
-        [10, 45],
-        [20, 50],
-        [30, 55],
-        [40, 58],
-        [45, 65],
-        [30, 70],
-        [15, 65],
-        [5, 60],
-        [-5, 55],
-        [-10, 48]
-    ],
-
-    /* África */
-    [
-        [-17, 35],
-        [-5, 37],
-        [10, 35],
-        [25, 30],
-        [35, 15],
-        [40, 0],
-        [35, -15],
-        [25, -30],
-        [15, -35],
-        [5, -30],
-        [-5, -15],
-        [-12, 0],
-        [-18, 20]
-    ],
-
-    /* Asia */
-    [
-        [35, 65],
-        [55, 70],
-        [80, 72],
-        [110, 68],
-        [135, 60],
-        [150, 50],
-        [145, 40],
-        [130, 35],
-        [120, 25],
-        [105, 20],
-        [90, 25],
-        [75, 35],
-        [60, 40],
-        [45, 50]
-    ],
-
-    /* Australia */
-    [
-        [112, -10],
-        [130, -12],
-        [145, -18],
-        [153, -28],
-        [150, -40],
-        [135, -42],
-        [120, -35],
-        [112, -25]
-    ],
-
-    /* Groenlandia */
-    [
-        [-55, 60],
-        [-40, 65],
-        [-25, 75],
-        [-40, 82],
-        [-60, 78],
-        [-65, 68]
-    ]
-
-];
+window.addEventListener("resize",resize);
 
 
-/* -------------------------------------------------
-   CONVERSIÓN 3D
-------------------------------------------------- */
+/* -----------------------
+   PROYECCIÓN DEL PLANETA
+----------------------- */
 
-function latLonTo3D(lat, lon) {
+function project(lat,lon){
 
-    const latR = lat * Math.PI / 180;
-    const lonR = lon * Math.PI / 180;
+  let la=lat*Math.PI/180;
+  let lo=(lon+rotation)*Math.PI/180;
 
-    let x = Math.cos(latR) * Math.cos(lonR);
-    let y = Math.sin(latR);
-    let z = Math.cos(latR) * Math.sin(lonR);
+  let x=Math.cos(la)*Math.sin(lo);
+  let y=Math.sin(la);
+  let z=Math.cos(la)*Math.cos(lo);
 
-    /* Rotación vertical */
-    const cosX = Math.cos(rotationX);
-    const sinX = Math.sin(rotationX);
+  let scale=Math.min(W,H)*.38*zoom;
 
-    let y1 = y * cosX - z * sinX;
-    let z1 = y * sinX + z * cosX;
-
-    /* Rotación horizontal */
-    const cosY = Math.cos(rotationY);
-    const sinY = Math.sin(rotationY);
-
-    let x2 = x * cosY - z1 * sinY;
-    let z2 = x * sinY + z1 * cosY;
-
-    return {
-        x: x2,
-        y: y1,
-        z: z2
-    };
+  return{
+    x:W/2+x*scale,
+    y:H/2-y*scale,
+    z:z
+  };
 }
 
 
-/* -------------------------------------------------
-   PROYECCIÓN
-------------------------------------------------- */
-
-function project(p) {
-
-    const scale = radius * zoom;
-
-    return {
-        x: centerX + p.x * scale,
-        y: centerY - p.y * scale,
-        z: p.z
-    };
-}
-
-
-/* -------------------------------------------------
-   RESIZE
-------------------------------------------------- */
-
-function resize() {
-
-    W = window.innerWidth;
-    H = window.innerHeight;
-
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-
-    canvas.width = W * DPR;
-    canvas.height = H * DPR;
-
-    canvas.style.width = W + "px";
-    canvas.style.height = H + "px";
-
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-
-    centerX = W / 2;
-    centerY = H / 2;
-
-    radius = Math.min(W, H) * 0.34;
-
-    draw();
-}
-
-window.addEventListener("resize", resize);
-
-
-/* -------------------------------------------------
+/* -----------------------
    FONDO
-------------------------------------------------- */
+----------------------- */
 
-function drawBackground() {
+function background(){
 
-    const gradient = ctx.createRadialGradient(
-        centerX,
-        centerY,
-        radius * .2,
-        centerX,
-        centerY,
-        radius * 2
-    );
+  ctx.fillStyle="#061426";
+  ctx.fillRect(0,0,W,H);
 
-    gradient.addColorStop(0, "#102d50");
-    gradient.addColorStop(1, "#030914");
+  for(let i=0;i<100;i++){
 
-    ctx.fillStyle = gradient;
+    let x=(i*97)%W;
+    let y=(i*53)%H;
 
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle="rgba(255,255,255,.7)";
+
+    ctx.fillRect(x,y,1,1);
+  }
 }
 
 
-/* -------------------------------------------------
-   ESTRELLAS
-------------------------------------------------- */
-
-const stars = [];
-
-for (let i = 0; i < 120; i++) {
-
-    stars.push({
-        x: Math.random(),
-        y: Math.random(),
-        size: Math.random() * 1.8 + .3
-    });
-}
-
-function drawStars() {
-
-    ctx.fillStyle = "rgba(255,255,255,.75)";
-
-    for (const star of stars) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            star.x * W,
-            star.y * H,
-            star.size,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
-}
-
-
-/* -------------------------------------------------
+/* -----------------------
    GLOBO
-------------------------------------------------- */
+----------------------- */
 
-function drawGlobe() {
+function globe(){
 
-    const r = radius * zoom;
+  let r=Math.min(W,H)*.38*zoom;
 
-    /* Atmósfera */
+  let gradient=ctx.createRadialGradient(
+    W/2-r*.35,
+    H/2-r*.4,
+    r*.1,
+    W/2,
+    H/2,
+    r
+  );
 
-    const atmosphere = ctx.createRadialGradient(
-        centerX - r * .35,
-        centerY - r * .35,
-        r * .1,
-        centerX,
-        centerY,
-        r * 1.2
-    );
+  gradient.addColorStop(0,"#61d5ff");
+  gradient.addColorStop(.5,"#168bd0");
+  gradient.addColorStop(1,"#06345f");
 
-    atmosphere.addColorStop(0, "#66d9ff");
-    atmosphere.addColorStop(.45, "#178bd1");
-    atmosphere.addColorStop(1, "#06345e");
+  ctx.beginPath();
+
+  ctx.arc(
+    W/2,
+    H/2,
+    r,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle=gradient;
+  ctx.fill();
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    W/2,
+    H/2,
+    r,
+    0,
+    Math.PI*2
+  );
+
+  ctx.clip();
+
+
+  /* MERIDIANOS */
+
+  ctx.strokeStyle="rgba(255,255,255,.18)";
+  ctx.lineWidth=1;
+
+  for(let lon=-180;lon<=180;lon+=30){
 
     ctx.beginPath();
 
-    ctx.arc(
-        centerX,
-        centerY,
-        r,
-        0,
-        Math.PI * 2
-    );
+    let first=true;
 
-    ctx.fillStyle = atmosphere;
-    ctx.fill();
+    for(let lat=-90;lat<=90;lat+=3){
 
+      let p=project(lat,lon);
 
-    /* Brillo atmosférico */
+      if(p.z<0)continue;
 
-    ctx.beginPath();
-
-    ctx.arc(
-        centerX,
-        centerY,
-        r + 4,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.strokeStyle = "rgba(100,220,255,.5)";
-    ctx.lineWidth = 5;
+      if(first){
+        ctx.moveTo(p.x,p.y);
+        first=false;
+      }else{
+        ctx.lineTo(p.x,p.y);
+      }
+    }
 
     ctx.stroke();
+  }
 
 
-    /* Recortar al planeta */
+  /* PARALELOS */
 
-    ctx.save();
-
-    ctx.beginPath();
-
-    ctx.arc(
-        centerX,
-        centerY,
-        r,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.clip();
-
-
-    /* Latitudes */
-
-    drawLatitudeLines(r);
-
-    /* Longitudes */
-
-    drawLongitudeLines(r);
-
-    /* Continentes */
-
-    drawContinents(r);
-
-
-    ctx.restore();
-
-
-    /* Sombra lateral */
-
-    const shadow = ctx.createRadialGradient(
-        centerX + r * .5,
-        centerY,
-        r * .1,
-        centerX + r * .6,
-        centerY,
-        r
-    );
-
-    shadow.addColorStop(0, "rgba(0,0,0,0)");
-    shadow.addColorStop(1, "rgba(0,0,0,.55)");
+  for(let lat=-60;lat<=60;lat+=30){
 
     ctx.beginPath();
 
-    ctx.arc(
-        centerX,
-        centerY,
-        r,
-        0,
-        Math.PI * 2
-    );
+    let first=true;
 
-    ctx.fillStyle = shadow;
-    ctx.fill();
+    for(let lon=-180;lon<=180;lon+=3){
 
+      let p=project(lat,lon);
 
-    /* Borde */
+      if(p.z<0)continue;
 
-    ctx.beginPath();
-
-    ctx.arc(
-        centerX,
-        centerY,
-        r,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.strokeStyle = "rgba(160,235,255,.9)";
-    ctx.lineWidth = 2;
+      if(first){
+        ctx.moveTo(p.x,p.y);
+        first=false;
+      }else{
+        ctx.lineTo(p.x,p.y);
+      }
+    }
 
     ctx.stroke();
+  }
+
+
+  /*
+  CONTINENTES
+  -----------------
+  Coordenadas simplificadas
+  pero basadas en las formas
+  geográficas reales.
+  */
+
+  const countries=[
+
+    [[-10,36],[0,42],[10,45],[20,50],[30,55],
+     [40,60],[35,45],[25,40],[15,35],[5,37]],
+
+    [[-18,35],[-5,37],[10,35],[25,30],
+     [35,15],[40,0],[30,-20],[20,-35],
+     [5,-30],[-5,-15],[-15,5]],
+
+    [[-80,10],[-70,5],[-65,-10],[-60,-25],
+     [-55,-40],[-60,-55],[-70,-45],
+     [-75,-20],[-80,0]],
+
+    [[-168,65],[-145,70],[-120,60],
+     [-100,50],[-80,45],[-65,50],
+     [-75,35],[-100,30],[-120,40],
+     [-145,50]],
+
+    [[30,65],[60,70],[90,72],[120,65],
+     [145,55],[150,40],[130,30],
+     [110,20],[90,25],[70,35],
+     [50,45]],
+
+    [[112,-10],[130,-12],[145,-20],
+     [153,-30],[145,-40],[125,-38],
+     [112,-25]],
+
+    [[-55,60],[-40,70],[-25,78],
+     [-45,82],[-60,75]]
+  ];
+
+
+  ctx.fillStyle="#62c76c";
+  ctx.strokeStyle="#24743d";
+  ctx.lineWidth=1;
+
+
+  countries.forEach(shape=>{
+
+    ctx.beginPath();
+
+    let first=true;
+
+    shape.forEach(point=>{
+
+      let p=project(point[1],point[0]);
+
+      if(p.z<0)return;
+
+      if(first){
+
+        ctx.moveTo(p.x,p.y);
+        first=false;
+
+      }else{
+
+        ctx.lineTo(p.x,p.y);
+
+      }
+
+    });
+
+    ctx.closePath();
+
+    ctx.fill();
+    ctx.stroke();
+
+  });
+
+
+  ctx.restore();
+
+
+  /* ATMÓSFERA */
+
+  ctx.beginPath();
+
+  ctx.arc(
+    W/2,
+    H/2,
+    r+4,
+    0,
+    Math.PI*2
+  );
+
+  ctx.strokeStyle="rgba(120,220,255,.7)";
+  ctx.lineWidth=4;
+
+  ctx.stroke();
 }
 
 
-/* -------------------------------------------------
-   LATITUDES
-------------------------------------------------- */
-
-function drawLatitudeLines(r) {
-
-    ctx.strokeStyle = "rgba(255,255,255,.18)";
-    ctx.lineWidth = 1;
-
-    for (let lat = -60; lat <= 60; lat += 30) {
-
-        ctx.beginPath();
-
-        let started = false;
-
-        for (let lon = -180; lon <= 180; lon += 4) {
-
-            const p3 = latLonTo3D(lat, lon);
-
-            if (p3.z < 0) continue;
-
-            const p = project(p3);
-
-            if (!started) {
-                ctx.moveTo(p.x, p.y);
-                started = true;
-            } else {
-                ctx.lineTo(p.x, p.y);
-            }
-        }
-
-        ctx.stroke();
-    }
-}
-
-
-/* -------------------------------------------------
-   LONGITUDES
-------------------------------------------------- */
-
-function drawLongitudeLines(r) {
-
-    ctx.strokeStyle = "rgba(255,255,255,.16)";
-    ctx.lineWidth = 1;
-
-    for (let lon = -150; lon <= 150; lon += 30) {
-
-        ctx.beginPath();
-
-        let started = false;
-
-        for (let lat = -90; lat <= 90; lat += 4) {
-
-            const p3 = latLonTo3D(lat, lon);
-
-            if (p3.z < 0) continue;
-
-            const p = project(p3);
-
-            if (!started) {
-                ctx.moveTo(p.x, p.y);
-                started = true;
-            } else {
-                ctx.lineTo(p.x, p.y);
-            }
-        }
-
-        ctx.stroke();
-    }
-}
-
-
-/* -------------------------------------------------
-   CONTINENTES
-------------------------------------------------- */
-
-function drawContinents() {
-
-    for (const continent of continents) {
-
-        ctx.beginPath();
-
-        let started = false;
-
-        for (const point of continent) {
-
-            const lon = point[0];
-            const lat = point[1];
-
-            const p3 = latLonTo3D(lat, lon);
-
-            if (p3.z < 0) continue;
-
-            const p = project(p3);
-
-            if (!started) {
-
-                ctx.moveTo(p.x, p.y);
-
-                started = true;
-
-            } else {
-
-                ctx.lineTo(p.x, p.y);
-            }
-        }
-
-        ctx.closePath();
-
-        ctx.fillStyle = "#5fc56c";
-
-        ctx.fill();
-
-        ctx.strokeStyle = "rgba(20,80,40,.7)";
-        ctx.lineWidth = 1.2;
-
-        ctx.stroke();
-    }
-}
-
-
-/* -------------------------------------------------
-   INTERACCIÓN
-------------------------------------------------- */
-
-canvas.addEventListener("pointerdown", function(e) {
-
-    dragging = true;
-
-    lastX = e.clientX;
-    lastY = e.clientY;
-
-    canvas.setPointerCapture(e.pointerId);
-});
-
-
-canvas.addEventListener("pointermove", function(e) {
-
-    if (!dragging) return;
-
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-
-    rotationY += dx * .008;
-    rotationX += dy * .008;
-
-    rotationX = Math.max(
-        -1.4,
-        Math.min(1.4, rotationX)
-    );
-
-    lastX = e.clientX;
-    lastY = e.clientY;
-
-    draw();
-});
-
-
-canvas.addEventListener("pointerup", function() {
-
-    dragging = false;
-
-});
-
-
-canvas.addEventListener("pointercancel", function() {
-
-    dragging = false;
-
-});
-
-
-/* Zoom con rueda */
-
-canvas.addEventListener("wheel", function(e) {
-
-    e.preventDefault();
-
-    zoom += e.deltaY * -0.001;
-
-    zoom = Math.max(
-        .75,
-        Math.min(1.8, zoom)
-    );
-
-    draw();
-
-}, { passive:false });
-
-
-/* -------------------------------------------------
+/* -----------------------
    DIBUJAR
-------------------------------------------------- */
+----------------------- */
 
-function draw() {
+function draw(){
 
-    drawBackground();
+  background();
+  globe();
 
-    drawStars();
-
-    drawGlobe();
 }
 
 
-/* -------------------------------------------------
-   INICIAR
-------------------------------------------------- */
+/* -----------------------
+   GIRAR CON UN DEDO
+----------------------- */
+
+canvas.addEventListener("pointerdown",e=>{
+
+  dragging=true;
+
+  lastX=e.clientX;
+  lastY=e.clientY;
+
+});
+
+
+canvas.addEventListener("pointermove",e=>{
+
+  if(!dragging)return;
+
+  let dx=e.clientX-lastX;
+
+  rotation+=dx*.35;
+
+  lastX=e.clientX;
+  lastY=e.clientY;
+
+  draw();
+
+});
+
+
+canvas.addEventListener("pointerup",()=>{
+
+  dragging=false;
+
+});
+
+
+canvas.addEventListener("pointercancel",()=>{
+
+  dragging=false;
+
+});
+
+
+/* -----------------------
+   ZOOM CON RUEDA
+----------------------- */
+
+canvas.addEventListener("wheel",e=>{
+
+  e.preventDefault();
+
+  zoom-=e.deltaY*.001;
+
+  zoom=Math.max(.7,Math.min(2.5,zoom));
+
+  draw();
+
+},{passive:false});
+
+
+/* -----------------------
+   ZOOM CON DOS DEDOS
+----------------------- */
+
+let fingers=new Map();
+let previousDistance=null;
+
+canvas.addEventListener("pointerdown",e=>{
+
+  fingers.set(e.pointerId,{
+    x:e.clientX,
+    y:e.clientY
+  });
+
+});
+
+
+canvas.addEventListener("pointermove",e=>{
+
+  if(fingers.has(e.pointerId)){
+
+    fingers.set(e.pointerId,{
+      x:e.clientX,
+      y:e.clientY
+    });
+
+  }
+
+  if(fingers.size===2){
+
+    let points=[...fingers.values()];
+
+    let dx=points[0].x-points[1].x;
+    let dy=points[0].y-points[1].y;
+
+    let distance=Math.sqrt(dx*dx+dy*dy);
+
+    if(previousDistance!==null){
+
+      zoom*=distance/previousDistance;
+
+      zoom=Math.max(.7,Math.min(2.5,zoom));
+
+      draw();
+
+    }
+
+    previousDistance=distance;
+
+  }
+
+});
+
+
+canvas.addEventListener("pointerup",e=>{
+
+  fingers.delete(e.pointerId);
+
+  if(fingers.size<2){
+
+    previousDistance=null;
+
+  }
+
+});
+
+
+canvas.addEventListener("pointercancel",e=>{
+
+  fingers.delete(e.pointerId);
+
+  if(fingers.size<2){
+
+    previousDistance=null;
+
+  }
+
+});
+
 
 resize();
 
