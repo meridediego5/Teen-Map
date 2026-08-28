@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-  const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
-  const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
-</script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
   <title>Teen Map</title>
-
+  <!-- =================================================
+       🔑 SUPABASE
+       ================================================= -->
+  <script>
+    const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
+    const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
+  </script>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       min-height: 100vh;
@@ -21,7 +28,6 @@
       align-items: center;
       padding: 20px;
     }
-
     .card {
       width: 100%;
       max-width: 430px;
@@ -29,20 +35,28 @@
       border-radius: 25px;
       padding: 30px;
     }
-
     h1 {
       text-align: center;
+      margin-top: 0;
     }
-
+    .subtitle {
+      text-align: center;
+      opacity: 0.85;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
     input {
       width: 100%;
       padding: 14px;
-      margin: 8px 0 12px;
       border: none;
       border-radius: 12px;
-      box-sizing: border-box;
+      font-size: 16px;
     }
-
     button {
       width: 100%;
       padding: 15px;
@@ -53,98 +67,75 @@
       color: white;
       font-size: 17px;
       font-weight: bold;
-      cursor: pointer;
     }
-
     #message {
       margin-top: 20px;
       text-align: center;
       font-weight: bold;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
     }
   </style>
 </head>
-
 <body>
-
   <div class="card">
-
     <h1>🌎 Teen Map</h1>
-
-    <p>
+    <p class="subtitle">
       See the world through teenagers’ eyes.
     </p>
-
-    <label>Email</label>
-
+    <label for="email">
+      Email
+    </label>
     <input
       id="email"
       type="email"
       placeholder="your@email.com">
-
-    <label>Password</label>
-
+    <label for="password">
+      Password
+    </label>
     <input
       id="password"
       type="password"
       placeholder="Your password">
-
     <button
       type="button"
       id="createButton">
       Create account
     </button>
-
-    <div id="message"></div>
-
+    <div id="message">
+      Page loaded successfully.
+    </div>
   </div>
-
-
- <script>
-
-const client = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-const button = document.getElementById("createButton");
-const message = document.getElementById("message");
-
-button.addEventListener("click", async function () {
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  if (!email || !password) {
-    message.textContent = "Please enter your email and password.";
-    return;
-  }
-
-  if (password.length < 6) {
-    message.textContent = "Password must have at least 6 characters.";
-    return;
-  }
-
-  message.textContent = "Creating account...";
-
-  const { data, error } = await client.auth.signUp({
-    email: email,
-    password: password
-  });
-
-  if (error) {
-    message.textContent = "Supabase error: " + error.message;
-    return;
-  }
-
-  if (data.session) {
-    message.textContent = "🎉 Account created!";
-  } else {
-    message.textContent = "🎉 Account created! Check your email.";
-  }
-
-});
-
-</script>
-
+  <script>
+    /* =================================================
+       MOSTRAR CUALQUIER ERROR EN PANTALLA
+       ================================================= */
+    window.onerror = function (
+      message,
+      source,
+      line,
+      column,
+      error
+    ) {
+      document.getElementById("message").textContent =
+        "JAVASCRIPT ERROR: " + message +
+        " | Line: " + line;
+      return false;
+    };
+    /* =================================================
+       PRUEBA DEL BOTÓN
+       ================================================= */
+    const button =
+      document.getElementById("createButton");
+    const message =
+      document.getElementById("message");
+    button.addEventListener(
+      "click",
+      function () {
+        message.textContent =
+          "✅ BUTTON WORKS";
+      }
+    );
+  </script>
 </body>
 </html>
