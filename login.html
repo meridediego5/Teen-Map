@@ -296,8 +296,37 @@ async function createAccount() {
 /* ==========================================
    LOGIN
 ========================================== */
+<button
+  class="google"
+  onclick="loginWithGoogle()">
+  Continue with Google
+</button>
 
-async function login() {
+<p class="or">or</p>
+
+<label>Email</label>
+<input
+  id="email"
+  type="email"
+  placeholder="your@email.com">
+
+<label>Password</label>
+<input
+  id="password"
+  type="password"
+  placeholder="Your password">
+
+<button onclick="createAccount()">
+  Create account
+</button>
+
+<button
+  class="secondary"
+  onclick="login()">
+  Log in
+</button>
+  
+  async function login() {
 
   const email =
     document.getElementById("email")
