@@ -1,36 +1,11 @@
-<!-- =====================================================
-     TEEN MAP — SUPABASE CONFIG
-     PON AQUÍ TUS DATOS
-     ===================================================== -->
-
-<script>
-const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
-const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
-</script>
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teen Map</title>
 
-  <!-- SUPABASE LIBRARY -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -47,40 +22,21 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       width: 100%;
       max-width: 430px;
       background: rgba(255,255,255,0.10);
-      backdrop-filter: blur(15px);
       border-radius: 25px;
       padding: 30px;
-      box-shadow: 0 15px 50px rgba(0,0,0,0.30);
     }
 
     h1 {
       text-align: center;
-      margin: 0 0 10px;
-      font-size: 32px;
-    }
-
-    .subtitle {
-      text-align: center;
-      opacity: 0.85;
-      line-height: 1.5;
-      margin-bottom: 25px;
-    }
-
-    label {
-      display: block;
-      margin-top: 14px;
-      margin-bottom: 7px;
-      font-size: 14px;
-      font-weight: bold;
     }
 
     input {
       width: 100%;
       padding: 14px;
+      margin: 8px 0 12px;
       border: none;
       border-radius: 12px;
-      font-size: 16px;
-      outline: none;
+      box-sizing: border-box;
     }
 
     button {
@@ -96,199 +52,43 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       cursor: pointer;
     }
 
-    .google {
-      background: white;
-      color: #222;
-    }
-
-    .secondary {
-      background: rgba(255,255,255,0.18);
-    }
-
-    .or {
-      text-align: center;
-      opacity: 0.7;
-      margin: 18px 0;
-    }
-
-    .privacy {
-      font-size: 12px;
-      opacity: 0.7;
-      line-height: 1.5;
+    #message {
       margin-top: 20px;
       text-align: center;
-    }
-
-    #message {
-      text-align: center;
-      margin-top: 18px;
       font-weight: bold;
-      line-height: 1.5;
-      word-break: break-word;
     }
-
-    .hidden {
-      display: none;
-    }
-
   </style>
-
 </head>
-
 
 <body>
 
   <div class="card">
 
-    <!-- =================================================
-         LOGIN
-         ================================================= -->
+    <h1>🌎 Teen Map</h1>
 
-    <section id="auth">
+    <p>
+      See the world through teenagers’ eyes.
+    </p>
 
-      <h1>🌎 Teen Map</h1>
+    <label>Email</label>
 
-      <p class="subtitle">
-        See the world through teenagers’ eyes.
-      </p>
+    <input
+      id="email"
+      type="email"
+      placeholder="your@email.com">
 
+    <label>Password</label>
 
-      <button
-        type="button"
-        class="google"
-        id="googleButton">
+    <input
+      id="password"
+      type="password"
+      placeholder="Your password">
 
-        Continue with Google
-
-      </button>
-
-
-      <p class="or">
-        or
-      </p>
-
-
-      <label for="email">
-        Email
-      </label>
-
-      <input
-        id="email"
-        type="email"
-        placeholder="your@email.com">
-
-
-      <label for="password">
-        Password
-      </label>
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Your password">
-
-
-      <button
-        type="button"
-        id="createButton">
-
-        Create account
-
-      </button>
-
-
-      <button
-        type="button"
-        class="secondary"
-        id="loginButton">
-
-        Log in
-
-      </button>
-
-
-      <p class="privacy">
-
-        🔒 Teen Map uses general regions only.
-        We do not collect exact GPS locations.
-
-      </p>
-
-    </section>
-
-
-    <!-- =================================================
-         PROFILE
-         ================================================= -->
-
-    <section
-      id="profile"
-      class="hidden">
-
-      <h1>
-        👤 Your profile
-      </h1>
-
-      <p class="subtitle">
-        Tell us a little about yourself.
-      </p>
-
-
-      <label for="username">
-        Username
-      </label>
-
-      <input
-        id="username"
-        type="text">
-
-
-      <label for="country">
-        Country
-      </label>
-
-      <input
-        id="country"
-        type="text">
-
-
-      <label for="region">
-        Region
-      </label>
-
-      <input
-        id="region"
-        type="text">
-
-
-      <label for="languages">
-        Languages
-      </label>
-
-      <input
-        id="languages"
-        type="text">
-
-
-      <label for="interests">
-        Interests
-      </label>
-
-      <input
-        id="interests"
-        type="text">
-
-
-      <button
-        type="button"
-        id="saveButton">
-
-        🌎 Join Teen Map
-
-      </button>
-
-    </section>
-
+    <button
+      type="button"
+      id="createButton">
+      Create account
+    </button>
 
     <div id="message"></div>
 
@@ -297,511 +97,21 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
 
   <script>
 
-    /* =================================================
-       SUPABASE CLIENT
-       ================================================= */
+    const button =
+      document.getElementById("createButton");
 
-    const client =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+    const message =
+      document.getElementById("message");
 
 
-    /* =================================================
-       MESSAGE
-       ================================================= */
+    button.addEventListener("click", function () {
 
-    function message(text) {
+      message.textContent =
+        "✅ The Create account button works!";
 
-      document
-        .getElementById("message")
-        .textContent = text;
-
-    }
-
-
-    /* =================================================
-       GOOGLE
-       ================================================= */
-
-    async function loginWithGoogle() {
-
-      message("Connecting to Google...");
-
-      try {
-
-        const result =
-          await client.auth.signInWithOAuth({
-
-            provider: "google",
-
-            options: {
-
-              redirectTo:
-                "https://meridediego5.github.io/Teen-Map/login.html"
-
-            }
-
-          });
-
-
-        if (result.error) {
-
-          message(
-            "Google error: " +
-            result.error.message
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        message(
-          "Google error: " +
-          error.message
-        );
-
-      }
-
-    }
-
-
-    /* =================================================
-       CREATE ACCOUNT
-       ================================================= */
-
-    async function createAccount() {
-
-      const email =
-        document
-          .getElementById("email")
-          .value
-          .trim();
-
-
-      const password =
-        document
-          .getElementById("password")
-          .value;
-
-
-      if (!email) {
-
-        message(
-          "Please enter your email."
-        );
-
-        return;
-
-      }
-
-
-      if (!password) {
-
-        message(
-          "Please enter your password."
-        );
-
-        return;
-
-      }
-
-
-      if (password.length < 6) {
-
-        message(
-          "Password must have at least 6 characters."
-        );
-
-        return;
-
-      }
-
-
-      message("Creating account...");
-
-
-      try {
-
-        const result =
-          await client.auth.signUp({
-
-            email: email,
-
-            password: password,
-
-            options: {
-
-              emailRedirectTo:
-                "https://meridediego5.github.io/Teen-Map/login.html"
-
-            }
-
-          });
-
-
-        console.log(
-          "Supabase signUp result:",
-          result
-        );
-
-
-        if (result.error) {
-
-          message(
-            "Supabase error: " +
-            result.error.message
-          );
-
-          return;
-
-        }
-
-
-        if (result.data.session) {
-
-          showProfile();
-
-          return;
-
-        }
-
-
-        message(
-          "Account created! Check your email."
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "CREATE ACCOUNT ERROR:",
-          error
-        );
-
-
-        message(
-          "ERROR: " +
-          error.message
-        );
-
-      }
-
-    }
-
-
-    /* =================================================
-       LOGIN
-       ================================================= */
-
-    async function login() {
-
-      const email =
-        document
-          .getElementById("email")
-          .value
-          .trim();
-
-
-      const password =
-        document
-          .getElementById("password")
-          .value;
-
-
-      if (!email || !password) {
-
-        message(
-          "Enter your email and password."
-        );
-
-        return;
-
-      }
-
-
-      message("Logging in...");
-
-
-      try {
-
-        const result =
-          await client.auth.signInWithPassword({
-
-            email: email,
-
-            password: password
-
-          });
-
-
-        if (result.error) {
-
-          message(
-            "Supabase error: " +
-            result.error.message
-          );
-
-          return;
-
-        }
-
-
-        showProfile();
-
-      } catch (error) {
-
-        console.error(error);
-
-        message(
-          "ERROR: " +
-          error.message
-        );
-
-      }
-
-    }
-
-
-    /* =================================================
-       SHOW PROFILE
-       ================================================= */
-
-    function showProfile() {
-
-      document
-        .getElementById("auth")
-        .classList
-        .add("hidden");
-
-
-      document
-        .getElementById("profile")
-        .classList
-        .remove("hidden");
-
-
-      message("");
-
-    }
-
-
-    /* =================================================
-       SAVE PROFILE
-       ================================================= */
-
-    async function saveProfile() {
-
-      const username =
-        document
-          .getElementById("username")
-          .value
-          .trim();
-
-
-      const country =
-        document
-          .getElementById("country")
-          .value
-          .trim();
-
-
-      const region =
-        document
-          .getElementById("region")
-          .value
-          .trim();
-
-
-      const languages =
-        document
-          .getElementById("languages")
-          .value
-          .trim();
-
-
-      const interests =
-        document
-          .getElementById("interests")
-          .value
-          .trim();
-
-
-      if (
-        !username ||
-        !country ||
-        !region ||
-        !languages ||
-        !interests
-      ) {
-
-        message(
-          "Please complete every field."
-        );
-
-        return;
-
-      }
-
-
-      message("Saving profile...");
-
-
-      try {
-
-        const userResult =
-          await client.auth.getUser();
-
-
-        if (userResult.error) {
-
-          message(
-            userResult.error.message
-          );
-
-          return;
-
-        }
-
-
-        const user =
-          userResult.data.user;
-
-
-        if (!user) {
-
-          message(
-            "Please log in again."
-          );
-
-          return;
-
-        }
-
-
-        const result =
-          await client
-            .from("profiles")
-            .insert({
-
-              id: user.id,
-
-              username: username,
-
-              country: country,
-
-              region: region,
-
-              languages: languages,
-
-              interests: interests
-
-            });
-
-
-        if (result.error) {
-
-          message(
-            "Profile error: " +
-            result.error.message
-          );
-
-          return;
-
-        }
-
-
-        message(
-          "🎉 Welcome to Teen Map!"
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        message(
-          "ERROR: " +
-          error.message
-        );
-
-      }
-
-    }
-
-
-    /* =================================================
-       SESSION
-       ================================================= */
-
-    async function checkSession() {
-
-      try {
-
-        const result =
-          await client.auth.getSession();
-
-
-        if (
-          result.data &&
-          result.data.session
-        ) {
-
-          showProfile();
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-      }
-
-    }
-
-
-    /* =================================================
-       BUTTONS
-       ================================================= */
-
-    document
-      .getElementById("googleButton")
-      .addEventListener(
-        "click",
-        loginWithGoogle
-      );
-
-
-    document
-      .getElementById("createButton")
-      .addEventListener(
-        "click",
-        createAccount
-      );
-
-
-    document
-      .getElementById("loginButton")
-      .addEventListener(
-        "click",
-        login
-      );
-
-
-    document
-      .getElementById("saveButton")
-      .addEventListener(
-        "click",
-        saveProfile
-      );
-
-
-    checkSession();
+    });
 
   </script>
 
 </body>
-
 </html>
