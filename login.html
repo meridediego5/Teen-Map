@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+  const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
+  const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teen Map</title>
@@ -93,25 +97,104 @@
     <div id="message"></div>
 
   </div>
+<script>
+
+  /* ==========================================
+     SUPABASE
+     ========================================== */
+
+  const client =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
-  <script>
+  /* ==========================================
+     ELEMENTOS
+     ========================================== */
 
-    const button =
-      document.getElementById("createButton");
+  const button =
+    document.getElementById("createButton");
 
-    const message =
-      document.getElementById("message");
+  const message =
+    document.getElementById("message");
 
 
-    button.addEventListener("click", function () {
+  /* ==========================================
+     CREATE ACCOUNT
+     ========================================== */
+
+  button.addEventListener("click", async function () {
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+
+    if (!email || !password) {
 
       message.textContent =
-        "✅ The Create account button works!";
+        "Please enter your email and password.";
 
-    });
+      return;
+    }
 
-  </script>
+
+    if (password.length < 6) {
+
+      message.textContent =
+        "Password must have at least 6 characters.";
+
+      return;
+    }
+
+
+    message.textContent =
+      "Creating account...";
+
+
+    try {
+
+      const result =
+        await client.auth.signUp({
+
+          email: email,
+
+          password: password
+
+        });
+
+
+      if (result.error) {
+
+        message.textContent =
+          "Supabase error: " +
+          result.error.message;
+
+        return;
+      }
+
+
+      message.textContent =
+        "🎉 Account created! Check your email.";
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      message.textContent =
+        "Error: " + error.message;
+
+    }
+
+  });
+
+</script>
 
 </body>
 </html>
