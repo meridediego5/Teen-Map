@@ -1,19 +1,35 @@
+<!-- =========================================
+     🔑 SUPABASE — PON TUS DATOS AQUÍ ARRIBA
+     ========================================= -->
+
 <script>
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
 const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
 
+</script>
+
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
   <title>Teen Map</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
+
     * {
       box-sizing: border-box;
     }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -25,6 +41,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       align-items: center;
       padding: 20px;
     }
+
     .card {
       width: 100%;
       max-width: 430px;
@@ -34,17 +51,20 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       padding: 30px;
       box-shadow: 0 15px 50px rgba(0,0,0,0.30);
     }
+
     h1 {
       text-align: center;
       margin: 0 0 10px;
       font-size: 32px;
     }
+
     .subtitle {
       text-align: center;
       opacity: 0.85;
       line-height: 1.5;
       margin-bottom: 25px;
     }
+
     label {
       display: block;
       margin-top: 14px;
@@ -52,6 +72,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       font-size: 14px;
       font-weight: bold;
     }
+
     input {
       width: 100%;
       padding: 14px;
@@ -60,6 +81,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       font-size: 16px;
       outline: none;
     }
+
     button {
       width: 100%;
       padding: 15px;
@@ -72,18 +94,22 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       font-weight: bold;
       cursor: pointer;
     }
+
     .google {
       background: white;
       color: #222;
     }
+
     .secondary {
       background: rgba(255,255,255,0.18);
     }
+
     .or {
       text-align: center;
       opacity: 0.7;
       margin: 18px 0;
     }
+
     .privacy {
       font-size: 12px;
       opacity: 0.7;
@@ -91,200 +117,468 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       margin-top: 20px;
       text-align: center;
     }
+
     #message {
       text-align: center;
       margin-top: 18px;
       font-weight: bold;
     }
+
     .hidden {
       display: none;
     }
+
   </style>
+
 </head>
+
+
 <body>
+
   <div class="card">
-    <!-- LOGIN -->
+
     <section id="auth">
+
       <h1>🌎 Teen Map</h1>
+
       <p class="subtitle">
         See the world through teenagers’ eyes.
       </p>
+
+
       <button
         class="google"
         onclick="loginWithGoogle()">
+
         Continue with Google
+
       </button>
-      <p class="or">or</p>
-      <label for="email">Email</label>
+
+
+      <p class="or">
+        or
+      </p>
+
+
+      <label for="email">
+        Email
+      </label>
+
       <input
         id="email"
         type="email"
         placeholder="your@email.com">
-      <label for="password">Password</label>
+
+
+      <label for="password">
+        Password
+      </label>
+
       <input
         id="password"
         type="password"
         placeholder="Your password">
+
+
       <button onclick="createAccount()">
+
         Create account
+
       </button>
+
+
       <button
         class="secondary"
         onclick="login()">
+
         Log in
+
       </button>
+
+
       <p class="privacy">
+
         🔒 Teen Map uses general regions only.
         We do not collect exact GPS locations.
+
       </p>
+
     </section>
-    <!-- PROFILE -->
-    <section id="profile" class="hidden">
-      <h1>👤 Your profile</h1>
+
+
+    <section
+      id="profile"
+      class="hidden">
+
+      <h1>
+        👤 Your profile
+      </h1>
+
       <p class="subtitle">
         Tell us a little about yourself.
       </p>
-      <label for="username">Username</label>
-      <input id="username" type="text">
-      <label for="country">Country</label>
-      <input id="country" type="text">
-      <label for="region">Region</label>
-      <input id="region" type="text">
-      <label for="languages">Languages</label>
-      <input id="languages" type="text">
-      <label for="interests">Interests</label>
-      <input id="interests" type="text">
+
+
+      <label for="username">
+        Username
+      </label>
+
+      <input
+        id="username"
+        type="text">
+
+
+      <label for="country">
+        Country
+      </label>
+
+      <input
+        id="country"
+        type="text">
+
+
+      <label for="region">
+        Region
+      </label>
+
+      <input
+        id="region"
+        type="text">
+
+
+      <label for="languages">
+        Languages
+      </label>
+
+      <input
+        id="languages"
+        type="text">
+
+
+      <label for="interests">
+        Interests
+      </label>
+
+      <input
+        id="interests"
+        type="text">
+
+
       <button onclick="saveProfile()">
+
         🌎 Join Teen Map
+
       </button>
+
     </section>
+
+
     <div id="message"></div>
+
   </div>
+
+
   <script>
-    /* ================================
-       SUPABASE
-    ================================= */
-    const SUPABASE_URL = "TU_PROJECT_URL";
-    const SUPABASE_KEY = "TU_PUBLISHABLE_KEY";
-    const client = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-    /* ================================
+
+    /* =========================================
+       SUPABASE CONNECTION
+       ========================================= */
+
+    const client =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    /* =========================================
        MESSAGE
-    ================================= */
+       ========================================= */
+
     function message(text) {
-      document.getElementById("message").textContent = text;
+
+      document
+        .getElementById("message")
+        .textContent = text;
+
     }
-    /* ================================
+
+
+    /* =========================================
        GOOGLE LOGIN
-    ================================= */
+       ========================================= */
+
     async function loginWithGoogle() {
+
       message("Connecting to Google...");
-      const { error } = await client.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo:
-            "https://meridediego5.github.io/Teen-Map/login.html"
+
+      try {
+
+        const { error } =
+          await client.auth.signInWithOAuth({
+
+            provider: "google",
+
+            options: {
+
+              redirectTo:
+                "https://meridediego5.github.io/Teen-Map/login.html"
+
+            }
+
+          });
+
+
+        if (error) {
+
+          message(
+            "Google error: " +
+            error.message
+          );
+
         }
-      });
-      if (error) {
+
+      } catch (error) {
+
+        console.error(error);
+
         message(
-          "Google login error: " +
-          error.message
+          "Could not connect to Google."
         );
+
       }
+
     }
-    /* ================================
+
+
+    /* =========================================
        CREATE ACCOUNT
-    ================================= */
+       ========================================= */
+
     async function createAccount() {
+
       const email =
-        document.getElementById("email").value.trim();
+        document
+          .getElementById("email")
+          .value
+          .trim();
+
+
       const password =
-        document.getElementById("password").value;
+        document
+          .getElementById("password")
+          .value;
+
+
       if (!email || !password) {
+
         message(
           "Enter your email and password."
         );
+
         return;
+
       }
+
+
       if (password.length < 6) {
+
         message(
           "Password must have at least 6 characters."
         );
+
         return;
+
       }
+
+
       message("Creating account...");
-      const { data, error } =
-        await client.auth.signUp({
-          email: email,
-          password: password
-        });
-      if (error) {
-        message(error.message);
-        return;
-      }
-      if (data.session) {
-        showProfile();
-      } else {
+
+
+      try {
+
+        const { data, error } =
+          await client.auth.signUp({
+
+            email: email,
+
+            password: password
+
+          });
+
+
+        if (error) {
+
+          message(
+            "Error: " +
+            error.message
+          );
+
+          return;
+
+        }
+
+
+        if (data.session) {
+
+          showProfile();
+
+        } else {
+
+          message(
+            "Account created! Check your email to confirm it."
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
         message(
-          "Account created! Check your email to confirm it."
+          "Connection error. Please try again."
         );
+
       }
+
     }
-    /* ================================
-       EMAIL LOGIN
-    ================================= */
+
+
+    /* =========================================
+       LOGIN
+       ========================================= */
+
     async function login() {
+
       const email =
-        document.getElementById("email").value.trim();
+        document
+          .getElementById("email")
+          .value
+          .trim();
+
+
       const password =
-        document.getElementById("password").value;
+        document
+          .getElementById("password")
+          .value;
+
+
       if (!email || !password) {
+
         message(
           "Enter your email and password."
         );
+
         return;
+
       }
+
+
       message("Logging in...");
-      const { error } =
-        await client.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
-      if (error) {
-        message(error.message);
-        return;
+
+
+      try {
+
+        const { error } =
+          await client.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+          });
+
+
+        if (error) {
+
+          message(
+            error.message
+          );
+
+          return;
+
+        }
+
+
+        showProfile();
+
+      } catch (error) {
+
+        console.error(error);
+
+        message(
+          "Connection error. Please try again."
+        );
+
       }
-      showProfile();
+
     }
-    /* ================================
+
+
+    /* =========================================
        SHOW PROFILE
-    ================================= */
+       ========================================= */
+
     function showProfile() {
+
       document
         .getElementById("auth")
-        .classList.add("hidden");
+        .classList
+        .add("hidden");
+
+
       document
         .getElementById("profile")
-        .classList.remove("hidden");
+        .classList
+        .remove("hidden");
+
+
       message("");
+
     }
-    /* ================================
+
+
+    /* =========================================
        SAVE PROFILE
-    ================================= */
+       ========================================= */
+
     async function saveProfile() {
+
       const username =
-        document.getElementById("username").value.trim();
+        document
+          .getElementById("username")
+          .value
+          .trim();
+
+
       const country =
-        document.getElementById("country").value.trim();
+        document
+          .getElementById("country")
+          .value
+          .trim();
+
+
       const region =
-        document.getElementById("region").value.trim();
+        document
+          .getElementById("region")
+          .value
+          .trim();
+
+
       const languages =
-        document.getElementById("languages").value.trim();
+        document
+          .getElementById("languages")
+          .value
+          .trim();
+
+
       const interests =
-        document.getElementById("interests").value.trim();
+        document
+          .getElementById("interests")
+          .value
+          .trim();
+
+
       if (
         !username ||
         !country ||
@@ -292,58 +586,112 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
         !languages ||
         !interests
       ) {
+
         message(
           "Please complete every field."
         );
+
         return;
+
       }
+
+
       const {
         data: {
           user
         }
-      } = await client.auth.getUser();
+      } =
+        await client.auth.getUser();
+
+
       if (!user) {
+
         message(
           "Please log in again."
         );
+
         return;
+
       }
+
+
       message("Saving profile...");
+
+
       const { error } =
         await client
           .from("profiles")
           .insert({
+
             id: user.id,
+
             username: username,
+
             country: country,
+
             region: region,
+
             languages: languages,
+
             interests: interests
+
           });
+
+
       if (error) {
+
         console.error(error);
+
         message(
           "Error saving profile: " +
           error.message
         );
+
         return;
+
       }
+
+
       message(
         "🎉 Welcome to Teen Map!"
       );
+
     }
-    /* ================================
+
+
+    /* =========================================
        CHECK SESSION
-    ================================= */
+       ========================================= */
+
     async function checkSession() {
-      const {
-        data
-      } = await client.auth.getSession();
-      if (data.session) {
-        showProfile();
+
+      try {
+
+        const {
+          data
+        } =
+          await client.auth.getSession();
+
+
+        if (data.session) {
+
+          showProfile();
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
       }
+
     }
+
+
     checkSession();
+
   </script>
+
 </body>
+
 </html>
