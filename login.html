@@ -97,102 +97,52 @@
     <div id="message"></div>
 
   </div>
-<script>
-
-  /* ==========================================
-     SUPABASE
-     ========================================== */
-
-  const client =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
 
 
-  /* ==========================================
-     ELEMENTOS
-     ========================================== */
+ <script>
 
-  const button =
-    document.getElementById("createButton");
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-  const message =
-    document.getElementById("message");
+const button = document.getElementById("createButton");
+const message = document.getElementById("message");
 
+button.addEventListener("click", async function () {
 
-  /* ==========================================
-     CREATE ACCOUNT
-     ========================================== */
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-  button.addEventListener("click", async function () {
+  if (!email || !password) {
+    message.textContent = "Please enter your email and password.";
+    return;
+  }
 
-    const email =
-      document.getElementById("email").value.trim();
+  if (password.length < 6) {
+    message.textContent = "Password must have at least 6 characters.";
+    return;
+  }
 
-    const password =
-      document.getElementById("password").value;
+  message.textContent = "Creating account...";
 
-
-    if (!email || !password) {
-
-      message.textContent =
-        "Please enter your email and password.";
-
-      return;
-    }
-
-
-    if (password.length < 6) {
-
-      message.textContent =
-        "Password must have at least 6 characters.";
-
-      return;
-    }
-
-
-    message.textContent =
-      "Creating account...";
-
-
-    try {
-
-      const result =
-        await client.auth.signUp({
-
-          email: email,
-
-          password: password
-
-        });
-
-
-      if (result.error) {
-
-        message.textContent =
-          "Supabase error: " +
-          result.error.message;
-
-        return;
-      }
-
-
-      message.textContent =
-        "🎉 Account created! Check your email.";
-
-    }
-
-    catch (error) {
-
-      console.error(error);
-
-      message.textContent =
-        "Error: " + error.message;
-
-    }
-
+  const { data, error } = await client.auth.signUp({
+    email: email,
+    password: password
   });
+
+  if (error) {
+    message.textContent = "Supabase error: " + error.message;
+    return;
+  }
+
+  if (data.session) {
+    message.textContent = "🎉 Account created!";
+  } else {
+    message.textContent = "🎉 Account created! Check your email.";
+  }
+
+});
 
 </script>
 
