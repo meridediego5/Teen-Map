@@ -1,31 +1,15 @@
-<!-- =========================================
-     🔑 SUPABASE — PON TUS DATOS AQUÍ ARRIBA
-     ========================================= -->
-
-<script>
-const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
-const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
-
-</script>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teen Map</title>
 
+  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -127,16 +111,14 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
     .hidden {
       display: none;
     }
-
   </style>
-
 </head>
-
 
 <body>
 
   <div class="card">
 
+    <!-- LOGIN -->
     <section id="auth">
 
       <h1>🌎 Teen Map</h1>
@@ -145,133 +127,83 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
         See the world through teenagers’ eyes.
       </p>
 
-
       <button
+        type="button"
         class="google"
-        onclick="loginWithGoogle()">
-
+        id="googleButton">
         Continue with Google
-
       </button>
 
+      <p class="or">or</p>
 
-      <p class="or">
-        or
-      </p>
-
-
-      <label for="email">
-        Email
-      </label>
+      <label for="email">Email</label>
 
       <input
         id="email"
         type="email"
         placeholder="your@email.com">
 
-
-      <label for="password">
-        Password
-      </label>
+      <label for="password">Password</label>
 
       <input
         id="password"
         type="password"
         placeholder="Your password">
 
-
-      <button onclick="createAccount()">
-
+      <button
+        type="button"
+        id="createButton">
         Create account
-
       </button>
-
 
       <button
+        type="button"
         class="secondary"
-        onclick="login()">
-
+        id="loginButton">
         Log in
-
       </button>
 
-
       <p class="privacy">
-
         🔒 Teen Map uses general regions only.
         We do not collect exact GPS locations.
-
       </p>
 
     </section>
 
 
+    <!-- PROFILE -->
     <section
       id="profile"
       class="hidden">
 
-      <h1>
-        👤 Your profile
-      </h1>
+      <h1>👤 Your profile</h1>
 
       <p class="subtitle">
         Tell us a little about yourself.
       </p>
 
+      <label for="username">Username</label>
+      <input id="username" type="text">
 
-      <label for="username">
-        Username
-      </label>
+      <label for="country">Country</label>
+      <input id="country" type="text">
 
-      <input
-        id="username"
-        type="text">
+      <label for="region">Region</label>
+      <input id="region" type="text">
 
+      <label for="languages">Languages</label>
+      <input id="languages" type="text">
 
-      <label for="country">
-        Country
-      </label>
+      <label for="interests">Interests</label>
+      <input id="interests" type="text">
 
-      <input
-        id="country"
-        type="text">
-
-
-      <label for="region">
-        Region
-      </label>
-
-      <input
-        id="region"
-        type="text">
-
-
-      <label for="languages">
-        Languages
-      </label>
-
-      <input
-        id="languages"
-        type="text">
-
-
-      <label for="interests">
-        Interests
-      </label>
-
-      <input
-        id="interests"
-        type="text">
-
-
-      <button onclick="saveProfile()">
-
+      <button
+        type="button"
+        id="saveButton">
         🌎 Join Teen Map
-
       </button>
 
     </section>
-
 
     <div id="message"></div>
 
@@ -280,9 +212,28 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
 
   <script>
 
-    /* =========================================
-       SUPABASE CONNECTION
-       ========================================= */
+    /* ==================================================
+       🔑 SUPABASE
+       ==================================================
+
+       PEGA AQUÍ TUS DOS DATOS:
+
+       1. SUPABASE URL 
+       2. SUPABASE PUBLISHABLE KEY
+
+       NO PONGAS LA SECRET KEY.
+       ================================================== */
+
+    const SUPABASE_URL =https://wqzdzajhqoodtxauwqme.supabase.co
+      
+
+    const SUPABASE_KEY =sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
+
+
+
+    /* ==================================================
+       CREAR CONEXIÓN
+       ================================================== */
 
     const client =
       window.supabase.createClient(
@@ -291,9 +242,9 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       );
 
 
-    /* =========================================
-       MESSAGE
-       ========================================= */
+    /* ==================================================
+       MENSAJES
+       ================================================== */
 
     function message(text) {
 
@@ -304,9 +255,9 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
     }
 
 
-    /* =========================================
-       GOOGLE LOGIN
-       ========================================= */
+    /* ==================================================
+       GOOGLE
+       ================================================== */
 
     async function loginWithGoogle() {
 
@@ -314,7 +265,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
 
       try {
 
-        const { error } =
+        const result =
           await client.auth.signInWithOAuth({
 
             provider: "google",
@@ -329,11 +280,11 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
           });
 
 
-        if (error) {
+        if (result.error) {
 
           message(
             "Google error: " +
-            error.message
+            result.error.message
           );
 
         }
@@ -343,7 +294,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
         console.error(error);
 
         message(
-          "Could not connect to Google."
+          "Google connection error."
         );
 
       }
@@ -351,9 +302,9 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
     }
 
 
-    /* =========================================
-       CREATE ACCOUNT
-       ========================================= */
+    /* ==================================================
+       CREAR CUENTA
+       ================================================== */
 
     async function createAccount() {
 
@@ -363,18 +314,24 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
           .value
           .trim();
 
-
       const password =
         document
           .getElementById("password")
           .value;
 
 
-      if (!email || !password) {
+      if (!email) {
 
-        message(
-          "Enter your email and password."
-        );
+        message("Enter your email.");
+
+        return;
+
+      }
+
+
+      if (!password) {
+
+        message("Enter your password.");
 
         return;
 
@@ -397,21 +354,27 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
 
       try {
 
-        const { data, error } =
+        const result =
           await client.auth.signUp({
 
             email: email,
 
-            password: password
+            password: password,
+
+            options: {
+
+              emailRedirectTo:
+                "https://meridediego5.github.io/Teen-Map/login.html"
+
+            }
 
           });
 
 
-        if (error) {
+        if (result.error) {
 
           message(
-            "Error: " +
-            error.message
+            result.error.message
           );
 
           return;
@@ -419,7 +382,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
         }
 
 
-        if (data.session) {
+        if (result.data.session) {
 
           showProfile();
 
@@ -436,7 +399,8 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
         console.error(error);
 
         message(
-          "Connection error. Please try again."
+          "Connection error: " +
+          error.message
         );
 
       }
@@ -444,9 +408,9 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
     }
 
 
-    /* =========================================
+    /* ==================================================
        LOGIN
-       ========================================= */
+       ================================================== */
 
     async function login() {
 
@@ -455,7 +419,6 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
           .getElementById("email")
           .value
           .trim();
-
 
       const password =
         document
@@ -479,7 +442,7 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
 
       try {
 
-        const { error } =
+        const result =
           await client.auth.signInWithPassword({
 
             email: email,
@@ -489,10 +452,10 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
           });
 
 
-        if (error) {
+        if (result.error) {
 
           message(
-            error.message
+            result.error.message
           );
 
           return;
@@ -507,7 +470,8 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
         console.error(error);
 
         message(
-          "Connection error. Please try again."
+          "Connection error: " +
+          error.message
         );
 
       }
@@ -515,9 +479,9 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
     }
 
 
-    /* =========================================
-       SHOW PROFILE
-       ========================================= */
+    /* ==================================================
+       MOSTRAR PERFIL
+       ================================================== */
 
     function showProfile() {
 
@@ -538,9 +502,9 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
     }
 
 
-    /* =========================================
-       SAVE PROFILE
-       ========================================= */
+    /* ==================================================
+       GUARDAR PERFIL
+       ================================================== */
 
     async function saveProfile() {
 
@@ -550,13 +514,11 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
           .value
           .trim();
 
-
       const country =
         document
           .getElementById("country")
           .value
           .trim();
-
 
       const region =
         document
@@ -564,13 +526,11 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
           .value
           .trim();
 
-
       const languages =
         document
           .getElementById("languages")
           .value
           .trim();
-
 
       const interests =
         document
@@ -596,84 +556,107 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       }
 
 
-      const {
-        data: {
-          user
-        }
-      } =
-        await client.auth.getUser();
-
-
-      if (!user) {
-
-        message(
-          "Please log in again."
-        );
-
-        return;
-
-      }
-
-
       message("Saving profile...");
 
 
-      const { error } =
-        await client
-          .from("profiles")
-          .insert({
+      try {
 
-            id: user.id,
-
-            username: username,
-
-            country: country,
-
-            region: region,
-
-            languages: languages,
-
-            interests: interests
-
-          });
+        const userResult =
+          await client.auth.getUser();
 
 
-      if (error) {
+        if (userResult.error) {
+
+          message(
+            userResult.error.message
+          );
+
+          return;
+
+        }
+
+
+        const user =
+          userResult.data.user;
+
+
+        if (!user) {
+
+          message(
+            "Please log in again."
+          );
+
+          return;
+
+        }
+
+
+        const result =
+          await client
+            .from("profiles")
+            .insert({
+
+              id: user.id,
+
+              username: username,
+
+              country: country,
+
+              region: region,
+
+              languages: languages,
+
+              interests: interests
+
+            });
+
+
+        if (result.error) {
+
+          message(
+            "Error saving profile: " +
+            result.error.message
+          );
+
+          return;
+
+        }
+
+
+        message(
+          "🎉 Welcome to Teen Map!"
+        );
+
+      } catch (error) {
 
         console.error(error);
 
         message(
-          "Error saving profile: " +
+          "Connection error: " +
           error.message
         );
 
-        return;
-
       }
-
-
-      message(
-        "🎉 Welcome to Teen Map!"
-      );
 
     }
 
 
-    /* =========================================
-       CHECK SESSION
-       ========================================= */
+    /* ==================================================
+       COMPROBAR SESIÓN
+       ================================================== */
 
     async function checkSession() {
 
       try {
 
-        const {
-          data
-        } =
+        const result =
           await client.auth.getSession();
 
 
-        if (data.session) {
+        if (
+          result.data &&
+          result.data.session
+        ) {
 
           showProfile();
 
@@ -686,6 +669,42 @@ const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
       }
 
     }
+
+
+    /* ==================================================
+       BOTONES
+       ================================================== */
+
+    document
+      .getElementById("googleButton")
+      .addEventListener(
+        "click",
+        loginWithGoogle
+      );
+
+
+    document
+      .getElementById("createButton")
+      .addEventListener(
+        "click",
+        createAccount
+      );
+
+
+    document
+      .getElementById("loginButton")
+      .addEventListener(
+        "click",
+        login
+      );
+
+
+    document
+      .getElementById("saveButton")
+      .addEventListener(
+        "click",
+        saveProfile
+      );
 
 
     checkSession();
