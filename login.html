@@ -1,15 +1,32 @@
+<!-- =====================================================
+     TEEN MAP — SUPABASE CONFIG
+     PON AQUÍ TUS DATOS
+     ===================================================== -->
+
+<script>
+const SUPABASE_URL = https://wqzdzajhqoodtxauwqme.supabase.co
+const SUPABASE_KEY = sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
+</script>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
   <title>Teen Map</title>
 
-  <!-- SUPABASE -->
+  <!-- SUPABASE LIBRARY -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -106,19 +123,27 @@
       text-align: center;
       margin-top: 18px;
       font-weight: bold;
+      line-height: 1.5;
+      word-break: break-word;
     }
 
     .hidden {
       display: none;
     }
+
   </style>
+
 </head>
+
 
 <body>
 
   <div class="card">
 
-    <!-- LOGIN -->
+    <!-- =================================================
+         LOGIN
+         ================================================= -->
+
     <section id="auth">
 
       <h1>🌎 Teen Map</h1>
@@ -127,83 +152,143 @@
         See the world through teenagers’ eyes.
       </p>
 
+
       <button
         type="button"
         class="google"
         id="googleButton">
+
         Continue with Google
+
       </button>
 
-      <p class="or">or</p>
 
-      <label for="email">Email</label>
+      <p class="or">
+        or
+      </p>
+
+
+      <label for="email">
+        Email
+      </label>
 
       <input
         id="email"
         type="email"
         placeholder="your@email.com">
 
-      <label for="password">Password</label>
+
+      <label for="password">
+        Password
+      </label>
 
       <input
         id="password"
         type="password"
         placeholder="Your password">
 
+
       <button
         type="button"
         id="createButton">
+
         Create account
+
       </button>
+
 
       <button
         type="button"
         class="secondary"
         id="loginButton">
+
         Log in
+
       </button>
 
+
       <p class="privacy">
+
         🔒 Teen Map uses general regions only.
         We do not collect exact GPS locations.
+
       </p>
 
     </section>
 
 
-    <!-- PROFILE -->
+    <!-- =================================================
+         PROFILE
+         ================================================= -->
+
     <section
       id="profile"
       class="hidden">
 
-      <h1>👤 Your profile</h1>
+      <h1>
+        👤 Your profile
+      </h1>
 
       <p class="subtitle">
         Tell us a little about yourself.
       </p>
 
-      <label for="username">Username</label>
-      <input id="username" type="text">
 
-      <label for="country">Country</label>
-      <input id="country" type="text">
+      <label for="username">
+        Username
+      </label>
 
-      <label for="region">Region</label>
-      <input id="region" type="text">
+      <input
+        id="username"
+        type="text">
 
-      <label for="languages">Languages</label>
-      <input id="languages" type="text">
 
-      <label for="interests">Interests</label>
-      <input id="interests" type="text">
+      <label for="country">
+        Country
+      </label>
+
+      <input
+        id="country"
+        type="text">
+
+
+      <label for="region">
+        Region
+      </label>
+
+      <input
+        id="region"
+        type="text">
+
+
+      <label for="languages">
+        Languages
+      </label>
+
+      <input
+        id="languages"
+        type="text">
+
+
+      <label for="interests">
+        Interests
+      </label>
+
+      <input
+        id="interests"
+        type="text">
+
 
       <button
         type="button"
         id="saveButton">
+
         🌎 Join Teen Map
+
       </button>
 
     </section>
+
 
     <div id="message"></div>
 
@@ -212,28 +297,9 @@
 
   <script>
 
-    /* ==================================================
-       🔑 SUPABASE
-       ==================================================
-
-       PEGA AQUÍ TUS DOS DATOS:
-
-       1. SUPABASE URL 
-       2. SUPABASE PUBLISHABLE KEY
-
-       NO PONGAS LA SECRET KEY.
-       ================================================== */
-
-    const SUPABASE_URL =https://wqzdzajhqoodtxauwqme.supabase.co
-      
-
-    const SUPABASE_KEY =sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ
-
-
-
-    /* ==================================================
-       CREAR CONEXIÓN
-       ================================================== */
+    /* =================================================
+       SUPABASE CLIENT
+       ================================================= */
 
     const client =
       window.supabase.createClient(
@@ -242,9 +308,9 @@
       );
 
 
-    /* ==================================================
-       MENSAJES
-       ================================================== */
+    /* =================================================
+       MESSAGE
+       ================================================= */
 
     function message(text) {
 
@@ -255,9 +321,9 @@
     }
 
 
-    /* ==================================================
+    /* =================================================
        GOOGLE
-       ================================================== */
+       ================================================= */
 
     async function loginWithGoogle() {
 
@@ -294,7 +360,8 @@
         console.error(error);
 
         message(
-          "Google connection error."
+          "Google error: " +
+          error.message
         );
 
       }
@@ -302,9 +369,9 @@
     }
 
 
-    /* ==================================================
-       CREAR CUENTA
-       ================================================== */
+    /* =================================================
+       CREATE ACCOUNT
+       ================================================= */
 
     async function createAccount() {
 
@@ -314,6 +381,7 @@
           .value
           .trim();
 
+
       const password =
         document
           .getElementById("password")
@@ -322,7 +390,9 @@
 
       if (!email) {
 
-        message("Enter your email.");
+        message(
+          "Please enter your email."
+        );
 
         return;
 
@@ -331,7 +401,9 @@
 
       if (!password) {
 
-        message("Enter your password.");
+        message(
+          "Please enter your password."
+        );
 
         return;
 
@@ -371,9 +443,16 @@
           });
 
 
+        console.log(
+          "Supabase signUp result:",
+          result
+        );
+
+
         if (result.error) {
 
           message(
+            "Supabase error: " +
             result.error.message
           );
 
@@ -386,20 +465,26 @@
 
           showProfile();
 
-        } else {
-
-          message(
-            "Account created! Check your email to confirm it."
-          );
+          return;
 
         }
 
-      } catch (error) {
-
-        console.error(error);
 
         message(
-          "Connection error: " +
+          "Account created! Check your email."
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "CREATE ACCOUNT ERROR:",
+          error
+        );
+
+
+        message(
+          "ERROR: " +
           error.message
         );
 
@@ -408,9 +493,9 @@
     }
 
 
-    /* ==================================================
+    /* =================================================
        LOGIN
-       ================================================== */
+       ================================================= */
 
     async function login() {
 
@@ -419,6 +504,7 @@
           .getElementById("email")
           .value
           .trim();
+
 
       const password =
         document
@@ -455,6 +541,7 @@
         if (result.error) {
 
           message(
+            "Supabase error: " +
             result.error.message
           );
 
@@ -470,7 +557,7 @@
         console.error(error);
 
         message(
-          "Connection error: " +
+          "ERROR: " +
           error.message
         );
 
@@ -479,9 +566,9 @@
     }
 
 
-    /* ==================================================
-       MOSTRAR PERFIL
-       ================================================== */
+    /* =================================================
+       SHOW PROFILE
+       ================================================= */
 
     function showProfile() {
 
@@ -502,9 +589,9 @@
     }
 
 
-    /* ==================================================
-       GUARDAR PERFIL
-       ================================================== */
+    /* =================================================
+       SAVE PROFILE
+       ================================================= */
 
     async function saveProfile() {
 
@@ -514,11 +601,13 @@
           .value
           .trim();
 
+
       const country =
         document
           .getElementById("country")
           .value
           .trim();
+
 
       const region =
         document
@@ -526,11 +615,13 @@
           .value
           .trim();
 
+
       const languages =
         document
           .getElementById("languages")
           .value
           .trim();
+
 
       const interests =
         document
@@ -614,7 +705,7 @@
         if (result.error) {
 
           message(
-            "Error saving profile: " +
+            "Profile error: " +
             result.error.message
           );
 
@@ -632,7 +723,7 @@
         console.error(error);
 
         message(
-          "Connection error: " +
+          "ERROR: " +
           error.message
         );
 
@@ -641,9 +732,9 @@
     }
 
 
-    /* ==================================================
-       COMPROBAR SESIÓN
-       ================================================== */
+    /* =================================================
+       SESSION
+       ================================================= */
 
     async function checkSession() {
 
@@ -671,9 +762,9 @@
     }
 
 
-    /* ==================================================
-       BOTONES
-       ================================================== */
+    /* =================================================
+       BUTTONS
+       ================================================= */
 
     document
       .getElementById("googleButton")
