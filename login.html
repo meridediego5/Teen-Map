@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -10,17 +11,27 @@
 
   <title>Teen Map</title>
 
+
   <!-- =====================================================
-       SUPABASE — PEGA TUS DATOS AQUÍ
+       🔑 SUPABASE — YOUR DATA
        ===================================================== -->
 
   <script>
-    const SUPABASE_URL = "https://wqzdzajhqoodtxauwqme.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
+
+    const SUPABASE_URL =
+      "https://wqzdzajhqoodtxauwqme.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
+
   </script>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- SUPABASE LIBRARY -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
 
 
   <style>
@@ -29,9 +40,13 @@
       box-sizing: border-box;
     }
 
+
     body {
+
       margin: 0;
+
       min-height: 100vh;
+
       font-family: Arial, sans-serif;
 
       background:
@@ -44,17 +59,24 @@
       color: white;
 
       display: flex;
+
       justify-content: center;
+
       align-items: center;
 
       padding: 20px;
+
     }
 
+
     .card {
+
       width: 100%;
+
       max-width: 430px;
 
-      background: rgba(255,255,255,0.10);
+      background:
+        rgba(255,255,255,0.10);
 
       backdrop-filter: blur(15px);
 
@@ -63,19 +85,26 @@
       padding: 30px;
 
       box-shadow:
-        0 15px 50px rgba(0,0,0,0.30);
+        0 15px 50px
+        rgba(0,0,0,0.30);
+
     }
 
+
     h1 {
+
       text-align: center;
 
       margin:
         0 0 10px;
 
       font-size: 32px;
+
     }
 
+
     .subtitle {
+
       text-align: center;
 
       opacity: 0.85;
@@ -83,9 +112,12 @@
       line-height: 1.5;
 
       margin-bottom: 25px;
+
     }
 
+
     label {
+
       display: block;
 
       margin-top: 14px;
@@ -95,9 +127,13 @@
       font-size: 14px;
 
       font-weight: bold;
+
     }
 
-    input {
+
+    input,
+    textarea {
+
       width: 100%;
 
       padding: 14px;
@@ -109,9 +145,23 @@
       font-size: 16px;
 
       outline: none;
+
+      font-family: Arial, sans-serif;
+
     }
 
+
+    textarea {
+
+      min-height: 90px;
+
+      resize: vertical;
+
+    }
+
+
     button {
+
       width: 100%;
 
       padding: 15px;
@@ -131,30 +181,45 @@
       font-weight: bold;
 
       cursor: pointer;
+
     }
 
+
     button:disabled {
+
       opacity: 0.6;
 
       cursor: default;
+
     }
+
 
     .secondary {
+
       background:
         rgba(255,255,255,0.18);
+
     }
 
+
     .google {
+
       background: white;
 
       color: #222;
+
     }
+
 
     .hidden {
+
       display: none;
+
     }
 
+
     #message {
+
       margin-top: 20px;
 
       text-align: center;
@@ -164,9 +229,12 @@
       line-height: 1.5;
 
       overflow-wrap: anywhere;
+
     }
 
+
     .privacy {
+
       font-size: 12px;
 
       opacity: 0.7;
@@ -176,6 +244,7 @@
       margin-top: 20px;
 
       text-align: center;
+
     }
 
   </style>
@@ -190,15 +259,22 @@
 
 
     <!-- =================================================
-         LOGIN / REGISTER
+         LOGIN / CREATE ACCOUNT
          ================================================= -->
 
     <section id="auth">
 
-      <h1>🌎 Teen Map</h1>
+
+      <h1>
+        🌎 Teen Map
+      </h1>
+
 
       <p class="subtitle">
-        See the world through teenagers’ eyes.
+
+        See the world through
+        teenagers’ eyes.
+
       </p>
 
 
@@ -249,10 +325,10 @@
         id="password"
         type="password"
         placeholder="Your password"
-        autocomplete="current-password">
+        autocomplete="new-password">
 
 
-      <!-- CREATE -->
+      <!-- CREATE ACCOUNT -->
 
       <button
         type="button"
@@ -263,7 +339,7 @@
       </button>
 
 
-      <!-- LOGIN -->
+      <!-- LOG IN -->
 
       <button
         type="button"
@@ -282,6 +358,7 @@
 
       </p>
 
+
     </section>
 
 
@@ -294,14 +371,20 @@
       id="profile"
       class="hidden">
 
+
       <h1>
-        👤 Your profile
+        👤 Your Teen Map profile
       </h1>
 
+
       <p class="subtitle">
-        Tell us a little about yourself.
+
+        Tell the world a little about you.
+
       </p>
 
+
+      <!-- USERNAME -->
 
       <label for="username">
         Username
@@ -309,8 +392,26 @@
 
       <input
         id="username"
-        type="text">
+        type="text"
+        placeholder="Choose a username"
+        maxlength="30">
 
+
+      <!-- AGE -->
+
+      <label for="age">
+        Age
+      </label>
+
+      <input
+        id="age"
+        type="number"
+        placeholder="Your age"
+        min="13"
+        max="17">
+
+
+      <!-- COUNTRY -->
 
       <label for="country">
         Country
@@ -318,8 +419,11 @@
 
       <input
         id="country"
-        type="text">
+        type="text"
+        placeholder="Your country">
 
+
+      <!-- REGION -->
 
       <label for="region">
         Region
@@ -327,8 +431,11 @@
 
       <input
         id="region"
-        type="text">
+        type="text"
+        placeholder="e.g. Andalusia">
 
+
+      <!-- LANGUAGES -->
 
       <label for="languages">
         Languages
@@ -336,17 +443,59 @@
 
       <input
         id="languages"
-        type="text">
+        type="text"
+        placeholder="e.g. Spanish, English">
 
 
-      <label for="interests">
-        Interests
+      <!-- TRADITIONS -->
+
+      <label for="traditions">
+        Traditions
+      </label>
+
+      <textarea
+        id="traditions"
+        placeholder="Tell us about a tradition from your culture...">
+      </textarea>
+
+
+      <!-- FUN FACT -->
+
+      <label for="fun_fact">
+        Fun fact about yourself
+      </label>
+
+      <textarea
+        id="fun_fact"
+        placeholder="Tell us something interesting about you...">
+      </textarea>
+
+
+      <!-- FAVORITE SONG -->
+
+      <label for="favorite_song">
+        Favorite song 🎵
       </label>
 
       <input
-        id="interests"
-        type="text">
+        id="favorite_song"
+        type="text"
+        placeholder="What's your favorite song?">
 
+
+      <!-- HOBBIES -->
+
+      <label for="hobbies">
+        Hobbies
+      </label>
+
+      <input
+        id="hobbies"
+        type="text"
+        placeholder="e.g. dance, football, drawing">
+
+
+      <!-- SAVE -->
 
       <button
         type="button"
@@ -355,6 +504,7 @@
         🌎 Join Teen Map
 
       </button>
+
 
     </section>
 
@@ -374,39 +524,29 @@
 
 
     /* =====================================================
-       GET ELEMENTS
+       ELEMENTS
        ===================================================== */
 
     const message =
       document.getElementById("message");
 
+
     const createButton =
       document.getElementById("createButton");
+
 
     const loginButton =
       document.getElementById("loginButton");
 
+
     const googleButton =
       document.getElementById("googleButton");
 
+
     const saveProfileButton =
-      document.getElementById("saveProfileButton");
-
-
-    /* =====================================================
-       ERROR HANDLER
-       ===================================================== */
-
-    window.addEventListener(
-      "error",
-      function(event) {
-
-        message.textContent =
-          "JavaScript error: " +
-          event.message;
-
-      }
-    );
+      document.getElementById(
+        "saveProfileButton"
+      );
 
 
     /* =====================================================
@@ -418,8 +558,10 @@
 
     try {
 
+
       if (
-        typeof window.supabase === "undefined"
+        typeof window.supabase ===
+        "undefined"
       ) {
 
         throw new Error(
@@ -457,11 +599,13 @@
     }
 
 
+
     /* =====================================================
        SHOW PROFILE
        ===================================================== */
 
     function showProfile() {
+
 
       document
         .getElementById("auth")
@@ -480,6 +624,7 @@
     }
 
 
+
     /* =====================================================
        CREATE ACCOUNT
        ===================================================== */
@@ -487,6 +632,7 @@
     createButton.addEventListener(
       "click",
       async function() {
+
 
         const email =
           document
@@ -543,11 +689,13 @@
 
         createButton.disabled = true;
 
+
         message.textContent =
           "Creating account...";
 
 
         try {
+
 
           const {
             data,
@@ -608,8 +756,10 @@
 
         createButton.disabled = false;
 
+
       }
     );
+
 
 
     /* =====================================================
@@ -619,6 +769,7 @@
     loginButton.addEventListener(
       "click",
       async function() {
+
 
         const email =
           document
@@ -655,11 +806,13 @@
 
         loginButton.disabled = true;
 
+
         message.textContent =
           "Logging in...";
 
 
         try {
+
 
           const {
             data,
@@ -708,17 +861,20 @@
 
         loginButton.disabled = false;
 
+
       }
     );
 
 
+
     /* =====================================================
-       GOOGLE LOGIN
+       GOOGLE
        ===================================================== */
 
     googleButton.addEventListener(
       "click",
       async function() {
+
 
         if (!client) {
 
@@ -732,11 +888,13 @@
 
         googleButton.disabled = true;
 
+
         message.textContent =
           "Connecting to Google...";
 
 
         try {
+
 
           const {
             error
@@ -765,6 +923,7 @@
 
           }
 
+
         } catch (error) {
 
           message.textContent =
@@ -775,8 +934,10 @@
 
         }
 
+
       }
     );
+
 
 
     /* =====================================================
@@ -786,6 +947,7 @@
     saveProfileButton.addEventListener(
       "click",
       async function() {
+
 
         if (!client) {
 
@@ -802,6 +964,12 @@
             .getElementById("username")
             .value
             .trim();
+
+
+        const age =
+          document
+            .getElementById("age")
+            .value;
 
 
         const country =
@@ -825,19 +993,45 @@
             .trim();
 
 
-        const interests =
+        const traditions =
           document
-            .getElementById("interests")
+            .getElementById("traditions")
             .value
             .trim();
 
 
+        const funFact =
+          document
+            .getElementById("fun_fact")
+            .value
+            .trim();
+
+
+        const favoriteSong =
+          document
+            .getElementById("favorite_song")
+            .value
+            .trim();
+
+
+        const hobbies =
+          document
+            .getElementById("hobbies")
+            .value
+            .trim();
+
+
+
         if (
           !username ||
+          !age ||
           !country ||
           !region ||
           !languages ||
-          !interests
+          !traditions ||
+          !funFact ||
+          !favoriteSong ||
+          !hobbies
         ) {
 
           message.textContent =
@@ -848,11 +1042,14 @@
         }
 
 
+
         message.textContent =
           "Saving profile...";
 
 
+
         try {
+
 
           const {
             data: {
@@ -872,6 +1069,7 @@
           }
 
 
+
           const {
             error
           } =
@@ -883,15 +1081,25 @@
 
                 username: username,
 
+                age: Number(age),
+
                 country: country,
 
                 region: region,
 
                 languages: languages,
 
-                interests: interests
+                traditions: traditions,
+
+                fun_fact: funFact,
+
+                favorite_song:
+                  favoriteSong,
+
+                hobbies: hobbies
 
               });
+
 
 
           if (error) {
@@ -905,8 +1113,10 @@
           }
 
 
+
           message.textContent =
             "🎉 Welcome to Teen Map!";
+
 
         } catch (error) {
 
@@ -916,20 +1126,24 @@
 
         }
 
+
       }
     );
 
 
+
     /* =====================================================
-       CHECK EXISTING SESSION
+       CHECK SESSION
        ===================================================== */
 
     async function checkSession() {
+
 
       if (!client) return;
 
 
       try {
+
 
         const {
           data
@@ -942,6 +1156,7 @@
           showProfile();
 
         }
+
 
       } catch (error) {
 
@@ -958,6 +1173,7 @@
 
 
   </script>
+
 
 </body>
 
