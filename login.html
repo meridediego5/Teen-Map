@@ -1,1180 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
-  <title>Teen Map</title>
-
-
-  <!-- =====================================================
-       🔑 SUPABASE — YOUR DATA
-       ===================================================== -->
-
-  <script>
-
-    const SUPABASE_URL =
-      "https://wqzdzajhqoodtxauwqme.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
-
-  </script>
-
-
-  <!-- SUPABASE LIBRARY -->
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-  </script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teen Map — Join</title>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
 
-
     body {
-
       margin: 0;
-
       min-height: 100vh;
-
       font-family: Arial, sans-serif;
-
-      background:
-        linear-gradient(
-          135deg,
-          #071a2b,
-          #164b68
-        );
-
-      color: white;
-
+      background: linear-gradient(135deg, #ffd6e7, #f8b6d2, #e8c8ff);
       display: flex;
-
       justify-content: center;
-
       align-items: center;
-
-      padding: 20px;
-
+      padding: 25px;
     }
 
-
-    .card {
-
+    .container {
       width: 100%;
-
-      max-width: 430px;
-
-      background:
-        rgba(255,255,255,0.10);
-
-      backdrop-filter: blur(15px);
-
+      max-width: 650px;
+      background: white;
       border-radius: 25px;
-
-      padding: 30px;
-
-      box-shadow:
-        0 15px 50px
-        rgba(0,0,0,0.30);
-
+      padding: 35px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.15);
     }
-
 
     h1 {
-
       text-align: center;
-
-      margin:
-        0 0 10px;
-
-      font-size: 32px;
-
+      color: #e83e8c;
+      margin-bottom: 8px;
     }
-
 
     .subtitle {
-
       text-align: center;
-
-      opacity: 0.85;
-
-      line-height: 1.5;
-
-      margin-bottom: 25px;
-
+      color: #666;
+      margin-bottom: 30px;
     }
-
 
     label {
-
       display: block;
-
-      margin-top: 14px;
-
-      margin-bottom: 7px;
-
-      font-size: 14px;
-
       font-weight: bold;
-
+      margin-top: 18px;
+      margin-bottom: 7px;
+      color: #333;
     }
-
 
     input,
-    textarea {
-
+    textarea,
+    select {
       width: 100%;
-
-      padding: 14px;
-
-      border: none;
-
+      padding: 13px;
+      border: 1px solid #ddd;
       border-radius: 12px;
-
-      font-size: 16px;
-
+      font-size: 15px;
+      font-family: inherit;
       outline: none;
-
-      font-family: Arial, sans-serif;
-
     }
 
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #e83e8c;
+    }
 
     textarea {
-
       min-height: 90px;
-
       resize: vertical;
-
     }
 
-
-    button {
-
+    .join-button {
       width: 100%;
-
+      margin-top: 28px;
       padding: 15px;
-
-      margin-top: 15px;
-
       border: none;
-
-      border-radius: 13px;
-
-      background: #ff78b7;
-
+      border-radius: 14px;
+      background: #e83e8c;
       color: white;
-
       font-size: 17px;
-
       font-weight: bold;
-
       cursor: pointer;
-
     }
 
-
-    button:disabled {
-
-      opacity: 0.6;
-
-      cursor: default;
-
+    .join-button:hover {
+      background: #d92f7d;
     }
 
-
-    .secondary {
-
-      background:
-        rgba(255,255,255,0.18);
-
+    .login-link {
+      text-align: center;
+      margin-top: 22px;
+      color: #555;
     }
 
-
-    .google {
-
-      background: white;
-
-      color: #222;
-
+    .login-link a {
+      color: #e83e8c;
+      font-weight: bold;
+      text-decoration: none;
     }
 
-
-    .hidden {
-
-      display: none;
-
+    .login-link a:hover {
+      text-decoration: underline;
     }
-
 
     #message {
-
-      margin-top: 20px;
-
+      margin-top: 18px;
       text-align: center;
-
       font-weight: bold;
-
-      line-height: 1.5;
-
-      overflow-wrap: anywhere;
-
     }
-
 
     .privacy {
-
-      font-size: 12px;
-
-      opacity: 0.7;
-
-      line-height: 1.5;
-
       margin-top: 20px;
-
+      font-size: 12px;
+      color: #777;
       text-align: center;
-
+      line-height: 1.5;
     }
-
   </style>
-
 </head>
-
 
 <body>
 
+  <div class="container">
 
-  <div class="card">
+    <h1>🌍 Welcome to Teen Map</h1>
 
+    <p class="subtitle">
+      See the world through teenage eyes.
+    </p>
 
-    <!-- =================================================
-         LOGIN / CREATE ACCOUNT
-         ================================================= -->
+    <form id="profileForm">
 
-    <section id="auth">
-
-
-      <h1>
-        🌎 Teen Map
-      </h1>
-
-
-      <p class="subtitle">
-
-        See the world through
-        teenagers’ eyes.
-
-      </p>
-
-
-      <!-- GOOGLE -->
-
-      <button
-        type="button"
-        id="googleButton"
-        class="google">
-
-        Continue with Google
-
-      </button>
-
-
-      <p
-        style="
-          text-align:center;
-          opacity:0.7;
-          margin:18px 0;
-        ">
-
-        or
-
-      </p>
-
-
-      <!-- EMAIL -->
-
-      <label for="email">
-        Email
-      </label>
-
+      <label for="country">Country</label>
       <input
-        id="email"
-        type="email"
-        placeholder="your@email.com"
-        autocomplete="email">
-
-
-      <!-- PASSWORD -->
-
-      <label for="password">
-        Password
-      </label>
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Your password"
-        autocomplete="new-password">
-
-
-      <!-- CREATE ACCOUNT -->
-
-      <button
-        type="button"
-        id="createButton">
-
-        Create account
-
-      </button>
-
-
-      <!-- LOG IN -->
-
-      <button
-        type="button"
-        id="loginButton"
-        class="secondary">
-
-        Log in
-
-      </button>
-
-
-      <p class="privacy">
-
-        🔒 Teen Map uses general regions only.
-        We do not collect exact GPS locations.
-
-      </p>
-
-
-    </section>
-
-
-
-    <!-- =================================================
-         PROFILE
-         ================================================= -->
-
-    <section
-      id="profile"
-      class="hidden">
-
-
-      <h1>
-        👤 Your Teen Map profile
-      </h1>
-
-
-      <p class="subtitle">
-
-        Tell the world a little about you.
-
-      </p>
-
-
-      <!-- USERNAME -->
-
-      <label for="username">
-        Username
-      </label>
-
-      <input
-        id="username"
         type="text"
-        placeholder="Choose a username"
-        maxlength="30">
-
-
-      <!-- AGE -->
-
-      <label for="age">
-        Age
-      </label>
-
-      <input
-        id="age"
-        type="number"
-        placeholder="Your age"
-        min="13"
-        max="17">
-
-
-      <!-- COUNTRY -->
-
-      <label for="country">
-        Country
-      </label>
-
-      <input
         id="country"
-        type="text"
-        placeholder="Your country">
+        placeholder="e.g. Spain"
+        required
+      >
 
-
-      <!-- REGION -->
-
-      <label for="region">
-        Region
-      </label>
-
+      <label for="region">Region</label>
       <input
+        type="text"
         id="region"
-        type="text"
-        placeholder="e.g. Andalusia">
+        placeholder="e.g. Andalucía"
+        required
+      >
 
-
-      <!-- LANGUAGES -->
-
-      <label for="languages">
-        Languages
-      </label>
-
+      <label for="languages">Languages</label>
       <input
-        id="languages"
         type="text"
-        placeholder="e.g. Spanish, English">
+        id="languages"
+        placeholder="e.g. Spanish, English"
+        required
+      >
 
+      <label for="interests">Interests</label>
+      <textarea
+        id="interests"
+        placeholder="What are you interested in?"
+        required
+      ></textarea>
 
-      <!-- TRADITIONS -->
+      <label for="age">Age</label>
+      <input
+        type="number"
+        id="age"
+        min="13"
+        max="19"
+        placeholder="Your age"
+        required
+      >
+
+      <label for="hobbies">Hobbies</label>
+      <textarea
+        id="hobbies"
+        placeholder="What do you enjoy doing?"
+        required
+      ></textarea>
 
       <label for="traditions">
-        Traditions
+        Activities & Traditions in Your Country
       </label>
 
       <textarea
         id="traditions"
-        placeholder="Tell us about a tradition from your culture...">
-      </textarea>
+        placeholder="What activities and traditions are popular in your country?"
+        required
+      ></textarea>
 
-
-      <!-- FUN FACT -->
-
-      <label for="fun_fact">
-        Fun fact about yourself
-      </label>
-
+      <label for="funFact">Fun Fact</label>
       <textarea
-        id="fun_fact"
-        placeholder="Tell us something interesting about you...">
-      </textarea>
+        id="funFact"
+        placeholder="Tell us something interesting about you or your culture."
+        required
+      ></textarea>
 
-
-      <!-- FAVORITE SONG -->
-
-      <label for="favorite_song">
-        Favorite song 🎵
-      </label>
-
+      <label for="favoriteSong">Favorite Song</label>
       <input
-        id="favorite_song"
         type="text"
-        placeholder="What's your favorite song?">
+        id="favoriteSong"
+        placeholder="Your favorite song"
+        required
+      >
 
-
-      <!-- HOBBIES -->
-
-      <label for="hobbies">
-        Hobbies
-      </label>
-
+      <label for="favoriteFood">Favorite Food</label>
       <input
-        id="hobbies"
         type="text"
-        placeholder="e.g. dance, football, drawing">
+        id="favoriteFood"
+        placeholder="Your favorite food"
+        required
+      >
 
-
-      <!-- SAVE -->
-
-      <button
-        type="button"
-        id="saveProfileButton">
-
-        🌎 Join Teen Map
-
+      <button type="submit" class="join-button">
+        Join Teen Map 🌎
       </button>
 
-
-    </section>
-
+    </form>
 
     <div id="message"></div>
 
+    <p class="login-link">
+      Already have an account?
+      <a href="login.html">Log in</a>
+    </p>
+
+    <p class="privacy">
+      Teen Map protects your privacy. Your exact location is never displayed.
+      Only general regions are used to help teenagers connect safely.
+    </p>
 
   </div>
 
-
-
-  <!-- =====================================================
-       JAVASCRIPT
-       ===================================================== -->
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
 
+    // =====================================================
+    // PEGA AQUÍ TUS DATOS ACTUALES DE SUPABASE
+    // =====================================================
 
-    /* =====================================================
-       ELEMENTS
-       ===================================================== */
+    const SUPABASE_URL = "https://wqzdzajhqoodtxauwqme.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
 
-    const message =
-      document.getElementById("message");
-
-
-    const createButton =
-      document.getElementById("createButton");
-
-
-    const loginButton =
-      document.getElementById("loginButton");
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
 
 
-    const googleButton =
-      document.getElementById("googleButton");
+    // =====================================================
+    // FORMULARIO
+    // =====================================================
+
+    const form = document.getElementById("profileForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      message.textContent = "Creating your profile...";
+
+      const country = document.getElementById("country").value.trim();
+      const region = document.getElementById("region").value.trim();
+      const languages = document.getElementById("languages").value.trim();
+      const interests = document.getElementById("interests").value.trim();
+      const age = Number(document.getElementById("age").value);
+      const hobbies = document.getElementById("hobbies").value.trim();
+      const traditions = document.getElementById("traditions").value.trim();
+      const funFact = document.getElementById("funFact").value.trim();
+      const favoriteSong = document.getElementById("favoriteSong").value.trim();
+      const favoriteFood = document.getElementById("favoriteFood").value.trim();
 
 
-    const saveProfileButton =
-      document.getElementById(
-        "saveProfileButton"
-      );
-
-
-    /* =====================================================
-       SUPABASE CLIENT
-       ===================================================== */
-
-    let client = null;
-
-
-    try {
-
-
-      if (
-        typeof window.supabase ===
-        "undefined"
-      ) {
-
-        throw new Error(
-          "Supabase library did not load."
-        );
-
+      // Comprobación de edad
+      if (age < 13 || age > 19) {
+        message.textContent = "Teen Map is currently for ages 13–19.";
+        return;
       }
 
 
-      if (
-        !SUPABASE_URL ||
-        !SUPABASE_KEY
-      ) {
+      // Usuario actualmente conectado
+      const {
+        data: { user },
+        error: userError
+      } = await supabaseClient.auth.getUser();
 
-        throw new Error(
-          "Supabase URL or Publishable Key is missing."
-        );
 
+      if (userError || !user) {
+        message.textContent =
+          "Please log in before creating your profile.";
+        return;
       }
 
 
-      client =
-        window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
+      // Guardar perfil
+      const { error } = await supabaseClient
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          country: country,
+          region: region,
+          languages: languages,
+          interests: interests,
+          age: age,
+          hobbies: hobbies,
+          traditions: traditions,
+          fun_fact: funFact,
+          favorite_song: favoriteSong,
+          favorite_food: favoriteFood
+        });
 
 
-    } catch (error) {
+      if (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "Profile Error: " + error.message;
+
+        return;
+      }
+
 
       message.textContent =
-        "Supabase error: " +
-        error.message;
+        "🎉 Your Teen Map profile has been created!";
 
-    }
 
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1500);
 
-
-    /* =====================================================
-       SHOW PROFILE
-       ===================================================== */
-
-    function showProfile() {
-
-
-      document
-        .getElementById("auth")
-        .classList
-        .add("hidden");
-
-
-      document
-        .getElementById("profile")
-        .classList
-        .remove("hidden");
-
-
-      message.textContent = "";
-
-    }
-
-
-
-    /* =====================================================
-       CREATE ACCOUNT
-       ===================================================== */
-
-    createButton.addEventListener(
-      "click",
-      async function() {
-
-
-        const email =
-          document
-            .getElementById("email")
-            .value
-            .trim();
-
-
-        const password =
-          document
-            .getElementById("password")
-            .value;
-
-
-        if (!email) {
-
-          message.textContent =
-            "Please enter your email.";
-
-          return;
-
-        }
-
-
-        if (!password) {
-
-          message.textContent =
-            "Please enter your password.";
-
-          return;
-
-        }
-
-
-        if (password.length < 6) {
-
-          message.textContent =
-            "Password must have at least 6 characters.";
-
-          return;
-
-        }
-
-
-        if (!client) {
-
-          message.textContent =
-            "Supabase is not connected.";
-
-          return;
-
-        }
-
-
-        createButton.disabled = true;
-
-
-        message.textContent =
-          "Creating account...";
-
-
-        try {
-
-
-          const {
-            data,
-            error
-          } =
-            await client.auth.signUp({
-
-              email: email,
-
-              password: password,
-
-              options: {
-
-                emailRedirectTo:
-                  "https://meridediego5.github.io/Teen-Map/login.html"
-
-              }
-
-            });
-
-
-          if (error) {
-
-            message.textContent =
-              "Supabase: " +
-              error.message;
-
-            createButton.disabled = false;
-
-            return;
-
-          }
-
-
-          if (data.session) {
-
-            message.textContent =
-              "🎉 Account created!";
-
-            showProfile();
-
-          } else {
-
-            message.textContent =
-              "🎉 Account created! Check your email to confirm it.";
-
-          }
-
-
-        } catch (error) {
-
-          message.textContent =
-            "Error: " +
-            error.message;
-
-        }
-
-
-        createButton.disabled = false;
-
-
-      }
-    );
-
-
-
-    /* =====================================================
-       LOG IN
-       ===================================================== */
-
-    loginButton.addEventListener(
-      "click",
-      async function() {
-
-
-        const email =
-          document
-            .getElementById("email")
-            .value
-            .trim();
-
-
-        const password =
-          document
-            .getElementById("password")
-            .value;
-
-
-        if (!email || !password) {
-
-          message.textContent =
-            "Please enter your email and password.";
-
-          return;
-
-        }
-
-
-        if (!client) {
-
-          message.textContent =
-            "Supabase is not connected.";
-
-          return;
-
-        }
-
-
-        loginButton.disabled = true;
-
-
-        message.textContent =
-          "Logging in...";
-
-
-        try {
-
-
-          const {
-            data,
-            error
-          } =
-            await client.auth.signInWithPassword({
-
-              email: email,
-
-              password: password
-
-            });
-
-
-          if (error) {
-
-            message.textContent =
-              "Supabase: " +
-              error.message;
-
-            loginButton.disabled = false;
-
-            return;
-
-          }
-
-
-          if (data.session) {
-
-            message.textContent =
-              "✅ Logged in!";
-
-            showProfile();
-
-          }
-
-
-        } catch (error) {
-
-          message.textContent =
-            "Error: " +
-            error.message;
-
-        }
-
-
-        loginButton.disabled = false;
-
-
-      }
-    );
-
-
-
-    /* =====================================================
-       GOOGLE
-       ===================================================== */
-
-    googleButton.addEventListener(
-      "click",
-      async function() {
-
-
-        if (!client) {
-
-          message.textContent =
-            "Supabase is not connected.";
-
-          return;
-
-        }
-
-
-        googleButton.disabled = true;
-
-
-        message.textContent =
-          "Connecting to Google...";
-
-
-        try {
-
-
-          const {
-            error
-          } =
-            await client.auth.signInWithOAuth({
-
-              provider: "google",
-
-              options: {
-
-                redirectTo:
-                  "https://meridediego5.github.io/Teen-Map/login.html"
-
-              }
-
-            });
-
-
-          if (error) {
-
-            message.textContent =
-              "Google error: " +
-              error.message;
-
-            googleButton.disabled = false;
-
-          }
-
-
-        } catch (error) {
-
-          message.textContent =
-            "Google error: " +
-            error.message;
-
-          googleButton.disabled = false;
-
-        }
-
-
-      }
-    );
-
-
-
-    /* =====================================================
-       SAVE PROFILE
-       ===================================================== */
-
-    saveProfileButton.addEventListener(
-      "click",
-      async function() {
-
-
-        if (!client) {
-
-          message.textContent =
-            "Supabase is not connected.";
-
-          return;
-
-        }
-
-
-        const username =
-          document
-            .getElementById("username")
-            .value
-            .trim();
-
-
-        const age =
-          document
-            .getElementById("age")
-            .value;
-
-
-        const country =
-          document
-            .getElementById("country")
-            .value
-            .trim();
-
-
-        const region =
-          document
-            .getElementById("region")
-            .value
-            .trim();
-
-
-        const languages =
-          document
-            .getElementById("languages")
-            .value
-            .trim();
-
-
-        const traditions =
-          document
-            .getElementById("traditions")
-            .value
-            .trim();
-
-
-        const funFact =
-          document
-            .getElementById("fun_fact")
-            .value
-            .trim();
-
-
-        const favoriteSong =
-          document
-            .getElementById("favorite_song")
-            .value
-            .trim();
-
-
-        const hobbies =
-          document
-            .getElementById("hobbies")
-            .value
-            .trim();
-
-
-
-        if (
-          !username ||
-          !age ||
-          !country ||
-          !region ||
-          !languages ||
-          !traditions ||
-          !funFact ||
-          !favoriteSong ||
-          !hobbies
-        ) {
-
-          message.textContent =
-            "Please complete every field.";
-
-          return;
-
-        }
-
-
-
-        message.textContent =
-          "Saving profile...";
-
-
-
-        try {
-
-
-          const {
-            data: {
-              user
-            }
-          } =
-            await client.auth.getUser();
-
-
-          if (!user) {
-
-            message.textContent =
-              "Please log in again.";
-
-            return;
-
-          }
-
-
-
-          const {
-            error
-          } =
-            await client
-              .from("profiles")
-              .upsert({
-
-                id: user.id,
-
-                username: username,
-
-                age: Number(age),
-
-                country: country,
-
-                region: region,
-
-                languages: languages,
-
-                traditions: traditions,
-
-                fun_fact: funFact,
-
-                favorite_song:
-                  favoriteSong,
-
-                hobbies: hobbies
-
-              });
-
-
-
-          if (error) {
-
-            message.textContent =
-              "Profile error: " +
-              error.message;
-
-            return;
-
-          }
-
-
-
-          message.textContent =
-            "🎉 Welcome to Teen Map!";
-
-
-        } catch (error) {
-
-          message.textContent =
-            "Error: " +
-            error.message;
-
-        }
-
-
-      }
-    );
-
-
-
-    /* =====================================================
-       CHECK SESSION
-       ===================================================== */
-
-    async function checkSession() {
-
-
-      if (!client) return;
-
-
-      try {
-
-
-        const {
-          data
-        } =
-          await client.auth.getSession();
-
-
-        if (data.session) {
-
-          showProfile();
-
-        }
-
-
-      } catch (error) {
-
-        message.textContent =
-          "Session error: " +
-          error.message;
-
-      }
-
-    }
-
-
-    checkSession();
-
+    });
 
   </script>
 
-
 </body>
-
 </html>
