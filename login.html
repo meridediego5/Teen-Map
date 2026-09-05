@@ -1,488 +1,1278 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Teen Map 🌎</title>
+  <title>Teen Map</title>
+
+  <!-- =====================================================
+       🔑 SUPABASE
+       ===================================================== -->
+
+  <script>
+    const SUPABASE_URL = "PEGA_AQUI_TU_SUPABASE_URL";
+    const SUPABASE_KEY = "PEGA_AQUI_TU_PUBLISHABLE_KEY";
+  </script>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
-    html, body {
+    body {
       margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
-      background: #f8f4ff;
-    }
 
-    #app {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
+      background: linear-gradient(
+        135deg,
+        #071a2b,
+        #164b68
+      );
 
-    /* TOP */
-    .top {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 22px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-    }
-
-    .logo {
-      font-size: 25px;
-      font-weight: 800;
-      color: #242044;
-      letter-spacing: -1px;
-    }
-
-    .logo span {
-      font-size: 25px;
-    }
-
-    .science {
-      border: none;
-      background: white;
-      padding: 11px 17px;
-      border-radius: 30px;
-      font-weight: 700;
-      color: #242044;
-      cursor: pointer;
-      box-shadow: 0 5px 20px rgba(50, 40, 100, 0.10);
-    }
-
-    /* TITLE */
-    .intro {
-      position: absolute;
-      top: 95px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      z-index: 5;
-      width: 90%;
-      pointer-events: none;
-    }
-
-    .intro h1 {
-      margin: 0;
-      font-size: clamp(34px, 7vw, 65px);
-      color: #242044;
-      letter-spacing: -3px;
-    }
-
-    .intro p {
-      margin: 10px 0 0;
-      font-size: clamp(15px, 2vw, 19px);
-      color: #66627a;
-    }
-
-    /* GLOBE */
-    #globe {
-      position: absolute;
-      width: min(82vw, 620px);
-      height: min(82vw, 620px);
-      left: 50%;
-      top: 53%;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      z-index: 2;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    /* JOIN */
-    .join-box {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      z-index: 20;
-      width: 90%;
-    }
-
-    .question {
-      font-size: 18px;
-      font-weight: 700;
-      color: #242044;
-      margin-bottom: 11px;
-    }
-
-    .join {
-      border: none;
-      padding: 15px 42px;
-      border-radius: 40px;
-      font-size: 17px;
-      font-weight: 800;
-      background: #242044;
       color: white;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      box-shadow: 0 8px 25px rgba(36, 32, 68, 0.22);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      padding: 20px;
     }
 
-    .join:hover {
-      transform: scale(1.05);
+    .card {
+      width: 100%;
+      max-width: 430px;
+
+      background: rgba(255,255,255,0.10);
+
+      backdrop-filter: blur(15px);
+
+      border-radius: 25px;
+
+      padding: 30px;
+
+      box-shadow:
+        0 15px 50px rgba(0,0,0,0.30);
     }
 
-    /* PROFILE CARD */
-    .profile {
-      position: absolute;
-      display: none;
-      z-index: 50;
-      width: 250px;
-      background: white;
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: 0 15px 50px rgba(30, 25, 70, 0.20);
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+    h1 {
+      text-align: center;
+      margin: 0 0 10px;
+      font-size: 32px;
     }
 
-    .profile.active {
+    .subtitle {
+      text-align: center;
+      opacity: 0.85;
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+
+    label {
       display: block;
+      margin-top: 14px;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: bold;
     }
 
-    .profile-close {
-      position: absolute;
-      right: 12px;
-      top: 9px;
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 14px;
+
       border: none;
-      background: none;
-      font-size: 20px;
+      border-radius: 12px;
+
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+
+      outline: none;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    select:disabled {
+      opacity: 0.55;
+    }
+
+    button {
+      width: 100%;
+
+      padding: 15px;
+      margin-top: 15px;
+
+      border: none;
+      border-radius: 13px;
+
+      background: #ff78b7;
+
+      color: white;
+
+      font-size: 17px;
+      font-weight: bold;
+
       cursor: pointer;
     }
 
-    .avatar {
-      font-size: 42px;
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
     }
 
-    .profile h3 {
-      margin: 7px 0 3px;
-      color: #242044;
+    .secondary {
+      background: rgba(255,255,255,0.18);
     }
 
-    .profile p {
-      margin: 5px 0;
-      color: #66627a;
-      font-size: 14px;
+    .google {
+      background: white;
+      color: #222;
     }
 
-    .tag {
-      display: inline-block;
-      background: #f0edff;
-      color: #4e4691;
-      padding: 5px 9px;
-      border-radius: 12px;
-      margin: 3px 2px;
+    .hidden {
+      display: none;
+    }
+
+    #message {
+      margin-top: 20px;
+
+      text-align: center;
+
+      font-weight: bold;
+
+      line-height: 1.5;
+
+      overflow-wrap: anywhere;
+    }
+
+    .privacy {
       font-size: 12px;
-      font-weight: 600;
+
+      opacity: 0.7;
+
+      line-height: 1.5;
+
+      margin-top: 20px;
+
+      text-align: center;
     }
 
-    /* SMALL SCREEN */
-    @media (max-width: 600px) {
-
-      .top {
-        padding: 17px;
-      }
-
-      .logo {
-        font-size: 21px;
-      }
-
-      .science {
-        font-size: 12px;
-        padding: 9px 13px;
-      }
-
-      .intro {
-        top: 82px;
-      }
-
-      .intro h1 {
-        letter-spacing: -2px;
-      }
-
-      .intro p {
-        font-size: 14px;
-      }
-
-      #globe {
-        width: 94vw;
-        height: 94vw;
-        top: 51%;
-      }
-
-      .join-box {
-        bottom: 20px;
-      }
-
-      .question {
-        font-size: 15px;
-      }
-
-      .join {
-        padding: 13px 34px;
-        font-size: 15px;
-      }
-    }
   </style>
+
 </head>
+
 
 <body>
 
-<div id="app">
+  <div class="card">
 
-  <!-- HEADER -->
-  <div class="top">
-    <div class="logo">
-      TEEN MAP 🌎
-    </div>
 
-    <button class="science" onclick="showScience()">
-      🧬 Science
-    </button>
+    <!-- =================================================
+         LOGIN
+         ================================================= -->
+
+    <section id="auth">
+
+      <h1>🌎 Teen Map</h1>
+
+      <p class="subtitle">
+        See the world through teenagers’ eyes.
+      </p>
+
+
+      <button
+        type="button"
+        id="googleButton"
+        class="google">
+
+        Continue with Google
+
+      </button>
+
+
+      <p style="text-align:center; opacity:0.7; margin:18px 0;">
+        or
+      </p>
+
+
+      <label for="email">
+        Email
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="your@email.com"
+        autocomplete="email">
+
+
+      <label for="password">
+        Password
+      </label>
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Your password"
+        autocomplete="current-password">
+
+
+      <button
+        type="button"
+        id="createButton">
+
+        Create account
+
+      </button>
+
+
+      <button
+        type="button"
+        id="loginButton"
+        class="secondary">
+
+        Log in
+
+      </button>
+
+
+      <p class="privacy">
+        🔒 Teen Map uses general regions only.
+        We never collect exact GPS locations.
+      </p>
+
+    </section>
+
+
+
+    <!-- =================================================
+         PROFILE
+         ================================================= -->
+
+    <section
+      id="profile"
+      class="hidden">
+
+      <h1>
+        👤 Your Teen Map profile
+      </h1>
+
+      <p class="subtitle">
+        Tell the world a little about you.
+      </p>
+
+
+      <!-- USERNAME -->
+
+      <label for="username">
+        Username
+      </label>
+
+      <input
+        id="username"
+        type="text"
+        placeholder="Choose a username">
+
+
+      <!-- AGE -->
+
+      <label for="age">
+        Age
+      </label>
+
+      <input
+        id="age"
+        type="number"
+        min="13"
+        max="17"
+        placeholder="Your age">
+
+
+      <!-- COUNTRY -->
+
+      <label for="country">
+        🌎 Country
+      </label>
+
+      <select id="country">
+
+        <option value="">
+          Select your country
+        </option>
+
+      </select>
+
+
+      <!-- REGION -->
+
+      <label for="region">
+        📍 Region
+      </label>
+
+      <select
+        id="region"
+        disabled>
+
+        <option value="">
+          Select your country first
+        </option>
+
+      </select>
+
+
+      <!-- LANGUAGES -->
+
+      <label for="languages">
+        🗣️ Languages
+      </label>
+
+      <input
+        id="languages"
+        type="text"
+        placeholder="e.g. Spanish, English">
+
+
+      <!-- TRADITIONS -->
+
+      <label for="traditions">
+        🏛️ Traditions
+      </label>
+
+      <textarea
+        id="traditions"
+        placeholder="Tell us about a tradition from your culture..."></textarea>
+
+
+      <!-- FUN FACT -->
+
+      <label for="fun_fact">
+        ✨ Fun fact about yourself
+      </label>
+
+      <textarea
+        id="fun_fact"
+        placeholder="Tell us something interesting about you..."></textarea>
+
+
+      <!-- FAVORITE SONG -->
+
+      <label for="favorite_song">
+        🎵 Favorite song
+      </label>
+
+      <input
+        id="favorite_song"
+        type="text"
+        placeholder="What's your favorite song?">
+
+
+      <!-- HOBBIES -->
+
+      <label for="hobbies">
+        🎨 Hobbies
+      </label>
+
+      <input
+        id="hobbies"
+        type="text"
+        placeholder="What do you enjoy doing?">
+
+
+      <button
+        type="button"
+        id="saveProfileButton">
+
+        🌎 Join Teen Map
+
+      </button>
+
+
+      <p class="privacy">
+        🔒 Share only what you're comfortable sharing.
+        Never include your address, school or private information.
+      </p>
+
+    </section>
+
+
+    <div id="message"></div>
+
   </div>
 
-  <!-- INTRO -->
-  <div class="intro">
-    <h1>See the world<br>through teenage eyes.</h1>
-    <p>Connect. Discover. Make an impact.</p>
-  </div>
 
-  <!-- GLOBE -->
-  <div id="globe"></div>
 
-  <!-- JOIN -->
-  <div class="join-box">
-    <div class="question">
-      Do you want to be here?
-    </div>
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
 
-    <button class="join" onclick="joinUs()">
-      JOIN US
-    </button>
-  </div>
+  <script>
 
-  <!-- PROFILE -->
-  <div id="profile" class="profile">
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
-    <button class="profile-close" onclick="closeProfile()">
-      ×
-    </button>
+    const message =
+      document.getElementById("message");
 
-    <div class="avatar">👤</div>
+    const createButton =
+      document.getElementById("createButton");
 
-    <h3>Teen Map member</h3>
+    const loginButton =
+      document.getElementById("loginButton");
 
-    <p>🇪🇸 Spain · Andalucía</p>
+    const googleButton =
+      document.getElementById("googleButton");
 
-    <div>
-      <span class="tag">🎵 Music</span>
-      <span class="tag">💃 Dance</span>
-      <span class="tag">🌎 Travel</span>
-    </div>
+    const saveProfileButton =
+      document.getElementById("saveProfileButton");
 
-  </div>
+    const countrySelect =
+      document.getElementById("country");
 
-</div>
+    const regionSelect =
+      document.getElementById("region");
 
-<!-- THREE.JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<script>
+    /* =====================================================
+       SUPABASE
+       ===================================================== */
 
-  const container = document.getElementById("globe");
+    let client = null;
 
-  const scene = new THREE.Scene();
 
-  const camera = new THREE.PerspectiveCamera(
-    45,
-    container.clientWidth / container.clientHeight,
-    0.1,
-    1000
-  );
+    try {
 
-  camera.position.z = 3;
+      if (!window.supabase) {
 
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    alpha: true
-  });
+        throw new Error(
+          "Supabase library did not load."
+        );
 
-  renderer.setSize(
-    container.clientWidth,
-    container.clientHeight
-  );
+      }
 
-  renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
-  );
 
-  container.appendChild(renderer.domElement);
+      if (!SUPABASE_URL || !SUPABASE_KEY) {
 
-  /* EARTH */
+        throw new Error(
+          "Supabase URL or Publishable Key is missing."
+        );
 
-  const geometry = new THREE.SphereGeometry(
-    1,
-    64,
-    64
-  );
+      }
 
-  const material = new THREE.MeshStandardMaterial({
-    color: 0x8f8bd8,
-    roughness: 0.8,
-    metalness: 0
-  });
 
-  const earth = new THREE.Mesh(
-    geometry,
-    material
-  );
+      client =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
 
-  scene.add(earth);
 
-  /* LIGHT */
+    } catch (error) {
 
-  const ambient = new THREE.AmbientLight(
-    0xffffff,
-    1.5
-  );
-
-  scene.add(ambient);
-
-  const light = new THREE.DirectionalLight(
-    0xffffff,
-    2
-  );
-
-  light.position.set(
-    5,
-    3,
-    5
-  );
-
-  scene.add(light);
-
-  /* DRAG */
-
-  let dragging = false;
-  let previousX = 0;
-
-  renderer.domElement.addEventListener(
-    "pointerdown",
-    function(event) {
-
-      dragging = true;
-      previousX = event.clientX;
+      message.textContent =
+        "Supabase error: " +
+        error.message;
 
     }
-  );
 
-  window.addEventListener(
-    "pointerup",
-    function() {
 
-      dragging = false;
+    /* =====================================================
+       SHOW PROFILE
+       ===================================================== */
 
-    }
-  );
+    function showProfile() {
 
-  window.addEventListener(
-    "pointermove",
-    function(event) {
+      document
+        .getElementById("auth")
+        .classList
+        .add("hidden");
 
-      if (!dragging) return;
 
-      const movement =
-        event.clientX - previousX;
+      document
+        .getElementById("profile")
+        .classList
+        .remove("hidden");
 
-      earth.rotation.y += movement * 0.006;
 
-      previousX = event.clientX;
+      message.textContent = "";
 
     }
-  );
 
-  /* ANIMATION */
 
-  function animate() {
+    /* =====================================================
+       COUNTRY + REGION DATA
+       ===================================================== */
 
-    requestAnimationFrame(animate);
+    let countries = [];
 
-    if (!dragging) {
-      earth.rotation.y += 0.0015;
+
+    async function loadCountries() {
+
+      message.textContent =
+        "Loading countries...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            "https://countriesnow.space/api/v0.1/countries/states"
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Could not load countries."
+          );
+
+        }
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !result ||
+          !Array.isArray(result.data)
+        ) {
+
+          throw new Error(
+            "Invalid country data."
+          );
+
+        }
+
+
+        countries =
+          result.data;
+
+
+        countries.sort(
+          function(a, b) {
+
+            return a.name.localeCompare(
+              b.name
+            );
+
+          }
+        );
+
+
+        countrySelect.innerHTML =
+          '<option value="">Select your country</option>';
+
+
+        countries.forEach(
+          function(country) {
+
+            const option =
+              document.createElement("option");
+
+            option.value =
+              country.name;
+
+            option.textContent =
+              country.name;
+
+            countrySelect.appendChild(
+              option
+            );
+
+          }
+        );
+
+
+        message.textContent = "";
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "Could not load the country list. Please refresh the page.";
+
+      }
+
     }
 
-    renderer.render(
-      scene,
-      camera
+
+    /* =====================================================
+       CHANGE COUNTRY
+       ===================================================== */
+
+    countrySelect.addEventListener(
+      "change",
+      function() {
+
+        const selectedCountry =
+          countries.find(
+            function(country) {
+
+              return country.name ===
+                countrySelect.value;
+
+            }
+          );
+
+
+        regionSelect.innerHTML =
+          '<option value="">Select your region</option>';
+
+
+        if (
+          !selectedCountry ||
+          !Array.isArray(
+            selectedCountry.states
+          )
+        ) {
+
+          regionSelect.disabled = true;
+
+          if (countrySelect.value) {
+
+            regionSelect.innerHTML =
+              '<option value="">No regions available</option>';
+
+          }
+
+          return;
+
+        }
+
+
+        const regions =
+          selectedCountry.states;
+
+
+        regions.forEach(
+          function(region) {
+
+            const option =
+              document.createElement("option");
+
+            option.value =
+              region.name;
+
+            option.textContent =
+              region.name;
+
+            regionSelect.appendChild(
+              option
+            );
+
+          }
+        );
+
+
+        regionSelect.disabled = false;
+
+      }
     );
 
-  }
 
-  animate();
+    /* =====================================================
+       CREATE ACCOUNT
+       ===================================================== */
 
-  /* RESIZE */
+    createButton.addEventListener(
+      "click",
+      async function() {
 
-  window.addEventListener(
-    "resize",
-    function() {
+        const email =
+          document
+            .getElementById("email")
+            .value
+            .trim();
 
-      camera.aspect =
-        container.clientWidth /
-        container.clientHeight;
 
-      camera.updateProjectionMatrix();
+        const password =
+          document
+            .getElementById("password")
+            .value;
 
-      renderer.setSize(
-        container.clientWidth,
-        container.clientHeight
-      );
 
-    }
-  );
+        if (!email) {
 
-  /* BUTTONS */
+          message.textContent =
+            "Please enter your email.";
 
-  function joinUs() {
+          return;
 
-    window.location.href = "login.html";
+        }
 
-  }
 
-  function showScience() {
+        if (!password) {
 
-    alert(
-      "🧬 Teen Map Science\n\n" +
-      "Discover how people around the world " +
-      "can contribute to real scientific projects."
+          message.textContent =
+            "Please enter your password.";
+
+          return;
+
+        }
+
+
+        if (password.length < 6) {
+
+          message.textContent =
+            "Password must have at least 6 characters.";
+
+          return;
+
+        }
+
+
+        if (!client) {
+
+          message.textContent =
+            "Supabase is not connected.";
+
+          return;
+
+        }
+
+
+        createButton.disabled = true;
+
+        message.textContent =
+          "Creating account...";
+
+
+        try {
+
+          const {
+            data,
+            error
+          } =
+            await client.auth.signUp({
+
+              email: email,
+
+              password: password,
+
+              options: {
+
+                emailRedirectTo:
+                  "https://meridediego5.github.io/Teen-Map/login.html"
+
+              }
+
+            });
+
+
+          if (error) {
+
+            message.textContent =
+              "Supabase: " +
+              error.message;
+
+            createButton.disabled = false;
+
+            return;
+
+          }
+
+
+          if (data.session) {
+
+            showProfile();
+
+          } else {
+
+            message.textContent =
+              "🎉 Account created! Check your email to confirm it.";
+
+          }
+
+
+        } catch (error) {
+
+          message.textContent =
+            "Error: " +
+            error.message;
+
+        }
+
+
+        createButton.disabled = false;
+
+      }
     );
 
-  }
 
-  function closeProfile() {
+    /* =====================================================
+       LOG IN
+       ===================================================== */
 
-    document
-      .getElementById("profile")
-      .classList.remove("active");
+    loginButton.addEventListener(
+      "click",
+      async function() {
 
-  }
+        const email =
+          document
+            .getElementById("email")
+            .value
+            .trim();
 
-</script>
+
+        const password =
+          document
+            .getElementById("password")
+            .value;
+
+
+        if (!email || !password) {
+
+          message.textContent =
+            "Please enter your email and password.";
+
+          return;
+
+        }
+
+
+        if (!client) {
+
+          message.textContent =
+            "Supabase is not connected.";
+
+          return;
+
+        }
+
+
+        loginButton.disabled = true;
+
+        message.textContent =
+          "Logging in...";
+
+
+        try {
+
+          const {
+            data,
+            error
+          } =
+            await client.auth.signInWithPassword({
+
+              email: email,
+
+              password: password
+
+            });
+
+
+          if (error) {
+
+            message.textContent =
+              "Supabase: " +
+              error.message;
+
+            loginButton.disabled = false;
+
+            return;
+
+          }
+
+
+          if (data.session) {
+
+            await openCorrectScreen();
+
+          }
+
+
+        } catch (error) {
+
+          message.textContent =
+            "Error: " +
+            error.message;
+
+        }
+
+
+        loginButton.disabled = false;
+
+      }
+    );
+
+
+    /* =====================================================
+       CHECK WHETHER PROFILE EXISTS
+       ===================================================== */
+
+    async function openCorrectScreen() {
+
+      try {
+
+        const {
+          data: {
+            user
+          }
+        } =
+          await client.auth.getUser();
+
+
+        if (!user) {
+
+          message.textContent =
+            "Please log in again.";
+
+          return;
+
+        }
+
+
+        const {
+          data: profile,
+          error
+        } =
+          await client
+            .from("profiles")
+            .select("id")
+            .eq("id", user.id)
+            .maybeSingle();
+
+
+        if (error) {
+
+          console.error(error);
+
+          showProfile();
+
+          return;
+
+        }
+
+
+        if (profile) {
+
+          /*
+             The user already has a profile.
+             For now we keep them on the profile
+             screen. The map can be connected later.
+          */
+
+          showProfile();
+
+          message.textContent =
+            "✅ Welcome back!";
+
+        } else {
+
+          showProfile();
+
+        }
+
+      } catch (error) {
+
+        message.textContent =
+          "Profile check error: " +
+          error.message;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       GOOGLE LOGIN
+       ===================================================== */
+
+    googleButton.addEventListener(
+      "click",
+      async function() {
+
+        if (!client) {
+
+          message.textContent =
+            "Supabase is not connected.";
+
+          return;
+
+        }
+
+
+        googleButton.disabled = true;
+
+        message.textContent =
+          "Connecting to Google...";
+
+
+        try {
+
+          const {
+            error
+          } =
+            await client.auth.signInWithOAuth({
+
+              provider: "google",
+
+              options: {
+
+                redirectTo:
+                  "https://meridediego5.github.io/Teen-Map/login.html"
+
+              }
+
+            });
+
+
+          if (error) {
+
+            message.textContent =
+              "Google error: " +
+              error.message;
+
+            googleButton.disabled = false;
+
+          }
+
+        } catch (error) {
+
+          message.textContent =
+            "Google error: " +
+            error.message;
+
+          googleButton.disabled = false;
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       SAVE PROFILE
+       ===================================================== */
+
+    saveProfileButton.addEventListener(
+      "click",
+      async function() {
+
+        if (!client) {
+
+          message.textContent =
+            "Supabase is not connected.";
+
+          return;
+
+        }
+
+
+        const username =
+          document
+            .getElementById("username")
+            .value
+            .trim();
+
+
+        const age =
+          document
+            .getElementById("age")
+            .value;
+
+
+        const country =
+          countrySelect.value;
+
+
+        const region =
+          regionSelect.value;
+
+
+        const languages =
+          document
+            .getElementById("languages")
+            .value
+            .trim();
+
+
+        const traditions =
+          document
+            .getElementById("traditions")
+            .value
+            .trim();
+
+
+        const funFact =
+          document
+            .getElementById("fun_fact")
+            .value
+            .trim();
+
+
+        const favoriteSong =
+          document
+            .getElementById("favorite_song")
+            .value
+            .trim();
+
+
+        const hobbies =
+          document
+            .getElementById("hobbies")
+            .value
+            .trim();
+
+
+        if (
+          !username ||
+          !age ||
+          !country ||
+          !region ||
+          !languages ||
+          !traditions ||
+          !funFact ||
+          !favoriteSong ||
+          !hobbies
+        ) {
+
+          message.textContent =
+            "Please complete every field.";
+
+          return;
+
+        }
+
+
+        message.textContent =
+          "Saving profile...";
+
+
+        try {
+
+          const {
+            data: {
+              user
+            }
+          } =
+            await client.auth.getUser();
+
+
+          if (!user) {
+
+            message.textContent =
+              "Please log in again.";
+
+            return;
+
+          }
+
+
+          const {
+            error
+          } =
+            await client
+              .from("profiles")
+              .upsert({
+
+                id: user.id,
+
+                username: username,
+
+                age: Number(age),
+
+                country: country,
+
+                region: region,
+
+                languages: languages,
+
+                traditions: traditions,
+
+                fun_fact: funFact,
+
+                favorite_song: favoriteSong,
+
+                hobbies: hobbies
+
+              });
+
+
+          if (error) {
+
+            console.error(error);
+
+            message.textContent =
+              "Profile error: " +
+              error.message;
+
+            return;
+
+          }
+
+
+          message.textContent =
+            "🎉 Welcome to Teen Map!";
+
+        } catch (error) {
+
+          message.textContent =
+            "Error: " +
+            error.message;
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    loadCountries();
+
+
+    async function checkSession() {
+
+      if (!client) return;
+
+
+      try {
+
+        const {
+          data
+        } =
+          await client.auth.getSession();
+
+
+        if (data.session) {
+
+          await openCorrectScreen();
+
+        }
+
+      } catch (error) {
+
+        message.textContent =
+          "Session error: " +
+          error.message;
+
+      }
+
+    }
+
+
+    checkSession();
+
+  </script>
 
 </body>
+
 </html>
