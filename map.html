@@ -6,303 +6,418 @@
 
   <title>Teen Map</title>
 
-  <!-- 🔑 SUPABASE KEYS — PEGA AQUÍ LAS MISMAS QUE YA USABAS -->
+  <!-- 🔑 SUPABASE: USA EXACTAMENTE LAS MISMAS CLAVES QUE YA TIENES -->
   <script>
     const SUPABASE_URL = "https://wqzdzajhqoodtxauwqme.supabase.co";
     const SUPABASE_KEY = "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/three"></script>
-  <script src="https://unpkg.com/globe.gl"></script>
 
   <style>
     * {
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
       margin: 0;
-      background: #f7f1f6;
-      font-family: Arial, sans-serif;
-      color: #333;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #f8f2f7;
     }
 
-    #top {
-      position: fixed;
+    #app {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    #header {
+      position: absolute;
+      z-index: 10;
       top: 0;
       left: 0;
       width: 100%;
-      z-index: 10;
       padding: 18px 22px;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,.92);
       backdrop-filter: blur(10px);
     }
 
     #title {
-      font-size: 27px;
-      font-weight: bold;
-      color: #d65a9e;
+      font-size: 28px;
+      font-weight: 700;
+      color: #d85a9f;
     }
 
     #subtitle {
       margin-top: 4px;
-      font-size: 13px;
+      font-size: 14px;
       color: #777;
     }
 
-    #count {
-      margin-top: 7px;
-      font-size: 14px;
-      font-weight: bold;
+    #status {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
     }
 
-    #globe {
-      width: 100vw;
-      height: 100vh;
-    }
-
-    #loading {
-      position: fixed;
+    #map {
+      position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f7f1f6;
-      z-index: 20;
-      font-size: 18px;
-      color: #d65a9e;
-      font-weight: bold;
     }
 
-    #error {
-      display: none;
-      position: fixed;
-      top: 100px;
+    #message {
+      position: absolute;
+      z-index: 20;
+      top: 115px;
       left: 20px;
       right: 20px;
-      z-index: 30;
-      padding: 15px;
+      display: none;
+      padding: 16px;
+      border-radius: 16px;
       background: white;
-      border-radius: 15px;
-      color: #c0392b;
-      box-shadow: 0 5px 20px rgba(0,0,0,.12);
+      color: #333;
+      box-shadow: 0 5px 25px rgba(0,0,0,.15);
+      line-height: 1.4;
     }
 
     #profile {
       display: none;
-      position: fixed;
+      position: absolute;
+      z-index: 30;
       right: 20px;
       bottom: 20px;
-      width: min(360px, calc(100vw - 40px));
+      width: min(370px, calc(100% - 40px));
       max-height: 70vh;
       overflow-y: auto;
-      z-index: 15;
       background: white;
       border-radius: 22px;
-      padding: 20px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.18);
+      padding: 22px;
+      box-shadow: 0 8px 35px rgba(0,0,0,.2);
+    }
+
+    #close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 50%;
+      background: #f3e3ed;
+      font-size: 20px;
+      cursor: pointer;
     }
 
     #profile h2 {
-      margin: 0 0 5px;
-      color: #d65a9e;
+      margin: 0 40px 4px 0;
+      color: #d85a9f;
     }
 
-    .country {
+    #profileCountry {
       color: #777;
-      margin-bottom: 15px;
+      margin-bottom: 18px;
     }
 
-    .section {
+    .item {
       margin-top: 13px;
     }
 
     .label {
-      font-size: 12px;
-      color: #999;
+      font-size: 11px;
       text-transform: uppercase;
-      font-weight: bold;
+      font-weight: 700;
+      color: #999;
     }
 
     .value {
       margin-top: 3px;
       font-size: 15px;
-    }
-
-    #close {
-      position: absolute;
-      right: 15px;
-      top: 12px;
-      border: 0;
-      background: #f3e5ee;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 17px;
+      color: #333;
     }
   </style>
 </head>
 
 <body>
 
-  <div id="loading">Loading Teen Map...</div>
+<div id="app">
 
-  <div id="top">
+  <div id="header">
     <div id="title">Teen Map</div>
     <div id="subtitle">See the world through teenage eyes</div>
-    <div id="count">Loading profiles...</div>
+    <div id="status">Connecting...</div>
   </div>
 
-  <div id="globe"></div>
+  <div id="map"></div>
 
-  <div id="error"></div>
+  <div id="message"></div>
 
   <div id="profile">
     <button id="close">×</button>
 
-    <h2 id="profileName">Teen</h2>
-    <div class="country" id="profileCountry"></div>
+    <h2 id="name">Teen</h2>
+    <div id="profileCountry">—</div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Age</div>
-      <div class="value" id="profileAge">—</div>
+      <div class="value" id="age">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Region</div>
-      <div class="value" id="profileRegion">—</div>
+      <div class="value" id="region">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Languages</div>
-      <div class="value" id="profileLanguages">—</div>
+      <div class="value" id="languages">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Hobbies</div>
-      <div class="value" id="profileHobbies">—</div>
+      <div class="value" id="hobbies">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Traditions</div>
-      <div class="value" id="profileTraditions">—</div>
+      <div class="value" id="traditions">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Mental health situation</div>
-      <div class="value" id="profileMentalSituation">—</div>
+      <div class="value" id="mentalSituation">—</div>
     </div>
 
-    <div class="section">
-      <div class="label">Biggest mental health challenge</div>
-      <div class="value" id="profileMentalChallenge">—</div>
+    <div class="item">
+      <div class="label">Mental health challenge</div>
+      <div class="value" id="mentalChallenge">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Environmental concern</div>
-      <div class="value" id="profileEnvironment">—</div>
+      <div class="value" id="environment">—</div>
     </div>
 
-    <div class="section">
+    <div class="item">
       <div class="label">Environmental action</div>
-      <div class="value" id="profileAction">—</div>
+      <div class="value" id="action">—</div>
     </div>
   </div>
 
+</div>
+
 <script>
-  const supabaseClient = window.supabase.createClient(
+"use strict";
+
+/* =====================================================
+   COUNTRY COORDINATES
+===================================================== */
+
+const countries = {
+  "Spain": [40.4, -3.7],
+  "France": [46.2, 2.2],
+  "Portugal": [39.4, -8.2],
+  "Italy": [41.9, 12.6],
+  "Germany": [51.2, 10.5],
+  "United Kingdom": [55.4, -3.4],
+  "Ireland": [53.1, -7.7],
+  "United States": [37.1, -95.7],
+  "Canada": [56.1, -106.3],
+  "Mexico": [23.6, -102.5],
+  "Brazil": [-14.2, -51.9],
+  "Argentina": [-38.4, -63.6],
+  "Chile": [-35.7, -71.5],
+  "Colombia": [4.6, -74.3],
+  "Peru": [-9.2, -75.0],
+  "Morocco": [31.8, -7.1],
+  "Egypt": [26.8, 30.8],
+  "South Africa": [-30.6, 22.9],
+  "Nigeria": [9.1, 8.7],
+  "India": [20.6, 79.0],
+  "China": [35.9, 104.2],
+  "Japan": [36.2, 138.3],
+  "South Korea": [35.9, 127.8],
+  "Australia": [-25.3, 133.8],
+  "New Zealand": [-40.9, 174.9],
+  "Turkey": [39.0, 35.2],
+  "Greece": [39.1, 21.8],
+  "Netherlands": [52.1, 5.3],
+  "Belgium": [50.5, 4.5],
+  "Switzerland": [46.8, 8.2],
+  "Austria": [47.5, 14.6],
+  "Poland": [51.9, 19.1],
+  "Sweden": [60.1, 18.6],
+  "Norway": [60.5, 8.5],
+  "Denmark": [56.3, 9.5],
+  "Finland": [61.9, 25.7],
+  "Romania": [45.9, 25.0],
+  "Ukraine": [48.4, 31.2],
+  "Russia": [61.5, 105.3],
+  "Saudi Arabia": [23.9, 45.1],
+  "United Arab Emirates": [23.4, 53.8],
+  "Israel": [31.0, 34.9],
+  "Philippines": [12.9, 121.8],
+  "Indonesia": [-0.8, 113.9],
+  "Thailand": [15.9, 101.0],
+  "Vietnam": [14.1, 108.3]
+};
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const statusBox = document.getElementById("status");
+const messageBox = document.getElementById("message");
+
+function showMessage(text) {
+  messageBox.style.display = "block";
+  messageBox.innerHTML = text;
+}
+
+
+/* =====================================================
+   CHECK SUPABASE
+===================================================== */
+
+if (
+  !SUPABASE_URL ||
+  !SUPABASE_KEY ||
+  SUPABASE_URL.includes("PEGA_AQUÍ") ||
+  SUPABASE_KEY.includes("PEGA_AQUÍ")
+) {
+  statusBox.textContent = "Supabase keys missing";
+
+  showMessage(
+    "<b>Supabase keys are missing.</b><br><br>" +
+    "Pon las mismas claves que tienes en login.html arriba del archivo."
+  );
+
+  throw new Error("Supabase keys missing");
+}
+
+
+/* =====================================================
+   CREATE SUPABASE CLIENT
+===================================================== */
+
+let supabaseClient;
+
+try {
+
+  supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
 
-  /*
-    COORDENADAS DE LOS PAÍSES
-  */
-  const countryCoordinates = {
-    Spain: [40.4168, -3.7038],
-    France: [46.2276, 2.2137],
-    Portugal: [39.3999, -8.2245],
-    Italy: [41.8719, 12.5674],
-    Germany: [51.1657, 10.4515],
-    United Kingdom: [55.3781, -3.4360],
-    Ireland: [53.1424, -7.6921],
-    United States: [37.0902, -95.7129],
-    Canada: [56.1304, -106.3468],
-    Mexico: [23.6345, -102.5528],
-    Brazil: [-14.2350, -51.9253],
-    Argentina: [-38.4161, -63.6167],
-    Chile: [-35.6751, -71.5430],
-    Colombia: [4.5709, -74.2973],
-    Peru: [-9.1900, -75.0152],
-    Morocco: [31.7917, -7.0926],
-    Egypt: [26.8206, 30.8025],
-    South Africa: [-30.5595, 22.9375],
-    Nigeria: [9.0820, 8.6753],
-    India: [20.5937, 78.9629],
-    China: [35.8617, 104.1954],
-    Japan: [36.2048, 138.2529],
-    South Korea: [35.9078, 127.7669],
-    Australia: [-25.2744, 133.7751],
-    New Zealand: [-40.9006, 174.8860],
-    Turkey: [38.9637, 35.2433],
-    Greece: [39.0742, 21.8243],
-    Netherlands: [52.1326, 5.2913],
-    Belgium: [50.5039, 4.4699],
-    Switzerland: [46.8182, 8.2275],
-    Austria: [47.5162, 14.5501],
-    Poland: [51.9194, 19.1451],
-    Sweden: [60.1282, 18.6435],
-    Norway: [60.4720, 8.4689],
-    Denmark: [56.2639, 9.5018],
-    Finland: [61.9241, 25.7482],
-    Romania: [45.9432, 24.9668],
-    Ukraine: [48.3794, 31.1656],
-    Russia: [61.5240, 105.3188],
-    Saudi Arabia: [23.8859, 45.0792],
-    United Arab Emirates: [23.4241, 53.8478],
-    Israel: [31.0461, 34.8516],
-    Philippines: [12.8797, 121.7740],
-    Indonesia: [-0.7893, 113.9213],
-    Thailand: [15.8700, 100.9925],
-    Vietnam: [14.0583, 108.2772]
-  };
+} catch (error) {
 
-  const globeContainer = document.getElementById("globe");
+  statusBox.textContent = "Supabase error";
 
-  const globe = Globe()(globeContainer)
-    .backgroundColor("#f7f1f6")
-    .globeImageUrl(
-      "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-    )
-    .bumpImageUrl(
-      "https://unpkg.com/three-globe/example/img/earth-topology.png"
-    )
-    .showAtmosphere(true)
-    .atmosphereColor("#d65a9e")
-    .atmosphereAltitude(0.15)
-    .pointColor(() => "#ff65aa")
-    .pointAltitude(0.03)
-    .pointRadius(0.45)
-    .pointsMerge(false)
-    .onPointClick(profile => {
-      showProfile(profile);
-    });
+  showMessage(
+    "<b>Could not connect to Supabase.</b><br><br>" +
+    error.message
+  );
 
-  globe.controls().autoRotate = true;
-  globe.controls().autoRotateSpeed = 0.35;
+  throw error;
+}
 
-  async function loadProfiles() {
 
-    /*
-      IMPORTANTE:
-      Aquí SOLO usamos columnas que existen.
-      NO usamos "fun fact" ni "favorite song".
-    */
+/* =====================================================
+   LOAD GLOBE LIBRARY
+===================================================== */
 
-    const { data, error } = await supabaseClient
+const globeScript = document.createElement("script");
+
+globeScript.src =
+  "https://unpkg.com/globe.gl@2.45.3/dist/globe.gl.min.js";
+
+globeScript.onload = function() {
+  startGlobe();
+};
+
+globeScript.onerror = function() {
+
+  statusBox.textContent = "Map could not load";
+
+  showMessage(
+    "<b>The globe library could not load.</b><br><br>" +
+    "Check your internet connection and reload the page."
+  );
+};
+
+document.head.appendChild(globeScript);
+
+
+/* =====================================================
+   START GLOBE
+===================================================== */
+
+function startGlobe() {
+
+  let globe;
+
+  try {
+
+    globe = Globe()
+      (document.getElementById("map"))
+      .backgroundColor("#f8f2f7")
+      .globeImageUrl(
+        "https://unpkg.com/three-globe@2.45.3/example/img/earth-blue-marble.jpg"
+      )
+      .bumpImageUrl(
+        "https://unpkg.com/three-globe@2.45.3/example/img/earth-topology.png"
+      )
+      .showAtmosphere(true)
+      .atmosphereColor("#d85a9f")
+      .atmosphereAltitude(0.15)
+      .pointColor(() => "#ff65aa")
+      .pointAltitude(0.04)
+      .pointRadius(0.45)
+      .pointsMerge(false)
+      .onPointClick(profile => {
+
+        openProfile(profile);
+
+      });
+
+    globe.controls().autoRotate = true;
+    globe.controls().autoRotateSpeed = 0.25;
+
+  } catch (error) {
+
+    statusBox.textContent = "Map error";
+
+    showMessage(
+      "<b>The globe could not start.</b><br><br>" +
+      error.message
+    );
+
+    return;
+  }
+
+
+  /* =====================================================
+     SUPABASE QUERY
+  ===================================================== */
+
+  loadProfiles(globe);
+}
+
+
+/* =====================================================
+   LOAD PROFILES
+===================================================== */
+
+async function loadProfiles(globe) {
+
+  statusBox.textContent = "Loading profiles...";
+
+  try {
+
+    const query = supabaseClient
       .from("profiles")
       .select(`
         id,
@@ -319,26 +434,56 @@
         environmental_action
       `);
 
-    if (error) {
-      console.error(error);
+    const timeout = new Promise((_, reject) => {
 
-      document.getElementById("loading").style.display = "none";
+      setTimeout(() => {
+        reject(
+          new Error(
+            "Supabase is taking too long to respond."
+          )
+        );
+      }, 15000);
 
-      const errorBox = document.getElementById("error");
-      errorBox.style.display = "block";
-      errorBox.textContent =
-        "Error loading profiles: " + error.message;
+    });
 
-      return;
+    const result = await Promise.race([
+      query,
+      timeout
+    ]);
+
+    if (result.error) {
+      throw result.error;
     }
 
-    const profiles = data || [];
+    const profiles = result.data || [];
 
     const points = [];
 
     profiles.forEach(profile => {
 
-      const coords = countryCoordinates[profile.country];
+      if (!profile.country) return;
+
+      let coords = countries[profile.country];
+
+      /*
+        Some databases store Spain differently.
+      */
+
+      if (!coords) {
+
+        const normal = String(profile.country)
+          .trim()
+          .toLowerCase();
+
+        const match = Object.keys(countries).find(
+          country =>
+            country.toLowerCase() === normal
+        );
+
+        if (match) {
+          coords = countries[match];
+        }
+      }
 
       if (!coords) return;
 
@@ -347,60 +492,125 @@
         lat: coords[0],
         lng: coords[1]
       });
+
     });
+
 
     globe.pointsData(points);
 
-    document.getElementById("count").textContent =
+
+    statusBox.textContent =
       profiles.length +
-      (profiles.length === 1 ? " teen has joined Teen Map" : " teens have joined Teen Map");
+      (profiles.length === 1
+        ? " teen has joined Teen Map"
+        : " teens have joined Teen Map");
 
-    document.getElementById("loading").style.display = "none";
+
+    if (profiles.length === 0) {
+
+      showMessage(
+        "<b>No profiles yet.</b><br><br>" +
+        "Create an account from the login page and it will appear here."
+      );
+
+    } else if (points.length === 0) {
+
+      showMessage(
+        "<b>Profiles found, but their countries are not recognised yet.</b><br><br>" +
+        "The profiles exist in Supabase, but their country name does not yet have map coordinates."
+      );
+
+    } else {
+
+      messageBox.style.display = "none";
+
+    }
+
+  } catch (error) {
+
+    console.error("Teen Map error:", error);
+
+    statusBox.textContent = "Error loading profiles";
+
+    showMessage(
+      "<b>Teen Map could not load the profiles.</b><br><br>" +
+      "<b>Error:</b> " +
+      escapeHtml(error.message || String(error)) +
+      "<br><br>" +
+      "The globe itself has loaded. This message is coming from the database request."
+    );
   }
+}
 
-  function showProfile(profile) {
 
-    document.getElementById("profile").style.display = "block";
+/* =====================================================
+   PROFILE CARD
+===================================================== */
 
-    document.getElementById("profileName").textContent =
-      profile.username || "Teen";
+function openProfile(profile) {
 
-    document.getElementById("profileCountry").textContent =
-      profile.country || "Unknown country";
+  document.getElementById("profile").style.display = "block";
 
-    document.getElementById("profileAge").textContent =
-      profile.age || "—";
+  document.getElementById("name").textContent =
+    profile.username || "Teen";
 
-    document.getElementById("profileRegion").textContent =
-      profile.region || "—";
+  document.getElementById("profileCountry").textContent =
+    profile.country || "Unknown country";
 
-    document.getElementById("profileLanguages").textContent =
-      profile.languages || "—";
+  document.getElementById("age").textContent =
+    profile.age || "—";
 
-    document.getElementById("profileHobbies").textContent =
-      profile.hobbies || "—";
+  document.getElementById("region").textContent =
+    profile.region || "—";
 
-    document.getElementById("profileTraditions").textContent =
-      profile.traditions || "—";
+  document.getElementById("languages").textContent =
+    profile.languages || "—";
 
-    document.getElementById("profileMentalSituation").textContent =
-      profile.mental_health_situation || "—";
+  document.getElementById("hobbies").textContent =
+    profile.hobbies || "—";
 
-    document.getElementById("profileMentalChallenge").textContent =
-      profile.mental_health_challenge || "—";
+  document.getElementById("traditions").textContent =
+    profile.traditions || "—";
 
-    document.getElementById("profileEnvironment").textContent =
-      profile.environmental_concern || "—";
+  document.getElementById("mentalSituation").textContent =
+    profile.mental_health_situation || "—";
 
-    document.getElementById("profileAction").textContent =
-      profile.environmental_action || "—";
-  }
+  document.getElementById("mentalChallenge").textContent =
+    profile.mental_health_challenge || "—";
 
-  document.getElementById("close").onclick = function() {
-    document.getElementById("profile").style.display = "none";
-  };
+  document.getElementById("environment").textContent =
+    profile.environmental_concern || "—";
 
-  loadProfiles();
+  document.getElementById("action").textContent =
+    profile.environmental_action || "—";
+}
+
+
+/* =====================================================
+   CLOSE PROFILE
+===================================================== */
+
+document.getElementById("close").onclick = function() {
+
+  document.getElementById("profile").style.display = "none";
+
+};
+
+
+/* =====================================================
+   SECURITY / ERROR TEXT
+===================================================== */
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
 </script>
 
 </body>
