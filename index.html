@@ -1,14 +1,184 @@
-55,255,.08);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+
+<title>Teen Map 🌎</title>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#061426;
+  font-family:Arial,sans-serif;
+  color:white;
+}
+
+canvas{
+  display:block;
+  width:100vw;
+  height:100vh;
+  touch-action:none;
+}
+
+/* LOGO */
+
+.title{
+  position:fixed;
+  top:16px;
+  left:16px;
+  z-index:20;
+  color:white;
+  font-size:23px;
+  font-weight:bold;
+  padding:10px 15px;
+  border-radius:15px;
+  background:rgba(0,0,0,.38);
+  backdrop-filter:blur(8px);
+}
+
+/* POINTS */
+
+.points{
+  position:fixed;
+  top:16px;
+  right:16px;
+  z-index:20;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+  padding:9px 14px;
+  text-align:center;
+  cursor:pointer;
+}
+
+.points small{
+  display:block;
+  font-size:10px;
+  opacity:.7;
+}
+
+.points strong{
+  display:block;
+  color:#ff78b7;
+  font-size:20px;
+}
+
+/* CHALLENGE BUTTON */
+
+.challengeButton{
+  position:fixed;
+  bottom:22px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  border:0;
+  border-radius:17px;
+  padding:15px 24px;
+  background:#ff78b7;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  box-shadow:0 8px 25px rgba(255,120,183,.35);
+  cursor:pointer;
+}
+
+/* CHALLENGE PANEL */
+
+.panel{
+  position:fixed;
+  z-index:30;
+  top:0;
+  right:-450px;
+  width:min(430px,100%);
+  height:100%;
+  box-sizing:border-box;
+  background:rgba(5,20,36,.97);
+  backdrop-filter:blur(20px);
+  box-shadow:-10px 0 40px rgba(0,0,0,.4);
+  transition:right .3s ease;
+  overflow-y:auto;
+  padding:25px 20px 35px;
+}
+
+.panel.open{
+  right:0;
+}
+
+.panelHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.panelHeader h2{
+  margin:0;
+  font-size:27px;
+}
+
+.close{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.12);
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.subtitle{
+  opacity:.7;
+  line-height:1.5;
+}
+
+/* IMPACT */
+
+.impact{
+  margin:20px 0;
+  padding:18px;
+  border-radius:20px;
+  background:linear-gradient(
+    135deg,
+    rgba(255,120,183,.22),
+    rgba(70,180,170,.18)
+  );
+}
+
+.impactNumber{
+  font-size:38px;
+  font-weight:bold;
+  color:#ff78b7;
+}
+
+.impactText{
+  opacity:.7;
+}
+
+/* CHALLENGES */
+
+.challenge{
+  background:rgba(255,255,255,.08);
   border-radius:20px;
   padding:18px;
   margin-bottom:15px;
 }
 
-.icon {
+.icon{
   font-size:32px;
 }
 
-.category {
+.category{
   display:inline-block;
   margin:8px 0;
   padding:5px 9px;
@@ -18,30 +188,30 @@
   font-size:12px;
 }
 
-.challenge h3 {
+.challenge h3{
   margin:5px 0;
   font-size:19px;
 }
 
-.challenge p {
+.challenge p{
   opacity:.75;
   line-height:1.45;
   font-size:14px;
 }
 
-.challengeBottom {
+.challengeBottom{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
 }
 
-.reward {
+.reward{
   color:#ffd36b;
   font-weight:bold;
 }
 
-.complete {
+.complete{
   border:0;
   border-radius:12px;
   padding:10px 13px;
@@ -51,14 +221,125 @@
   cursor:pointer;
 }
 
-.complete.done {
+.complete.done{
   background:rgba(100,210,160,.2);
   color:#75e0ad;
 }
 
+/* PROFILE */
+
+.profilePanel{
+  position:fixed;
+  z-index:40;
+  left:50%;
+  bottom:25px;
+  transform:translate(-50%,120%);
+  width:min(390px,calc(100% - 30px));
+  max-height:70vh;
+  box-sizing:border-box;
+  overflow-y:auto;
+  background:rgba(5,20,36,.97);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:25px;
+  padding:22px;
+  box-shadow:0 15px 50px rgba(0,0,0,.5);
+  transition:transform .3s ease;
+}
+
+.profilePanel.open{
+  transform:translate(-50%,0);
+}
+
+.profileTop{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.profileAvatar{
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#ff78b7,#7bdcff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:29px;
+  flex-shrink:0;
+}
+
+.profileName{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.profileCountry{
+  margin-top:4px;
+  opacity:.7;
+  font-size:14px;
+}
+
+.profileClose{
+  margin-left:auto;
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+  color:white;
+  font-size:21px;
+  cursor:pointer;
+}
+
+.profileGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.profileItem{
+  background:rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:11px;
+  min-width:0;
+}
+
+.profileItem.full{
+  grid-column:1/-1;
+}
+
+.profileLabel{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  opacity:.5;
+  margin-bottom:5px;
+}
+
+.profileValue{
+  font-size:14px;
+  line-height:1.35;
+  word-break:break-word;
+}
+
+.impactBadge{
+  margin-top:15px;
+  padding:13px;
+  border-radius:15px;
+  background:rgba(255,120,183,.12);
+  text-align:center;
+}
+
+.impactBadge strong{
+  color:#ff78b7;
+  font-size:22px;
+}
+
 /* MESSAGE */
 
-.message {
+.message{
   position:fixed;
   z-index:50;
   left:50%;
@@ -73,13 +354,13 @@
   text-align:center;
 }
 
-.message.show {
+.message.show{
   opacity:1;
 }
 
 /* LOADING */
 
-.loading {
+.loading{
   position:fixed;
   inset:0;
   z-index:100;
@@ -90,12 +371,12 @@
   transition:.4s;
 }
 
-.loading.hide {
+.loading.hide{
   opacity:0;
   pointer-events:none;
 }
 
-.spinner {
+.spinner{
   width:23px;
   height:23px;
   border:3px solid rgba(255,255,255,.2);
@@ -105,27 +386,32 @@
   margin-right:12px;
 }
 
-@keyframes spin {
-  to { transform:rotate(360deg); }
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
 }
 
-@media(max-width:600px) {
+@media(max-width:600px){
 
-  .title {
+  .title{
     font-size:19px;
     padding:9px 12px;
   }
 
-  .points {
+  .points{
     padding:8px 11px;
   }
 
-  .challengeButton {
+  .challengeButton{
     width:calc(100% - 40px);
   }
 
+  .profilePanel{
+    bottom:15px;
+    max-height:75vh;
+  }
 }
-
 </style>
 </head>
 
@@ -151,14 +437,18 @@
   ✨ Explore Challenges
 </button>
 
+<!-- CHALLENGES -->
+
 <div class="panel" id="panel">
 
   <div class="panelHeader">
+
     <h2>🌍 Challenges</h2>
 
     <button class="close" id="close">
       ×
     </button>
+
   </div>
 
   <p class="subtitle">
@@ -167,10 +457,15 @@
   </p>
 
   <div class="impact">
-    <div class="impactNumber" id="panelPoints">0</div>
+
+    <div class="impactNumber" id="panelPoints">
+      0
+    </div>
+
     <div class="impactText">
       Your Impact Points
     </div>
+
   </div>
 
   <div id="challengeList">
@@ -179,14 +474,99 @@
 
 </div>
 
-<div class="message" id="toast"></div>
+<!-- PROFILE -->
 
+<div class="profilePanel" id="profilePanel">
+
+  <div class="profileTop">
+
+    <div class="profileAvatar" id="profileAvatar">
+      🌎
+    </div>
+
+    <div>
+
+      <div class="profileName" id="profileName">
+        Teen Map
+      </div>
+
+      <div class="profileCountry" id="profileCountry">
+        🌍
+      </div>
+
+    </div>
+
+    <button class="profileClose" id="profileClose">
+      ×
+    </button>
+
+  </div>
+
+  <div class="profileGrid">
+
+    <div class="profileItem">
+      <div class="profileLabel">Age</div>
+      <div class="profileValue" id="profileAge">—</div>
+    </div>
+
+    <div class="profileItem">
+      <div class="profileLabel">Region</div>
+      <div class="profileValue" id="profileRegion">—</div>
+    </div>
+
+    <div class="profileItem full">
+      <div class="profileLabel">Languages</div>
+      <div class="profileValue" id="profileLanguages">—</div>
+    </div>
+
+    <div class="profileItem full">
+      <div class="profileLabel">Interests</div>
+      <div class="profileValue" id="profileInterests">—</div>
+    </div>
+
+    <div class="profileItem full">
+      <div class="profileLabel">Hobbies</div>
+      <div class="profileValue" id="profileHobbies">—</div>
+    </div>
+
+    <div class="profileItem full">
+      <div class="profileLabel">Traditions</div>
+      <div class="profileValue" id="profileTraditions">—</div>
+    </div>
+
+    <div class="profileItem full">
+      <div class="profileLabel">Fun fact</div>
+      <div class="profileValue" id="profileFunFact">—</div>
+    </div>
+
+    <div class="profileItem full">
+      <div class="profileLabel">Favorite song</div>
+      <div class="profileValue" id="profileSong">—</div>
+    </div>
+
+  </div>
+
+  <div class="impactBadge">
+
+    <div>
+      Impact Points
+    </div>
+
+    <strong id="profilePoints">
+      0
+    </strong>
+
+  </div>
+
+</div>
+
+<div class="message" id="toast"></div>
 
 <script>
 
-/* =====================================================
+/* =========================
    SUPABASE
-===================================================== */
+========================= */
 
 const SUPABASE_URL =
 "https://wqzdzajhqoodtxauwqme.supabase.co";
@@ -201,18 +581,17 @@ window.supabase.createClient(
 );
 
 
-/* =====================================================
+/* =========================
    ELEMENTS
-===================================================== */
+========================= */
 
 const canvas =
 document.getElementById("globe");
 
 const ctx =
-canvas.getContext("2d",{alpha:false});
-
-const message =
-document.getElementById("message");
+canvas.getContext("2d",{
+  alpha:false
+});
 
 const loading =
 document.getElementById("loading");
@@ -232,10 +611,16 @@ document.getElementById("panelPoints");
 const toast =
 document.getElementById("toast");
 
+const profilePanel =
+document.getElementById("profilePanel");
 
-/* =====================================================
+const profileClose =
+document.getElementById("profileClose");
+
+
+/* =========================
    GLOBE VARIABLES
-===================================================== */
+========================= */
 
 let width=0;
 let height=0;
@@ -254,9 +639,17 @@ let needsDraw=true;
 const stars=[];
 
 
-/* =====================================================
+/* =========================
+   PROFILE VARIABLES
+========================= */
+
+let profiles=[];
+let profileLocations=[];
+
+
+/* =========================
    STARS
-===================================================== */
+========================= */
 
 function createStars(){
 
@@ -275,9 +668,9 @@ function createStars(){
 }
 
 
-/* =====================================================
+/* =========================
    RESIZE
-===================================================== */
+========================= */
 
 function resize(){
 
@@ -321,9 +714,9 @@ window.addEventListener(
 );
 
 
-/* =====================================================
+/* =========================
    PROJECTION
-===================================================== */
+========================= */
 
 function createProjection(){
 
@@ -345,9 +738,9 @@ function createProjection(){
 }
 
 
-/* =====================================================
+/* =========================
    DRAW REQUEST
-===================================================== */
+========================= */
 
 function requestDraw(){
 
@@ -361,7 +754,6 @@ function requestDraw(){
     requestAnimationFrame(render);
 
 }
-
 
 function render(){
 
@@ -378,9 +770,9 @@ function render(){
 }
 
 
-/* =====================================================
+/* =========================
    BACKGROUND
-===================================================== */
+========================= */
 
 function drawBackground(){
 
@@ -410,9 +802,9 @@ function drawBackground(){
 }
 
 
-/* =====================================================
+/* =========================
    GLOBE
-===================================================== */
+========================= */
 
 function drawGlobe(){
 
@@ -486,14 +878,14 @@ function drawGlobe(){
       "rgba(20,75,40,.65)";
 
     ctx.lineWidth=
-      zoom>1.5?.5:.7;
+      zoom>1.5 ? .5 : .7;
 
     ctx.stroke();
 
   }
 
 
-  /* GRATICULE */
+  /* GRID */
 
   ctx.beginPath();
 
@@ -523,8 +915,127 @@ function drawGlobe(){
 
   ctx.stroke();
 
+
+  /* PROFILES */
+
+  drawProfilePoints();
+
 }
 
+
+/* =========================
+   PROFILE POINTS
+========================= */
+
+function drawProfilePoints(){
+
+  if(
+    !projection ||
+    !profileLocations.length
+  ){
+    return;
+  }
+
+  const center=
+    projection.invert([
+      width/2,
+      height/2
+    ]);
+
+  if(!center){
+    return;
+  }
+
+  for(const item of profileLocations){
+
+    if(!item.coordinates){
+      continue;
+    }
+
+    const visible=
+      d3.geoDistance(
+        center,
+        item.coordinates
+      ) < Math.PI/2;
+
+    if(!visible){
+      continue;
+    }
+
+    const point=
+      projection(
+        item.coordinates
+      );
+
+    if(!point){
+      continue;
+    }
+
+    const x=point[0];
+    const y=point[1];
+
+    const size=
+      Math.max(
+        5,
+        Math.min(
+          9,
+          5.5*zoom
+        )
+      );
+
+
+    /* GLOW */
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      size+3,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+      "rgba(255,120,183,.22)";
+
+    ctx.fill();
+
+
+    /* PINK DOT */
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      size,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+      "#ff78b7";
+
+    ctx.fill();
+
+
+    /* WHITE BORDER */
+
+    ctx.strokeStyle="white";
+
+    ctx.lineWidth=1.5;
+
+    ctx.stroke();
+
+  }
+
+}
+
+
+/* =========================
+   DRAW
+========================= */
 
 function draw(){
 
@@ -535,9 +1046,9 @@ function draw(){
 }
 
 
-/* =====================================================
+/* =========================
    LOAD WORLD
-===================================================== */
+========================= */
 
 async function loadWorld(){
 
@@ -549,9 +1060,11 @@ async function loadWorld(){
       );
 
     if(!response.ok){
+
       throw new Error(
         "Could not load map"
       );
+
     }
 
     const world=
@@ -567,20 +1080,576 @@ async function loadWorld(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "World map error:",
+      error
+    );
 
   }
 
 }
 
 
-/* =====================================================
-   DRAG
-===================================================== */
+/* =========================
+   COUNTRY NORMALIZATION
+========================= */
+
+function normalizeCountry(value){
+
+  return String(value||"")
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+    .toLowerCase()
+    .trim();
+
+}
+
+
+const countryAliases={
+
+  "usa":
+    "United States of America",
+
+  "us":
+    "United States of America",
+
+  "united states":
+    "United States of America",
+
+  "estados unidos":
+    "United States of America",
+
+  "uk":
+    "United Kingdom",
+
+  "reino unido":
+    "United Kingdom",
+
+  "spain":
+    "Spain",
+
+  "españa":
+    "Spain",
+
+  "south korea":
+    "South Korea",
+
+  "corea del sur":
+    "South Korea",
+
+  "north korea":
+    "North Korea",
+
+  "corea del norte":
+    "North Korea",
+
+  "russia":
+    "Russia",
+
+  "rusia":
+    "Russia",
+
+  "czech republic":
+    "Czechia",
+
+  "republica checa":
+    "Czechia",
+
+  "netherlands":
+    "Netherlands",
+
+  "paises bajos":
+    "Netherlands",
+
+  "ivory coast":
+    "Côte d'Ivoire",
+
+  "costa de marfil":
+    "Côte d'Ivoire",
+
+  "vietnam":
+    "Vietnam",
+
+  "laos":
+    "Laos",
+
+  "bolivia":
+    "Bolivia",
+
+  "venezuela":
+    "Venezuela",
+
+  "dominican republic":
+    "Dominican Republic",
+
+  "republica dominicana":
+    "Dominican Republic"
+
+};
+
+
+/* =========================
+   FIND COUNTRY
+========================= */
+
+function getCountryFeature(
+  countryName
+){
+
+  if(
+    !countries ||
+    !countryName
+  ){
+    return null;
+  }
+
+  const normalized=
+    normalizeCountry(
+      countryName
+    );
+
+  const target=
+    normalizeCountry(
+      countryAliases[normalized] ||
+      countryName
+    );
+
+  return countries.features.find(
+    feature=>
+      normalizeCountry(
+        feature.properties?.name
+      )===target
+  )||null;
+
+}
+
+
+/* =========================
+   CREATE PROFILE LOCATIONS
+========================= */
+
+function updateProfileLocations(){
+
+  profileLocations=[];
+
+  if(
+    !countries ||
+    !profiles.length
+  ){
+
+    requestDraw();
+
+    return;
+
+  }
+
+  for(const profile of profiles){
+
+    const feature=
+      getCountryFeature(
+        profile.country
+      );
+
+    if(!feature){
+      continue;
+    }
+
+    let coordinates;
+
+    try{
+
+      coordinates=
+        d3.geoCentroid(
+          feature
+        );
+
+    }catch(error){
+
+      continue;
+
+    }
+
+    profileLocations.push({
+      profile:profile,
+      coordinates:coordinates
+    });
+
+  }
+
+  requestDraw();
+
+}
+
+
+/* =========================
+   LOAD PROFILES
+========================= */
+
+async function loadProfiles(){
+
+  const result=
+    await client
+      .from("profiles")
+      .select(`
+        id,
+        username,
+        age,
+        country,
+        region,
+        languages,
+        hobbies,
+        traditions
+      `);
+
+  if(result.error){
+
+    console.error(
+      "Could not load profiles:",
+      result.error
+    );
+
+    return;
+
+  }
+
+  profiles=
+    result.data||[];
+
+
+  /*
+    OPTIONAL FIELDS
+
+    If any of these columns are
+    still missing in Supabase,
+    the globe will NOT break.
+  */
+
+  const optionalResult=
+    await client
+      .from("profiles")
+      .select(`
+        id,
+        interests,
+        fun_fact,
+        favorite_song,
+        impact_points
+      `);
+
+
+  if(!optionalResult.error){
+
+    const optionalMap=
+      new Map();
+
+    (optionalResult.data||[])
+      .forEach(profile=>{
+
+        optionalMap.set(
+          profile.id,
+          profile
+        );
+
+      });
+
+    profiles=
+      profiles.map(
+        profile=>({
+
+          ...profile,
+
+          ...(optionalMap.get(
+            profile.id
+          )||{})
+
+        })
+      );
+
+  }else{
+
+    console.warn(
+      "Optional profile fields unavailable:",
+      optionalResult.error
+    );
+
+  }
+
+  updateProfileLocations();
+
+}
+
+
+/* =========================
+   FIND PROFILE AT POINT
+========================= */
+
+function findProfileAt(x,y){
+
+  if(!projection){
+    return null;
+  }
+
+  let closest=null;
+
+  let closestDistance=
+    Infinity;
+
+  const center=
+    projection.invert([
+      width/2,
+      height/2
+    ]);
+
+  if(!center){
+    return null;
+  }
+
+  for(
+    const item
+    of profileLocations
+  ){
+
+    if(!item.coordinates){
+      continue;
+    }
+
+    if(
+      d3.geoDistance(
+        center,
+        item.coordinates
+      )>=Math.PI/2
+    ){
+      continue;
+    }
+
+    const point=
+      projection(
+        item.coordinates
+      );
+
+    if(!point){
+      continue;
+    }
+
+    const dx=
+      point[0]-x;
+
+    const dy=
+      point[1]-y;
+
+    const distance=
+      Math.sqrt(
+        dx*dx+dy*dy
+      );
+
+    const hitRadius=
+      Math.max(
+        16,
+        14*zoom
+      );
+
+    if(
+      distance<=hitRadius &&
+      distance<closestDistance
+    ){
+
+      closest=
+        item.profile;
+
+      closestDistance=
+        distance;
+
+    }
+
+  }
+
+  return closest;
+
+}
+
+
+/* =========================
+   FORMAT PROFILE VALUES
+========================= */
+
+function formatValue(value){
+
+  if(
+    value===null||
+    value===undefined||
+    value===""
+  ){
+
+    return "—";
+
+  }
+
+  if(Array.isArray(value)){
+
+    return value.join(", ");
+
+  }
+
+  if(typeof value==="object"){
+
+    try{
+
+      return Object.values(value)
+        .join(", ");
+
+    }catch(error){
+
+      return String(value);
+
+    }
+
+  }
+
+  return String(value);
+
+}
+
+
+/* =========================
+   OPEN PROFILE
+========================= */
+
+function openProfile(profile){
+
+  if(!profile){
+    return;
+  }
+
+  document.getElementById(
+    "profileName"
+  ).textContent=
+    profile.username||
+    "Teen Map member";
+
+  document.getElementById(
+    "profileCountry"
+  ).textContent=
+    "🌍 "+
+    (
+      profile.country||
+      "Unknown country"
+    );
+
+  document.getElementById(
+    "profileAge"
+  ).textContent=
+    profile.age||
+    "—";
+
+  document.getElementById(
+    "profileRegion"
+  ).textContent=
+    profile.region||
+    "—";
+
+  document.getElementById(
+    "profileLanguages"
+  ).textContent=
+    formatValue(
+      profile.languages
+    );
+
+  document.getElementById(
+    "profileInterests"
+  ).textContent=
+    formatValue(
+      profile.interests
+    );
+
+  document.getElementById(
+    "profileHobbies"
+  ).textContent=
+    formatValue(
+      profile.hobbies
+    );
+
+  document.getElementById(
+    "profileTraditions"
+  ).textContent=
+    formatValue(
+      profile.traditions
+    );
+
+  document.getElementById(
+    "profileFunFact"
+  ).textContent=
+    formatValue(
+      profile.fun_fact
+    );
+
+  document.getElementById(
+    "profileSong"
+  ).textContent=
+    formatValue(
+      profile.favorite_song
+    );
+
+  document.getElementById(
+    "profilePoints"
+  ).textContent=
+    Number(
+      profile.impact_points||0
+    );
+
+
+  const username=
+    String(
+      profile.username||
+      "T"
+    );
+
+  document.getElementById(
+    "profileAvatar"
+  ).textContent=
+    username
+      .charAt(0)
+      .toUpperCase();
+
+
+  profilePanel.classList.add(
+    "open"
+  );
+
+}
+
+
+/* =========================
+   CLOSE PROFILE
+========================= */
+
+profileClose.addEventListener(
+  "click",
+  function(){
+
+    profilePanel.classList.remove(
+      "open"
+    );
+
+  }
+);
+
+
+/* =========================
+   GLOBE DRAG
+========================= */
 
 let dragging=false;
+
 let lastX=0;
 let lastY=0;
+
+let pointerStartX=0;
+let pointerStartY=0;
+
+let movedDuringPointer=false;
+
 
 canvas.addEventListener(
   "pointerdown",
@@ -595,8 +1664,13 @@ canvas.addEventListener(
 
     dragging=true;
 
+    movedDuringPointer=false;
+
     lastX=e.clientX;
     lastY=e.clientY;
+
+    pointerStartX=e.clientX;
+    pointerStartY=e.clientY;
 
     canvas.setPointerCapture(
       e.pointerId
@@ -620,8 +1694,26 @@ canvas.addEventListener(
     const dy=
       e.clientY-lastY;
 
-    rotation[0]+=dx*.38;
-    rotation[1]-=dy*.28;
+    const totalX=
+      e.clientX-pointerStartX;
+
+    const totalY=
+      e.clientY-pointerStartY;
+
+    if(
+      Math.abs(totalX)>5||
+      Math.abs(totalY)>5
+    ){
+
+      movedDuringPointer=true;
+
+    }
+
+    rotation[0]+=
+      dx*.38;
+
+    rotation[1]-=
+      dy*.28;
 
     rotation[1]=
       Math.max(
@@ -645,12 +1737,37 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "pointerup",
-  function(){
+  function(e){
+
+    if(!movedDuringPointer){
+
+      const rect=
+        canvas.getBoundingClientRect();
+
+      const x=
+        e.clientX-
+        rect.left;
+
+      const y=
+        e.clientY-
+        rect.top;
+
+      const profile=
+        findProfileAt(x,y);
+
+      if(profile){
+
+        openProfile(profile);
+
+      }
+
+    }
 
     dragging=false;
 
   }
 );
+
 
 canvas.addEventListener(
   "pointercancel",
@@ -662,9 +1779,9 @@ canvas.addEventListener(
 );
 
 
-/* =====================================================
+/* =========================
    WHEEL ZOOM
-===================================================== */
+========================= */
 
 canvas.addEventListener(
   "wheel",
@@ -672,9 +1789,10 @@ canvas.addEventListener(
 
     e.preventDefault();
 
-    zoom*=Math.exp(
-      -e.deltaY*.001
-    );
+    zoom*=
+      Math.exp(
+        -e.deltaY*.001
+      );
 
     zoom=
       Math.max(
@@ -690,17 +1808,21 @@ canvas.addEventListener(
     requestDraw();
 
   },
-  {passive:false}
+  {
+    passive:false
+  }
 );
 
 
-/* =====================================================
+/* =========================
    TWO FINGER ZOOM
-===================================================== */
+========================= */
 
-const fingers=new Map();
+const fingers=
+  new Map();
 
 let previousDistance=null;
+
 
 canvas.addEventListener(
   "pointerdown",
@@ -792,10 +1914,13 @@ function removeFinger(e){
   );
 
   if(fingers.size<2){
+
     previousDistance=null;
+
   }
 
 }
+
 
 canvas.addEventListener(
   "pointerup",
@@ -808,18 +1933,21 @@ canvas.addEventListener(
 );
 
 
-/* =====================================================
+/* =========================
    TEEN MAP DATA
-===================================================== */
+========================= */
 
 let currentUser=null;
+
 let currentPoints=0;
-let completed=new Set();
+
+let completed=
+  new Set();
 
 
-/* =====================================================
+/* =========================
    POINTS
-===================================================== */
+========================= */
 
 function updatePoints(){
 
@@ -832,31 +1960,34 @@ function updatePoints(){
 }
 
 
-/* =====================================================
+/* =========================
    GET USER
-===================================================== */
+========================= */
 
 async function getUser(){
 
-  const {
-    data,
-    error
-  }=
+  const result=
     await client.auth.getUser();
 
-  if(error){
-    console.error(error);
+  if(result.error){
+
+    console.error(
+      "Auth error:",
+      result.error
+    );
+
     return null;
+
   }
 
-  return data.user;
+  return result.data.user;
 
 }
 
 
-/* =====================================================
-   LOAD PROFILE
-===================================================== */
+/* =========================
+   LOAD MY PROFILE
+========================= */
 
 async function loadProfile(){
 
@@ -864,38 +1995,40 @@ async function loadProfile(){
     return;
   }
 
-  const {
-    data,
-    error
-  }=
+  const result=
     await client
       .from("profiles")
-      .select("impact_points")
+      .select(
+        "impact_points"
+      )
       .eq(
         "id",
         currentUser.id
       )
       .maybeSingle();
 
-  if(error){
+  if(result.error){
 
-    console.error(error);
+    console.error(
+      "Profile points error:",
+      result.error
+    );
 
     return;
 
   }
 
   currentPoints=
-    data?.impact_points||0;
+    result.data?.impact_points||0;
 
   updatePoints();
 
 }
 
 
-/* =====================================================
-   COMPLETED CHALLENGES
-===================================================== */
+/* =========================
+   LOAD COMPLETED
+========================= */
 
 async function loadCompleted(){
 
@@ -906,44 +2039,81 @@ async function loadCompleted(){
     return;
   }
 
-  const {
-    data,
-    error
-  }=
+  const result=
     await client
       .from("challenge_completions")
-      .select("challenge_id")
+      .select(
+        "challenge_id"
+      )
       .eq(
         "user_id",
         currentUser.id
       );
 
-  if(error){
+  if(result.error){
 
-    console.error(error);
+    console.error(
+      "Completed challenges error:",
+      result.error
+    );
 
     return;
 
   }
 
-  if(data){
+  if(result.data){
 
-    data.forEach(item=>{
+    result.data.forEach(
+      item=>{
 
-      completed.add(
-        Number(item.challenge_id)
-      );
+        completed.add(
+          Number(
+            item.challenge_id
+          )
+        );
 
-    });
+      }
+    );
 
   }
 
 }
 
 
-/* =====================================================
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(value){
+
+  return String(value??"")
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+/* =========================
    LOAD CHALLENGES
-===================================================== */
+========================= */
 
 async function loadChallenges(){
 
@@ -952,10 +2122,7 @@ async function loadChallenges(){
 
   await loadCompleted();
 
-  const {
-    data,
-    error
-  }=
+  const result=
     await client
       .from("challenges")
       .select(
@@ -963,12 +2130,17 @@ async function loadChallenges(){
       )
       .order(
         "id",
-        {ascending:true}
+        {
+          ascending:true
+        }
       );
 
-  if(error){
+  if(result.error){
 
-    console.error(error);
+    console.error(
+      "Challenges error:",
+      result.error
+    );
 
     challengeList.innerHTML=
       "<p>Could not load challenges.</p>";
@@ -977,81 +2149,125 @@ async function loadChallenges(){
 
   }
 
+  const data=
+    result.data||[];
+
   challengeList.innerHTML="";
 
-  data.forEach(challenge=>{
 
-    const isDone=
-      completed.has(
-        Number(challenge.id)
-      );
+  if(data.length===0){
 
-    const card=
-      document.createElement(
-        "div"
-      );
+    challengeList.innerHTML=
+      "<p style='opacity:.6'>No challenges available yet.</p>";
 
-    card.className="challenge";
+    return;
 
-    card.innerHTML=`
+  }
 
-      <div class="icon">
-        ${challenge.icon||"✨"}
-      </div>
 
-      <div class="category">
-        ${escapeHTML(challenge.category)}
-      </div>
+  data.forEach(
+    challenge=>{
 
-      <h3>
-        ${escapeHTML(challenge.title)}
-      </h3>
+      const isDone=
+        completed.has(
+          Number(
+            challenge.id
+          )
+        );
 
-      <p>
-        ${escapeHTML(challenge.description)}
-      </p>
 
-      <div class="challengeBottom">
+      const card=
+        document.createElement(
+          "div"
+        );
 
-        <div class="reward">
-          +${challenge.points} points
+      card.className=
+        "challenge";
+
+
+      card.innerHTML=`
+
+        <div class="icon">
+          ${challenge.icon||"✨"}
         </div>
 
-        <button
-          class="complete ${isDone?"done":""}"
-          ${isDone?"disabled":""}
-        >
-          ${isDone?"✓ Completed":"Complete"}
-        </button>
+        <div class="category">
+          ${escapeHTML(
+            challenge.category
+          )}
+        </div>
 
-      </div>
-    `;
+        <h3>
+          ${escapeHTML(
+            challenge.title
+          )}
+        </h3>
 
-    challengeList.appendChild(card);
+        <p>
+          ${escapeHTML(
+            challenge.description
+          )}
+        </p>
 
-    const button=
-      card.querySelector(".complete");
+        <div class="challengeBottom">
 
-    if(!isDone){
+          <div class="reward">
+            +${Number(
+              challenge.points||0
+            )} points
+          </div>
 
-      button.addEventListener(
-        "click",
-        ()=>completeChallenge(
-          challenge,
-          button
-        )
+          <button
+            class="complete ${isDone?"done":""}"
+            ${isDone?"disabled":""}
+          >
+            ${
+              isDone
+              ?"✓ Completed"
+              :"Complete"
+            }
+          </button>
+
+        </div>
+      `;
+
+
+      challengeList.appendChild(
+        card
       );
 
-    }
 
-  });
+      const button=
+        card.querySelector(
+          ".complete"
+        );
+
+
+      if(!isDone){
+
+        button.addEventListener(
+          "click",
+          function(){
+
+            completeChallenge(
+              challenge,
+              button
+            );
+
+          }
+        );
+
+      }
+
+    }
+  );
 
 }
 
 
-/* =====================================================
+/* =========================
    COMPLETE CHALLENGE
-===================================================== */
+========================= */
 
 async function completeChallenge(
   challenge,
@@ -1072,12 +2288,10 @@ async function completeChallenge(
   button.textContent=
     "Saving...";
 
+
   try{
 
-    const {
-      data,
-      error
-    }=
+    const result=
       await client.rpc(
         "complete_challenge",
         {
@@ -1086,14 +2300,27 @@ async function completeChallenge(
         }
       );
 
-    if(error){
-      throw error;
+
+    if(result.error){
+
+      throw result.error;
+
     }
 
-    if(data.success===false){
+
+    const response=
+      result.data;
+
+
+    if(
+      response &&
+      response.success===false
+    ){
 
       completed.add(
-        Number(challenge.id)
+        Number(
+          challenge.id
+        )
       );
 
       button.textContent=
@@ -1109,19 +2336,28 @@ async function completeChallenge(
 
     }
 
+
     const earned=
       Number(
-        data.points||
-        challenge.points
+        response?.points||
+        challenge.points||
+        0
       );
 
-    currentPoints+=earned;
+
+    currentPoints+=
+      earned;
+
 
     completed.add(
-      Number(challenge.id)
+      Number(
+        challenge.id
+      )
     );
 
+
     updatePoints();
+
 
     button.textContent=
       "✓ Completed";
@@ -1130,13 +2366,36 @@ async function completeChallenge(
       "done"
     );
 
+
     showToast(
-      `✨ +${earned} Impact Points`
+      "✨ +"+
+      earned+
+      " Impact Points"
     );
+
+
+    const ownProfile=
+      profiles.find(
+        p=>
+          p.id===
+          currentUser.id
+      );
+
+
+    if(ownProfile){
+
+      ownProfile.impact_points=
+        currentPoints;
+
+    }
+
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Complete challenge error:",
+      error
+    );
 
     button.disabled=false;
 
@@ -1152,40 +2411,34 @@ async function completeChallenge(
 }
 
 
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(value){
-
-  return String(value??"")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-
-/* =====================================================
+/* =========================
    TOAST
-===================================================== */
+========================= */
 
-let toastTimer;
+let toastTimer=null;
+
 
 function showToast(text){
 
-  toast.textContent=text;
+  toast.textContent=
+    text;
 
-  toast.classList.add("show");
+  toast.classList.add(
+    "show"
+  );
 
-  clearTimeout(toastTimer);
+  clearTimeout(
+    toastTimer
+  );
 
   toastTimer=
     setTimeout(
-      ()=>{
-        toast.classList.remove("show");
+      function(){
+
+        toast.classList.remove(
+          "show"
+        );
+
       },
       2500
     );
@@ -1193,102 +2446,164 @@ function showToast(text){
 }
 
 
-/* =====================================================
-   PANEL
-===================================================== */
+/* =========================
+   CHALLENGE PANEL
+========================= */
 
 document
-.getElementById("challengeButton")
-.addEventListener(
-  "click",
-  async ()=>{
+  .getElementById(
+    "challengeButton"
+  )
+  .addEventListener(
+    "click",
+    async function(){
 
-    panel.classList.add("open");
+      panel.classList.add(
+        "open"
+      );
 
-    if(currentUser){
 
-      await loadChallenges();
+      if(currentUser){
 
-    }else{
+        await loadChallenges();
 
-      challengeList.innerHTML=`
+      }else{
 
-        <div style="text-align:center;padding:25px 5px">
+        challengeList.innerHTML=`
 
-          <h3>
-            🌎 Join Teen Map
-          </h3>
-
-          <p style="opacity:.7;line-height:1.5">
-            Create your profile to participate
-            in challenges and earn Impact Points.
-          </p>
-
-          <button
-            onclick="window.location.href='login.html'"
+          <div
             style="
-              border:0;
-              background:#ff78b7;
-              color:white;
-              padding:13px 20px;
-              border-radius:13px;
-              font-weight:bold;
+              text-align:center;
+              padding:25px 5px
             "
           >
-            Join Teen Map
-          </button>
 
-        </div>
-      `;
+            <h3>
+              🌎 Join Teen Map
+            </h3>
+
+            <p
+              style="
+                opacity:.7;
+                line-height:1.5
+              "
+            >
+              Create your profile to
+              participate in challenges
+              and earn Impact Points.
+            </p>
+
+            <button
+              id="joinButton"
+              style="
+                border:0;
+                background:#ff78b7;
+                color:white;
+                padding:13px 20px;
+                border-radius:13px;
+                font-weight:bold;
+              "
+            >
+              Join Teen Map
+            </button>
+
+          </div>
+        `;
+
+
+        document
+          .getElementById(
+            "joinButton"
+          )
+          .addEventListener(
+            "click",
+            function(){
+
+              window.location.href=
+                "login.html";
+
+            }
+          );
+
+      }
 
     }
-
-  }
-);
+  );
 
 
-document
-.getElementById("close")
-.addEventListener(
-  "click",
-  ()=>{
-    panel.classList.remove("open");
-  }
-);
-
+/* CLOSE CHALLENGES */
 
 document
-.getElementById("pointsButton")
-.addEventListener(
-  "click",
-  ()=>{
-    panel.classList.add("open");
-  }
-);
+  .getElementById("close")
+  .addEventListener(
+    "click",
+    function(){
+
+      panel.classList.remove(
+        "open"
+      );
+
+    }
+  );
 
 
-/* =====================================================
+/* POINTS BUTTON */
+
+document
+  .getElementById("pointsButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      panel.classList.add(
+        "open"
+      );
+
+    }
+  );
+
+
+/* =========================
    START
-===================================================== */
+========================= */
 
 async function start(){
 
-  resize();
+  try{
 
-  await loadWorld();
+    resize();
 
-  currentUser=
-    await getUser();
+    await loadWorld();
 
-  if(currentUser){
+    await loadProfiles();
 
-    await loadProfile();
+    currentUser=
+      await getUser();
+
+
+    if(currentUser){
+
+      await loadProfile();
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      "Teen Map startup error:",
+      error
+    );
+
+  }finally{
+
+    loading.classList.add(
+      "hide"
+    );
+
+    requestDraw();
 
   }
-
-  loading.classList.add(
-    "hide"
-  );
 
 }
 
