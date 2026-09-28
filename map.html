@@ -6,7 +6,6 @@
 
   <title>Teen Map</title>
 
-  <!-- 🔑 SUPABASE: USA EXACTAMENTE LAS MISMAS CLAVES QUE YA TIENES -->
   <script>
     const SUPABASE_URL = "https://wqzdzajhqoodtxauwqme.supabase.co";
     const SUPABASE_KEY = "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
@@ -185,25 +184,6 @@
       <div class="value" id="traditions">—</div>
     </div>
 
-    <div class="item">
-      <div class="label">Mental health situation</div>
-      <div class="value" id="mentalSituation">—</div>
-    </div>
-
-    <div class="item">
-      <div class="label">Mental health challenge</div>
-      <div class="value" id="mentalChallenge">—</div>
-    </div>
-
-    <div class="item">
-      <div class="label">Environmental concern</div>
-      <div class="value" id="environment">—</div>
-    </div>
-
-    <div class="item">
-      <div class="label">Environmental action</div>
-      <div class="value" id="action">—</div>
-    </div>
   </div>
 
 </div>
@@ -363,20 +343,31 @@ function startGlobe() {
 
     globe = Globe()
       (document.getElementById("map"))
+
       .backgroundColor("#f8f2f7")
+
       .globeImageUrl(
         "https://unpkg.com/three-globe@2.45.3/example/img/earth-blue-marble.jpg"
       )
+
       .bumpImageUrl(
         "https://unpkg.com/three-globe@2.45.3/example/img/earth-topology.png"
       )
+
       .showAtmosphere(true)
+
       .atmosphereColor("#d85a9f")
+
       .atmosphereAltitude(0.15)
+
       .pointColor(() => "#ff65aa")
+
       .pointAltitude(0.04)
+
       .pointRadius(0.45)
+
       .pointsMerge(false)
+
       .onPointClick(profile => {
 
         openProfile(profile);
@@ -399,10 +390,6 @@ function startGlobe() {
   }
 
 
-  /* =====================================================
-     SUPABASE QUERY
-  ===================================================== */
-
   loadProfiles(globe);
 }
 
@@ -417,6 +404,12 @@ async function loadProfiles(globe) {
 
   try {
 
+    /*
+      IMPORTANT:
+      Only request columns that actually belong
+      to the public Teen Map profile.
+    */
+
     const query = supabaseClient
       .from("profiles")
       .select(`
@@ -427,47 +420,48 @@ async function loadProfiles(globe) {
         region,
         languages,
         hobbies,
-        traditions,
-        mental_health_situation,
-        mental_health_challenge,
-        environmental_concern,
-        environmental_action
+        traditions
       `);
+
 
     const timeout = new Promise((_, reject) => {
 
       setTimeout(() => {
+
         reject(
           new Error(
             "Supabase is taking too long to respond."
           )
         );
+
       }, 15000);
 
     });
+
 
     const result = await Promise.race([
       query,
       timeout
     ]);
 
+
     if (result.error) {
       throw result.error;
     }
+
 
     const profiles = result.data || [];
 
     const points = [];
 
+
     profiles.forEach(profile => {
 
       if (!profile.country) return;
 
+
       let coords = countries[profile.country];
 
-      /*
-        Some databases store Spain differently.
-      */
 
       if (!coords) {
 
@@ -475,22 +469,31 @@ async function loadProfiles(globe) {
           .trim()
           .toLowerCase();
 
+
         const match = Object.keys(countries).find(
           country =>
             country.toLowerCase() === normal
         );
 
+
         if (match) {
           coords = countries[match];
         }
+
       }
+
 
       if (!coords) return;
 
+
       points.push({
+
         ...profile,
+
         lat: coords[0],
+
         lng: coords[1]
+
       });
 
     });
@@ -501,9 +504,11 @@ async function loadProfiles(globe) {
 
     statusBox.textContent =
       profiles.length +
-      (profiles.length === 1
-        ? " teen has joined Teen Map"
-        : " teens have joined Teen Map");
+      (
+        profiles.length === 1
+          ? " teen has joined Teen Map"
+          : " teens have joined Teen Map"
+      );
 
 
     if (profiles.length === 0) {
@@ -513,18 +518,23 @@ async function loadProfiles(globe) {
         "Create an account from the login page and it will appear here."
       );
 
-    } else if (points.length === 0) {
+    }
+
+    else if (points.length === 0) {
 
       showMessage(
         "<b>Profiles found, but their countries are not recognised yet.</b><br><br>" +
         "The profiles exist in Supabase, but their country name does not yet have map coordinates."
       );
 
-    } else {
+    }
+
+    else {
 
       messageBox.style.display = "none";
 
     }
+
 
   } catch (error) {
 
@@ -532,14 +542,23 @@ async function loadProfiles(globe) {
 
     statusBox.textContent = "Error loading profiles";
 
+
     showMessage(
       "<b>Teen Map could not load the profiles.</b><br><br>" +
+
       "<b>Error:</b> " +
-      escapeHtml(error.message || String(error)) +
+
+      escapeHtml(
+        error.message || String(error)
+      ) +
+
       "<br><br>" +
+
       "The globe itself has loaded. This message is coming from the database request."
     );
+
   }
+
 }
 
 
@@ -551,38 +570,34 @@ function openProfile(profile) {
 
   document.getElementById("profile").style.display = "block";
 
+
   document.getElementById("name").textContent =
     profile.username || "Teen";
+
 
   document.getElementById("profileCountry").textContent =
     profile.country || "Unknown country";
 
+
   document.getElementById("age").textContent =
     profile.age || "—";
+
 
   document.getElementById("region").textContent =
     profile.region || "—";
 
+
   document.getElementById("languages").textContent =
     profile.languages || "—";
+
 
   document.getElementById("hobbies").textContent =
     profile.hobbies || "—";
 
+
   document.getElementById("traditions").textContent =
     profile.traditions || "—";
 
-  document.getElementById("mentalSituation").textContent =
-    profile.mental_health_situation || "—";
-
-  document.getElementById("mentalChallenge").textContent =
-    profile.mental_health_challenge || "—";
-
-  document.getElementById("environment").textContent =
-    profile.environmental_concern || "—";
-
-  document.getElementById("action").textContent =
-    profile.environmental_action || "—";
 }
 
 
@@ -604,10 +619,15 @@ document.getElementById("close").onclick = function() {
 function escapeHtml(text) {
 
   return String(text)
+
     .replaceAll("&", "&amp;")
+
     .replaceAll("<", "&lt;")
+
     .replaceAll(">", "&gt;")
+
     .replaceAll('"', "&quot;")
+
     .replaceAll("'", "&#039;");
 
 }
