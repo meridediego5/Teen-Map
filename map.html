@@ -33,6 +33,10 @@
       position: relative;
     }
 
+    /* =========================
+       HEADER
+    ========================= */
+
     #header {
       position: absolute;
       z-index: 10;
@@ -60,12 +64,21 @@
       margin-top: 8px;
       font-size: 13px;
       font-weight: 600;
+      color: #555;
     }
+
+    /* =========================
+       MAP
+    ========================= */
 
     #map {
       position: absolute;
       inset: 0;
     }
+
+    /* =========================
+       MESSAGE
+    ========================= */
 
     #message {
       position: absolute;
@@ -82,59 +95,208 @@
       line-height: 1.4;
     }
 
+    /* =========================
+       PROFILE CARD
+    ========================= */
+
     #profile {
       display: none;
       position: absolute;
       z-index: 30;
       right: 20px;
       bottom: 20px;
-      width: min(370px, calc(100% - 40px));
-      max-height: 70vh;
+      width: min(390px, calc(100% - 40px));
+      max-height: 76vh;
       overflow-y: auto;
-      background: white;
-      border-radius: 22px;
-      padding: 22px;
-      box-shadow: 0 8px 35px rgba(0,0,0,.2);
+      background: rgba(255,255,255,.97);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.22);
+      animation: profileIn .22s ease-out;
+    }
+
+    @keyframes profileIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     #close {
       position: absolute;
       top: 12px;
       right: 12px;
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border: 0;
       border-radius: 50%;
       background: #f3e3ed;
-      font-size: 20px;
+      color: #b64b87;
+      font-size: 21px;
       cursor: pointer;
     }
 
-    #profile h2 {
-      margin: 0 40px 4px 0;
+    #close:active {
+      transform: scale(.95);
+    }
+
+    /* =========================
+       PROFILE HEADER
+    ========================= */
+
+    .profileTop {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ffd5eb, #f3a6cd);
+      color: white;
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    #name {
+      margin: 0;
+      padding-right: 35px;
       color: #d85a9f;
+      font-size: 24px;
     }
 
     #profileCountry {
+      margin-top: 4px;
       color: #777;
-      margin-bottom: 18px;
+      font-size: 14px;
     }
 
+    /* =========================
+       IMPACT POINTS
+    ========================= */
+
+    #impactBox {
+      margin-bottom: 20px;
+      padding: 15px 17px;
+      border-radius: 18px;
+      background: linear-gradient(
+        135deg,
+        #fff0f7,
+        #ffe3f1
+      );
+      border: 1px solid #f6c5dd;
+    }
+
+    .impactTitle {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .5px;
+      color: #a64c7e;
+    }
+
+    #impactPoints {
+      margin-top: 3px;
+      font-size: 27px;
+      font-weight: 800;
+      color: #d85a9f;
+    }
+
+    .impactDescription {
+      margin-top: 3px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    /* =========================
+       PROFILE ITEMS
+    ========================= */
+
     .item {
-      margin-top: 13px;
+      margin-top: 15px;
     }
 
     .label {
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: .5px;
       color: #999;
     }
 
     .value {
-      margin-top: 3px;
+      margin-top: 4px;
       font-size: 15px;
+      line-height: 1.45;
       color: #333;
+      word-break: break-word;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f0e5eb;
+      margin: 18px 0;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+
+      #header {
+        padding: 14px 17px;
+      }
+
+      #title {
+        font-size: 24px;
+      }
+
+      #subtitle {
+        font-size: 13px;
+      }
+
+      #status {
+        font-size: 12px;
+      }
+
+      #message {
+        top: 100px;
+        left: 14px;
+        right: 14px;
+      }
+
+      #profile {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+        max-height: 68vh;
+        padding: 21px;
+        border-radius: 22px;
+      }
+
+      #name {
+        font-size: 22px;
+      }
+
+      .avatar {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+      }
     }
   </style>
 </head>
@@ -153,49 +315,116 @@
 
   <div id="message"></div>
 
-  <div id="profile">
-    <button id="close">×</button>
+  <!-- =========================
+       PROFILE CARD
+  ========================== -->
 
-    <h2 id="name">Teen</h2>
-    <div id="profileCountry">—</div>
+  <div id="profile">
+
+    <button id="close" aria-label="Close profile">×</button>
+
+    <div class="profileTop">
+
+      <div class="avatar" id="avatar">
+        T
+      </div>
+
+      <div>
+        <h2 id="name">Teen</h2>
+        <div id="profileCountry">—</div>
+      </div>
+
+    </div>
+
+
+    <!-- IMPACT POINTS -->
+
+    <div id="impactBox">
+
+      <div class="impactTitle">
+        Impact Points
+      </div>
+
+      <div id="impactPoints">
+        0
+      </div>
+
+      <div class="impactDescription">
+        Making a positive impact through Teen Map
+      </div>
+
+    </div>
+
+
+    <!-- PUBLIC PROFILE DATA -->
 
     <div class="item">
       <div class="label">Age</div>
       <div class="value" id="age">—</div>
     </div>
 
+
     <div class="item">
       <div class="label">Region</div>
       <div class="value" id="region">—</div>
     </div>
+
 
     <div class="item">
       <div class="label">Languages</div>
       <div class="value" id="languages">—</div>
     </div>
 
+
+    <div class="item">
+      <div class="label">Interests</div>
+      <div class="value" id="interests">—</div>
+    </div>
+
+
     <div class="item">
       <div class="label">Hobbies</div>
       <div class="value" id="hobbies">—</div>
     </div>
+
 
     <div class="item">
       <div class="label">Traditions</div>
       <div class="value" id="traditions">—</div>
     </div>
 
+
+    <div class="item">
+      <div class="label">Fun fact</div>
+      <div class="value" id="funFact">—</div>
+    </div>
+
+
+    <div class="item">
+      <div class="label">Favorite song</div>
+      <div class="value" id="favoriteSong">—</div>
+    </div>
+
   </div>
 
 </div>
 
+
 <script>
+
 "use strict";
+
 
 /* =====================================================
    COUNTRY COORDINATES
+
+   IMPORTANT:
+   These are approximate country-level coordinates.
+   No exact user location is stored or displayed.
 ===================================================== */
 
 const countries = {
+
   "Spain": [40.4, -3.7],
   "France": [46.2, 2.2],
   "Portugal": [39.4, -8.2],
@@ -203,24 +432,30 @@ const countries = {
   "Germany": [51.2, 10.5],
   "United Kingdom": [55.4, -3.4],
   "Ireland": [53.1, -7.7],
+
   "United States": [37.1, -95.7],
   "Canada": [56.1, -106.3],
   "Mexico": [23.6, -102.5],
+
   "Brazil": [-14.2, -51.9],
   "Argentina": [-38.4, -63.6],
   "Chile": [-35.7, -71.5],
   "Colombia": [4.6, -74.3],
   "Peru": [-9.2, -75.0],
+
   "Morocco": [31.8, -7.1],
   "Egypt": [26.8, 30.8],
   "South Africa": [-30.6, 22.9],
   "Nigeria": [9.1, 8.7],
+
   "India": [20.6, 79.0],
   "China": [35.9, 104.2],
   "Japan": [36.2, 138.3],
   "South Korea": [35.9, 127.8],
+
   "Australia": [-25.3, 133.8],
   "New Zealand": [-40.9, 174.9],
+
   "Turkey": [39.0, 35.2],
   "Greece": [39.1, 21.8],
   "Netherlands": [52.1, 5.3],
@@ -235,13 +470,16 @@ const countries = {
   "Romania": [45.9, 25.0],
   "Ukraine": [48.4, 31.2],
   "Russia": [61.5, 105.3],
+
   "Saudi Arabia": [23.9, 45.1],
   "United Arab Emirates": [23.4, 53.8],
   "Israel": [31.0, 34.9],
+
   "Philippines": [12.9, 121.8],
   "Indonesia": [-0.8, 113.9],
   "Thailand": [15.9, 101.0],
   "Vietnam": [14.1, 108.3]
+
 };
 
 
@@ -249,12 +487,19 @@ const countries = {
    ELEMENTS
 ===================================================== */
 
-const statusBox = document.getElementById("status");
-const messageBox = document.getElementById("message");
+const statusBox =
+  document.getElementById("status");
+
+const messageBox =
+  document.getElementById("message");
+
 
 function showMessage(text) {
+
   messageBox.style.display = "block";
+
   messageBox.innerHTML = text;
+
 }
 
 
@@ -268,7 +513,9 @@ if (
   SUPABASE_URL.includes("PEGA_AQUÍ") ||
   SUPABASE_KEY.includes("PEGA_AQUÍ")
 ) {
-  statusBox.textContent = "Supabase keys missing";
+
+  statusBox.textContent =
+    "Supabase keys missing";
 
   showMessage(
     "<b>Supabase keys are missing.</b><br><br>" +
@@ -276,6 +523,7 @@ if (
   );
 
   throw new Error("Supabase keys missing");
+
 }
 
 
@@ -287,46 +535,59 @@ let supabaseClient;
 
 try {
 
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+  supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 } catch (error) {
 
-  statusBox.textContent = "Supabase error";
+  statusBox.textContent =
+    "Supabase error";
 
   showMessage(
     "<b>Could not connect to Supabase.</b><br><br>" +
-    error.message
+    escapeHtml(error.message)
   );
 
   throw error;
+
 }
 
 
 /* =====================================================
    LOAD GLOBE LIBRARY
+
+   THIS IS THE SAME GLOBE SYSTEM THAT WAS WORKING.
 ===================================================== */
 
-const globeScript = document.createElement("script");
+const globeScript =
+  document.createElement("script");
 
 globeScript.src =
   "https://unpkg.com/globe.gl@2.45.3/dist/globe.gl.min.js";
 
+
 globeScript.onload = function() {
+
   startGlobe();
+
 };
+
 
 globeScript.onerror = function() {
 
-  statusBox.textContent = "Map could not load";
+  statusBox.textContent =
+    "Map could not load";
 
   showMessage(
     "<b>The globe library could not load.</b><br><br>" +
     "Check your internet connection and reload the page."
   );
+
 };
+
 
 document.head.appendChild(globeScript);
 
@@ -341,7 +602,8 @@ function startGlobe() {
 
   try {
 
-    globe = Globe()
+    globe =
+      Globe()
       (document.getElementById("map"))
 
       .backgroundColor("#f8f2f7")
@@ -374,23 +636,29 @@ function startGlobe() {
 
       });
 
+
     globe.controls().autoRotate = true;
+
     globe.controls().autoRotateSpeed = 0.25;
+
 
   } catch (error) {
 
-    statusBox.textContent = "Map error";
+    statusBox.textContent =
+      "Map error";
 
     showMessage(
       "<b>The globe could not start.</b><br><br>" +
-      error.message
+      escapeHtml(error.message)
     );
 
     return;
+
   }
 
 
   loadProfiles(globe);
+
 }
 
 
@@ -400,49 +668,58 @@ function startGlobe() {
 
 async function loadProfiles(globe) {
 
-  statusBox.textContent = "Loading profiles...";
+  statusBox.textContent =
+    "Loading profiles...";
+
 
   try {
 
     /*
-      IMPORTANT:
-      Only request columns that actually belong
-      to the public Teen Map profile.
+      FIRST REQUEST:
+      These are the profile fields that already exist
+      in the current version of Teen Map.
+
+      We deliberately do NOT request the new optional
+      fields here, so one missing column cannot break
+      the entire globe.
     */
 
-    const query = supabaseClient
-      .from("profiles")
-      .select(`
-        id,
-        username,
-        age,
-        country,
-        region,
-        languages,
-        hobbies,
-        traditions
-      `);
+    const baseQuery =
+      supabaseClient
+        .from("profiles")
+        .select(`
+          id,
+          username,
+          age,
+          country,
+          region,
+          languages,
+          hobbies,
+          traditions
+        `);
 
 
-    const timeout = new Promise((_, reject) => {
+    const timeout =
+      new Promise((_, reject) => {
 
-      setTimeout(() => {
+        setTimeout(() => {
 
-        reject(
-          new Error(
-            "Supabase is taking too long to respond."
-          )
-        );
+          reject(
+            new Error(
+              "Supabase is taking too long to respond."
+            )
+          );
 
-      }, 15000);
+        }, 15000);
 
-    });
+      });
 
 
-    const result = await Promise.race([
-      query,
-      timeout
-    ]);
+    const result =
+      await Promise.race([
+        baseQuery,
+        timeout
+      ]);
 
 
     if (result.error) {
@@ -450,30 +727,116 @@ async function loadProfiles(globe) {
     }
 
 
-    const profiles = result.data || [];
+    const profiles =
+      result.data || [];
+
+
+    /*
+      SECOND REQUEST:
+      Optional public profile fields.
+
+      If one of these columns doesn't exist yet,
+      we simply continue with the basic profile.
+    */
+
+    let extraProfiles = [];
+
+
+    try {
+
+      const extraResult =
+        await supabaseClient
+          .from("profiles")
+          .select(`
+            id,
+            interests,
+            fun_fact,
+            favorite_song,
+            impact_points
+          `);
+
+
+      if (!extraResult.error) {
+
+        extraProfiles =
+          extraResult.data || [];
+
+      }
+
+    } catch (optionalError) {
+
+      console.warn(
+        "Optional profile fields unavailable:",
+        optionalError
+      );
+
+    }
+
+
+    /*
+      MERGE BASIC + OPTIONAL DATA
+    */
+
+    const extraById =
+      new Map(
+        extraProfiles.map(profile => [
+          profile.id,
+          profile
+        ])
+      );
+
+
+    const mergedProfiles =
+      profiles.map(profile => {
+
+        const extra =
+          extraById.get(profile.id) || {};
+
+        return {
+          ...profile,
+          ...extra
+        };
+
+      });
+
 
     const points = [];
 
 
-    profiles.forEach(profile => {
+    /*
+      CREATE COUNTRY-LEVEL MAP POINTS
 
-      if (!profile.country) return;
+      We NEVER use exact coordinates from a profile.
+    */
+
+    mergedProfiles.forEach(profile => {
+
+      if (!profile.country) {
+        return;
+      }
 
 
-      let coords = countries[profile.country];
+      let coords =
+        countries[profile.country];
 
+
+      /*
+        Case-insensitive country matching.
+      */
 
       if (!coords) {
 
-        const normal = String(profile.country)
-          .trim()
-          .toLowerCase();
+        const normal =
+          String(profile.country)
+            .trim()
+            .toLowerCase();
 
 
-        const match = Object.keys(countries).find(
-          country =>
-            country.toLowerCase() === normal
-        );
+        const match =
+          Object.keys(countries).find(
+            country =>
+              country.toLowerCase() === normal
+          );
 
 
         if (match) {
@@ -483,7 +846,14 @@ async function loadProfiles(globe) {
       }
 
 
-      if (!coords) return;
+      /*
+        Unknown country:
+        don't put an unsafe/random point on the map.
+      */
+
+      if (!coords) {
+        return;
+      }
 
 
       points.push({
@@ -499,8 +869,16 @@ async function loadProfiles(globe) {
     });
 
 
+    /*
+      PUT PROFILES ON GLOBE
+    */
+
     globe.pointsData(points);
 
+
+    /*
+      STATUS
+    */
 
     statusBox.textContent =
       profiles.length +
@@ -511,6 +889,10 @@ async function loadProfiles(globe) {
       );
 
 
+    /*
+      EMPTY DATABASE
+    */
+
     if (profiles.length === 0) {
 
       showMessage(
@@ -520,41 +902,55 @@ async function loadProfiles(globe) {
 
     }
 
+    /*
+      PROFILES EXIST BUT COUNTRIES ARE NOT
+      RECOGNISED
+    */
+
     else if (points.length === 0) {
 
       showMessage(
         "<b>Profiles found, but their countries are not recognised yet.</b><br><br>" +
-        "The profiles exist in Supabase, but their country name does not yet have map coordinates."
+        "The profiles exist in Supabase, but their country names do not yet have map coordinates."
       );
 
     }
 
     else {
 
-      messageBox.style.display = "none";
+      messageBox.style.display =
+        "none";
 
     }
 
 
   } catch (error) {
 
-    console.error("Teen Map error:", error);
+    console.error(
+      "Teen Map error:",
+      error
+    );
 
-    statusBox.textContent = "Error loading profiles";
+
+    statusBox.textContent =
+      "Error loading profiles";
 
 
     showMessage(
+
       "<b>Teen Map could not load the profiles.</b><br><br>" +
 
       "<b>Error:</b> " +
 
       escapeHtml(
-        error.message || String(error)
+        error.message ||
+        String(error)
       ) +
 
       "<br><br>" +
 
       "The globe itself has loaded. This message is coming from the database request."
+
     );
 
   }
@@ -568,35 +964,132 @@ async function loadProfiles(globe) {
 
 function openProfile(profile) {
 
-  document.getElementById("profile").style.display = "block";
+  const profileBox =
+    document.getElementById("profile");
+
+
+  profileBox.style.display =
+    "block";
+
+
+  /*
+    USERNAME
+  */
+
+  const username =
+    cleanValue(profile.username);
 
 
   document.getElementById("name").textContent =
-    profile.username || "Teen";
+    username || "Teen";
 
+
+  /*
+    AVATAR
+
+    Uses only the first letter of the public username.
+  */
+
+  document.getElementById("avatar").textContent =
+    username
+      ? username.charAt(0).toUpperCase()
+      : "T";
+
+
+  /*
+    COUNTRY
+
+    Country-level only.
+  */
 
   document.getElementById("profileCountry").textContent =
-    profile.country || "Unknown country";
+    profile.country
+      ? "🌎 " + profile.country
+      : "🌎 Unknown country";
 
+
+  /*
+    AGE
+  */
 
   document.getElementById("age").textContent =
-    profile.age || "—";
+    cleanValue(profile.age);
 
+
+  /*
+    REGION
+
+    Only the broad region stored in the profile.
+    No exact location is shown.
+  */
 
   document.getElementById("region").textContent =
-    profile.region || "—";
+    cleanValue(profile.region);
 
+
+  /*
+    LANGUAGES
+  */
 
   document.getElementById("languages").textContent =
-    profile.languages || "—";
+    formatValue(profile.languages);
 
+
+  /*
+    INTERESTS
+  */
+
+  document.getElementById("interests").textContent =
+    formatValue(profile.interests);
+
+
+  /*
+    HOBBIES
+  */
 
   document.getElementById("hobbies").textContent =
-    profile.hobbies || "—";
+    formatValue(profile.hobbies);
 
+
+  /*
+    TRADITIONS
+  */
 
   document.getElementById("traditions").textContent =
-    profile.traditions || "—";
+    formatValue(profile.traditions);
+
+
+  /*
+    FUN FACT
+  */
+
+  document.getElementById("funFact").textContent =
+    cleanValue(profile.fun_fact);
+
+
+  /*
+    FAVORITE SONG
+  */
+
+  document.getElementById("favoriteSong").textContent =
+    cleanValue(profile.favorite_song);
+
+
+  /*
+    IMPACT POINTS
+
+    If the field does not exist yet,
+    the profile simply shows 0.
+  */
+
+  const points =
+    Number(profile.impact_points);
+
+
+  document.getElementById("impactPoints").textContent =
+    Number.isFinite(points) && points >= 0
+      ? Math.round(points)
+      : 0;
 
 }
 
@@ -605,11 +1098,101 @@ function openProfile(profile) {
    CLOSE PROFILE
 ===================================================== */
 
-document.getElementById("close").onclick = function() {
+document.getElementById("close").onclick =
+  function() {
 
-  document.getElementById("profile").style.display = "none";
+    document.getElementById("profile").style.display =
+      "none";
 
-};
+  };
+
+
+/* =====================================================
+   CLOSE WHEN CLICKING OUTSIDE THE CARD
+===================================================== */
+
+document.getElementById("map").addEventListener(
+  "click",
+  function() {
+
+    /*
+      The globe's point click handler runs separately.
+      We don't immediately close the card here because
+      that could interfere with point selection.
+    */
+
+  }
+);
+
+
+/* =====================================================
+   FORMAT PROFILE VALUES
+===================================================== */
+
+function cleanValue(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
+    return "—";
+
+  }
+
+
+  return String(value);
+
+}
+
+
+function formatValue(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
+    return "—";
+
+  }
+
+
+  /*
+    Arrays from Supabase
+  */
+
+  if (Array.isArray(value)) {
+
+    return value.join(", ");
+
+  }
+
+
+  /*
+    Objects / JSON values
+  */
+
+  if (typeof value === "object") {
+
+    try {
+
+      return Object.values(value).join(", ");
+
+    } catch {
+
+      return String(value);
+
+    }
+
+  }
+
+
+  return String(value);
+
+}
 
 
 /* =====================================================
@@ -631,6 +1214,7 @@ function escapeHtml(text) {
     .replaceAll("'", "&#039;");
 
 }
+
 </script>
 
 </body>
