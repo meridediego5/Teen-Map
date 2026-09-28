@@ -4,127 +4,444 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,
-      initial-scale=1,
-      maximum-scale=5,
-      user-scalable=yes">
+content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
 
 <title>Teen Map 🌎</title>
 
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
+
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #061426;
-  font-family: Arial, sans-serif;
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#061426;
+  font-family:Arial,sans-serif;
+  color:white;
 }
 
 canvas {
-  display: block;
-  width: 100vw;
-  height: 100vh;
-  touch-action: none;
+  display:block;
+  width:100vw;
+  height:100vh;
+  touch-action:none;
 }
+
+/* LOGO */
 
 .title {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-
-  color: white;
-  font-size: 23px;
-  font-weight: bold;
-
-  padding: 10px 15px;
-  border-radius: 15px;
-
-  background: rgba(0,0,0,.38);
-  backdrop-filter: blur(8px);
+  position:fixed;
+  top:16px;
+  left:16px;
+  z-index:20;
+  color:white;
+  font-size:23px;
+  font-weight:bold;
+  padding:10px 15px;
+  border-radius:15px;
+  background:rgba(0,0,0,.38);
+  backdrop-filter:blur(8px);
 }
+
+/* POINTS */
+
+.points {
+  position:fixed;
+  top:16px;
+  right:16px;
+  z-index:20;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+  padding:9px 14px;
+  text-align:center;
+  cursor:pointer;
+}
+
+.points small {
+  display:block;
+  font-size:10px;
+  opacity:.7;
+}
+
+.points strong {
+  display:block;
+  color:#ff78b7;
+  font-size:20px;
+}
+
+/* CHALLENGE BUTTON */
+
+.challengeButton {
+  position:fixed;
+  bottom:22px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  border:0;
+  border-radius:17px;
+  padding:15px 24px;
+  background:#ff78b7;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  box-shadow:0 8px 25px rgba(255,120,183,.35);
+  cursor:pointer;
+}
+
+/* PANEL */
+
+.panel {
+  position:fixed;
+  z-index:30;
+  top:0;
+  right:-450px;
+  width:min(430px,100%);
+  height:100%;
+  background:rgba(5,20,36,.97);
+  backdrop-filter:blur(20px);
+  box-shadow:-10px 0 40px rgba(0,0,0,.4);
+  transition:right .3s ease;
+  overflow-y:auto;
+  padding:25px 20px 35px;
+}
+
+.panel.open {
+  right:0;
+}
+
+.panelHeader {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.panelHeader h2 {
+  margin:0;
+  font-size:27px;
+}
+
+.close {
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.12);
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.subtitle {
+  opacity:.7;
+  line-height:1.5;
+}
+
+/* IMPACT */
+
+.impact {
+  margin:20px 0;
+  padding:18px;
+  border-radius:20px;
+  background:linear-gradient(
+    135deg,
+    rgba(255,120,183,.22),
+    rgba(70,180,170,.18)
+  );
+}
+
+.impactNumber {
+  font-size:38px;
+  font-weight:bold;
+  color:#ff78b7;
+}
+
+.impactText {
+  opacity:.7;
+}
+
+/* CHALLENGES */
+
+.challenge {
+  background:rgba(255,255,255,.08);
+  border-radius:20px;
+  padding:18px;
+  margin-bottom:15px;
+}
+
+.icon {
+  font-size:32px;
+}
+
+.category {
+  display:inline-block;
+  margin:8px 0;
+  padding:5px 9px;
+  border-radius:9px;
+  background:rgba(255,120,183,.15);
+  color:#ff9ac9;
+  font-size:12px;
+}
+
+.challenge h3 {
+  margin:5px 0;
+  font-size:19px;
+}
+
+.challenge p {
+  opacity:.75;
+  line-height:1.45;
+  font-size:14px;
+}
+
+.challengeBottom {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.reward {
+  color:#ffd36b;
+  font-weight:bold;
+}
+
+.complete {
+  border:0;
+  border-radius:12px;
+  padding:10px 13px;
+  background:#ff78b7;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.complete.done {
+  background:rgba(100,210,160,.2);
+  color:#75e0ad;
+}
+
+/* MESSAGE */
 
 .message {
-  position: fixed;
-  z-index: 20;
-  left: 50%;
-  top: 50%;
-
-  transform: translate(-50%, -50%);
-
-  color: white;
-  text-align: center;
-  font-size: 17px;
+  position:fixed;
+  z-index:50;
+  left:50%;
+  bottom:85px;
+  transform:translateX(-50%);
+  background:rgba(7,25,43,.95);
+  padding:13px 18px;
+  border-radius:15px;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  text-align:center;
 }
+
+.message.show {
+  opacity:1;
+}
+
+/* LOADING */
+
+.loading {
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#061426;
+  transition:.4s;
+}
+
+.loading.hide {
+  opacity:0;
+  pointer-events:none;
+}
+
+.spinner {
+  width:23px;
+  height:23px;
+  border:3px solid rgba(255,255,255,.2);
+  border-top-color:#ff78b7;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin-right:12px;
+}
+
+@keyframes spin {
+  to { transform:rotate(360deg); }
+}
+
+@media(max-width:600px) {
+
+  .title {
+    font-size:19px;
+    padding:9px 12px;
+  }
+
+  .points {
+    padding:8px 11px;
+  }
+
+  .challengeButton {
+    width:calc(100% - 40px);
+  }
+
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="title">🌎 Teen Map</div>
-
-<div id="message" class="message">
-  Cargando mapa mundial…
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <span>Preparing your world...</span>
 </div>
 
 <canvas id="globe"></canvas>
 
+<div class="title">
+  🌎 Teen Map
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<div class="points" id="pointsButton">
+  <small>IMPACT POINTS</small>
+  <strong id="points">0</strong>
+</div>
+
+<button class="challengeButton" id="challengeButton">
+  ✨ Explore Challenges
+</button>
+
+<div class="panel" id="panel">
+
+  <div class="panelHeader">
+    <h2>🌍 Challenges</h2>
+
+    <button class="close" id="close">
+      ×
+    </button>
+  </div>
+
+  <p class="subtitle">
+    Small actions can create a bigger impact.
+    Choose a challenge and make your part count.
+  </p>
+
+  <div class="impact">
+    <div class="impactNumber" id="panelPoints">0</div>
+    <div class="impactText">
+      Your Impact Points
+    </div>
+  </div>
+
+  <div id="challengeList">
+    Loading challenges...
+  </div>
+
+</div>
+
+<div class="message" id="toast"></div>
 
 
 <script>
 
-const canvas = document.getElementById("globe");
-const ctx = canvas.getContext("2d", {
-  alpha: false
-});
+/* =====================================================
+   SUPABASE
+===================================================== */
 
-const message = document.getElementById("message");
+const SUPABASE_URL =
+"https://wqzdzajhqoodtxauwqme.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9V9nVQ";
+
+const client =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 
 /* =====================================================
-   VARIABLES
+   ELEMENTS
 ===================================================== */
 
-let width = 0;
-let height = 0;
-let dpr = 1;
+const canvas =
+document.getElementById("globe");
 
-let projection = null;
-let countries = null;
+const ctx =
+canvas.getContext("2d",{alpha:false});
 
-let rotation = [0, -10, 0];
+const message =
+document.getElementById("message");
 
-let zoom = 1;
+const loading =
+document.getElementById("loading");
 
-let animationFrame = null;
+const panel =
+document.getElementById("panel");
 
-let needsDraw = true;
+const challengeList =
+document.getElementById("challengeList");
+
+const points =
+document.getElementById("points");
+
+const panelPoints =
+document.getElementById("panelPoints");
+
+const toast =
+document.getElementById("toast");
 
 
 /* =====================================================
-   ESTRELLAS
+   GLOBE VARIABLES
 ===================================================== */
 
-const stars = [];
+let width=0;
+let height=0;
+let dpr=1;
 
-function createStars() {
+let projection=null;
+let countries=null;
 
-  stars.length = 0;
+let rotation=[0,-10,0];
 
-  for (let i = 0; i < 100; i++) {
+let zoom=1;
+
+let animationFrame=null;
+let needsDraw=true;
+
+const stars=[];
+
+
+/* =====================================================
+   STARS
+===================================================== */
+
+function createStars(){
+
+  stars.length=0;
+
+  for(let i=0;i<100;i++){
 
     stars.push({
-      x: Math.random(),
-      y: Math.random(),
-      size: Math.random() * 1.4 + .3
+      x:Math.random(),
+      y:Math.random(),
+      size:Math.random()*1.4+.3
     });
 
   }
+
 }
 
 
@@ -132,23 +449,32 @@ function createStars() {
    RESIZE
 ===================================================== */
 
-function resize() {
+function resize(){
 
-  width = window.innerWidth;
-  height = window.innerHeight;
+  width=window.innerWidth;
+  height=window.innerHeight;
 
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  dpr=Math.min(
+    window.devicePixelRatio||1,
+    2
+  );
 
-  canvas.width = Math.floor(width * dpr);
-  canvas.height = Math.floor(height * dpr);
+  canvas.width=
+    Math.floor(width*dpr);
 
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
+  canvas.height=
+    Math.floor(height*dpr);
+
+  canvas.style.width=
+    width+"px";
+
+  canvas.style.height=
+    height+"px";
 
   ctx.setTransform(
-    dpr, 0,
-    0, dpr,
-    0, 0
+    dpr,0,
+    0,dpr,
+    0,0
   );
 
   createProjection();
@@ -156,74 +482,79 @@ function resize() {
   createStars();
 
   requestDraw();
+
 }
 
-
-window.addEventListener("resize", resize);
+window.addEventListener(
+  "resize",
+  resize
+);
 
 
 /* =====================================================
-   PROYECCIÓN
+   PROJECTION
 ===================================================== */
 
-function createProjection() {
+function createProjection(){
 
-  const globeSize =
-    Math.min(width, height) * 0.37 * zoom;
+  const globeSize=
+    Math.min(width,height)*
+    .37*
+    zoom;
 
-  projection = d3.geoOrthographic()
-    .translate([
-      width / 2,
-      height / 2
-    ])
-    .scale(globeSize)
-    .rotate(rotation)
-    .clipAngle(90);
+  projection=
+    d3.geoOrthographic()
+      .translate([
+        width/2,
+        height/2
+      ])
+      .scale(globeSize)
+      .rotate(rotation)
+      .clipAngle(90);
+
 }
 
 
 /* =====================================================
-   SOLICITAR DIBUJO
+   DRAW REQUEST
 ===================================================== */
 
-function requestDraw() {
+function requestDraw(){
 
-  needsDraw = true;
+  needsDraw=true;
 
-  if (animationFrame !== null) {
+  if(animationFrame!==null){
     return;
   }
 
-  animationFrame =
+  animationFrame=
     requestAnimationFrame(render);
+
 }
 
 
-/* =====================================================
-   RENDER
-===================================================== */
+function render(){
 
-function render() {
+  animationFrame=null;
 
-  animationFrame = null;
-
-  if (!needsDraw) {
+  if(!needsDraw){
     return;
   }
 
-  needsDraw = false;
+  needsDraw=false;
 
   draw();
+
 }
 
 
 /* =====================================================
-   FONDO
+   BACKGROUND
 ===================================================== */
 
-function drawBackground() {
+function drawBackground(){
 
-  ctx.fillStyle = "#061426";
+  ctx.fillStyle="#061426";
 
   ctx.fillRect(
     0,
@@ -232,69 +563,62 @@ function drawBackground() {
     height
   );
 
-
-  ctx.fillStyle =
+  ctx.fillStyle=
     "rgba(255,255,255,.7)";
 
-
-  for (const star of stars) {
+  for(const star of stars){
 
     ctx.fillRect(
-      star.x * width,
-      star.y * height,
+      star.x*width,
+      star.y*height,
       star.size,
       star.size
     );
 
   }
+
 }
 
 
 /* =====================================================
-   GLOBO
+   GLOBE
 ===================================================== */
 
-function drawGlobe() {
+function drawGlobe(){
 
-  if (!projection) {
+  if(!projection){
     return;
   }
 
-  const path =
+  const path=
     d3.geoPath(
       projection,
       ctx
     );
 
-  const sphere = {
-    type: "Sphere"
+  const sphere={
+    type:"Sphere"
   };
 
+  const r=
+    projection.scale();
 
-  const r = projection.scale();
 
-
-  /* -----------------------------------------------
-     OCÉANO
-  ------------------------------------------------ */
+  /* OCEAN */
 
   ctx.beginPath();
 
   path(sphere);
 
-
-  const gradient =
+  const gradient=
     ctx.createRadialGradient(
-
-      width / 2 - r * .35,
-      height / 2 - r * .4,
-      r * .08,
-
-      width / 2,
-      height / 2,
+      width/2-r*.35,
+      height/2-r*.4,
+      r*.08,
+      width/2,
+      height/2,
       r
     );
-
 
   gradient.addColorStop(
     0,
@@ -311,204 +635,165 @@ function drawGlobe() {
     "#04335d"
   );
 
-
-  ctx.fillStyle = gradient;
+  ctx.fillStyle=gradient;
 
   ctx.fill();
 
 
-  /* -----------------------------------------------
-     PAÍSES REALES
-  ------------------------------------------------ */
+  /* COUNTRIES */
 
-  if (countries) {
+  if(countries){
 
     ctx.beginPath();
 
     path(countries);
 
-
-    ctx.fillStyle =
-      "#62c76c";
+    ctx.fillStyle="#62c76c";
 
     ctx.fill();
 
-
-    ctx.strokeStyle =
+    ctx.strokeStyle=
       "rgba(20,75,40,.65)";
 
-    ctx.lineWidth =
-      zoom > 1.5 ? .5 : .7;
+    ctx.lineWidth=
+      zoom>1.5?.5:.7;
 
     ctx.stroke();
 
   }
 
 
-  /* -----------------------------------------------
-     MERIDIANOS Y PARALELOS
-  ------------------------------------------------ */
+  /* GRATICULE */
 
   ctx.beginPath();
 
   path(
     d3.geoGraticule()
-      .step([30, 30])()
+      .step([30,30])()
   );
 
-
-  ctx.strokeStyle =
+  ctx.strokeStyle=
     "rgba(255,255,255,.14)";
 
-  ctx.lineWidth = .5;
+  ctx.lineWidth=.5;
 
   ctx.stroke();
 
 
-  /* -----------------------------------------------
-     BORDE
-  ------------------------------------------------ */
+  /* BORDER */
 
   ctx.beginPath();
 
   path(sphere);
 
-
-  ctx.strokeStyle =
+  ctx.strokeStyle=
     "rgba(150,235,255,.9)";
 
-  ctx.lineWidth = 2.5;
+  ctx.lineWidth=2.5;
 
   ctx.stroke();
+
 }
 
 
-/* =====================================================
-   DIBUJO COMPLETO
-===================================================== */
-
-function draw() {
+function draw(){
 
   drawBackground();
 
   drawGlobe();
+
 }
 
 
 /* =====================================================
-   CARGAR MAPA REAL
+   LOAD WORLD
 ===================================================== */
 
-async function loadWorld() {
+async function loadWorld(){
 
-  try {
+  try{
 
-    const response = await fetch(
-      "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-    );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "No se pudo cargar el mapa"
+    const response=
+      await fetch(
+        "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
       );
 
+    if(!response.ok){
+      throw new Error(
+        "Could not load map"
+      );
     }
 
-
-    const world =
+    const world=
       await response.json();
 
-
-    countries =
+    countries=
       topojson.feature(
         world,
         world.objects.countries
       );
 
-
-    message.style.display =
-      "none";
-
-
     requestDraw();
 
-
-  } catch (error) {
-
-    message.innerHTML =
-      "No se pudo cargar el mapa 🌎<br><br>" +
-      "Comprueba tu conexión a Internet.";
+  }catch(error){
 
     console.error(error);
 
   }
+
 }
 
 
 /* =====================================================
-   GIRAR CON UN DEDO
+   DRAG
 ===================================================== */
 
-let dragging = false;
-
-let lastX = 0;
-let lastY = 0;
-
+let dragging=false;
+let lastX=0;
+let lastY=0;
 
 canvas.addEventListener(
   "pointerdown",
-  function(e) {
+  function(e){
 
-    if (e.pointerType === "mouse") {
-
-      if (e.button !== 0) {
-        return;
-      }
-
+    if(
+      e.pointerType==="mouse" &&
+      e.button!==0
+    ){
+      return;
     }
 
+    dragging=true;
 
-    dragging = true;
-
-    lastX = e.clientX;
-    lastY = e.clientY;
-
+    lastX=e.clientX;
+    lastY=e.clientY;
 
     canvas.setPointerCapture(
       e.pointerId
     );
 
-  },
-  { passive: true }
+  }
 );
 
 
 canvas.addEventListener(
   "pointermove",
-  function(e) {
+  function(e){
 
-    if (!dragging) {
+    if(!dragging){
       return;
     }
 
+    const dx=
+      e.clientX-lastX;
 
-    const dx =
-      e.clientX - lastX;
+    const dy=
+      e.clientY-lastY;
 
-    const dy =
-      e.clientY - lastY;
+    rotation[0]+=dx*.38;
+    rotation[1]-=dy*.28;
 
-
-    rotation[0] +=
-      dx * .38;
-
-    rotation[1] -=
-      dy * .28;
-
-
-    rotation[1] =
+    rotation[1]=
       Math.max(
         -85,
         Math.min(
@@ -517,57 +802,51 @@ canvas.addEventListener(
         )
       );
 
-
-    lastX = e.clientX;
-    lastY = e.clientY;
-
+    lastX=e.clientX;
+    lastY=e.clientY;
 
     createProjection();
 
     requestDraw();
-
-  },
-  { passive: true }
-);
-
-
-canvas.addEventListener(
-  "pointerup",
-  function() {
-
-    dragging = false;
 
   }
 );
 
 
 canvas.addEventListener(
-  "pointercancel",
-  function() {
+  "pointerup",
+  function(){
 
-    dragging = false;
+    dragging=false;
+
+  }
+);
+
+canvas.addEventListener(
+  "pointercancel",
+  function(){
+
+    dragging=false;
 
   }
 );
 
 
 /* =====================================================
-   ZOOM CON RUEDA
+   WHEEL ZOOM
 ===================================================== */
 
 canvas.addEventListener(
   "wheel",
-  function(e) {
+  function(e){
 
     e.preventDefault();
 
-
-    zoom *= Math.exp(
-      -e.deltaY * .001
+    zoom*=Math.exp(
+      -e.deltaY*.001
     );
 
-
-    zoom =
+    zoom=
       Math.max(
         .65,
         Math.min(
@@ -576,36 +855,32 @@ canvas.addEventListener(
         )
       );
 
-
     createProjection();
 
     requestDraw();
 
   },
-  { passive: false }
+  {passive:false}
 );
 
 
 /* =====================================================
-   ZOOM CON DOS DEDOS
+   TWO FINGER ZOOM
 ===================================================== */
 
-const fingers =
-  new Map();
+const fingers=new Map();
 
-let previousDistance =
-  null;
-
+let previousDistance=null;
 
 canvas.addEventListener(
   "pointerdown",
-  function(e) {
+  function(e){
 
     fingers.set(
       e.pointerId,
       {
-        x: e.clientX,
-        y: e.clientY
+        x:e.clientX,
+        y:e.clientY
       }
     );
 
@@ -615,59 +890,50 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "pointermove",
-  function(e) {
+  function(e){
 
-    if (fingers.has(e.pointerId)) {
+    if(fingers.has(e.pointerId)){
 
       fingers.set(
         e.pointerId,
         {
-          x: e.clientX,
-          y: e.clientY
+          x:e.clientX,
+          y:e.clientY
         }
       );
 
     }
 
-
-    if (fingers.size !== 2) {
+    if(fingers.size!==2){
       return;
     }
 
-
-    const points =
+    const p=
       Array.from(
         fingers.values()
       );
 
+    const dx=
+      p[0].x-p[1].x;
 
-    const dx =
-      points[0].x -
-      points[1].x;
+    const dy=
+      p[0].y-p[1].y;
 
-    const dy =
-      points[0].y -
-      points[1].y;
-
-
-    const distance =
+    const distance=
       Math.sqrt(
-        dx * dx +
-        dy * dy
+        dx*dx+dy*dy
       );
 
+    if(
+      previousDistance!==null &&
+      previousDistance>0
+    ){
 
-    if (
-      previousDistance !== null &&
-      previousDistance > 0
-    ) {
-
-      zoom *=
-        distance /
+      zoom*=
+        distance/
         previousDistance;
 
-
-      zoom =
+      zoom=
         Math.max(
           .65,
           Math.min(
@@ -676,36 +942,30 @@ canvas.addEventListener(
           )
         );
 
-
       createProjection();
 
       requestDraw();
 
     }
 
-
-    previousDistance =
+    previousDistance=
       distance;
 
   }
 );
 
 
-function removeFinger(e) {
+function removeFinger(e){
 
   fingers.delete(
     e.pointerId
   );
 
-
-  if (fingers.size < 2) {
-
-    previousDistance =
-      null;
-
+  if(fingers.size<2){
+    previousDistance=null;
   }
-}
 
+}
 
 canvas.addEventListener(
   "pointerup",
@@ -719,12 +979,491 @@ canvas.addEventListener(
 
 
 /* =====================================================
-   INICIAR
+   TEEN MAP DATA
 ===================================================== */
 
-resize();
+let currentUser=null;
+let currentPoints=0;
+let completed=new Set();
 
-loadWorld();
+
+/* =====================================================
+   POINTS
+===================================================== */
+
+function updatePoints(){
+
+  points.textContent=
+    currentPoints;
+
+  panelPoints.textContent=
+    currentPoints;
+
+}
+
+
+/* =====================================================
+   GET USER
+===================================================== */
+
+async function getUser(){
+
+  const {
+    data,
+    error
+  }=
+    await client.auth.getUser();
+
+  if(error){
+    console.error(error);
+    return null;
+  }
+
+  return data.user;
+
+}
+
+
+/* =====================================================
+   LOAD PROFILE
+===================================================== */
+
+async function loadProfile(){
+
+  if(!currentUser){
+    return;
+  }
+
+  const {
+    data,
+    error
+  }=
+    await client
+      .from("profiles")
+      .select("impact_points")
+      .eq(
+        "id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+  currentPoints=
+    data?.impact_points||0;
+
+  updatePoints();
+
+}
+
+
+/* =====================================================
+   COMPLETED CHALLENGES
+===================================================== */
+
+async function loadCompleted(){
+
+  completed=
+    new Set();
+
+  if(!currentUser){
+    return;
+  }
+
+  const {
+    data,
+    error
+  }=
+    await client
+      .from("challenge_completions")
+      .select("challenge_id")
+      .eq(
+        "user_id",
+        currentUser.id
+      );
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+  if(data){
+
+    data.forEach(item=>{
+
+      completed.add(
+        Number(item.challenge_id)
+      );
+
+    });
+
+  }
+
+}
+
+
+/* =====================================================
+   LOAD CHALLENGES
+===================================================== */
+
+async function loadChallenges(){
+
+  challengeList.innerHTML=
+    "<p style='opacity:.6'>Loading challenges...</p>";
+
+  await loadCompleted();
+
+  const {
+    data,
+    error
+  }=
+    await client
+      .from("challenges")
+      .select(
+        "id,title,description,category,points,icon"
+      )
+      .order(
+        "id",
+        {ascending:true}
+      );
+
+  if(error){
+
+    console.error(error);
+
+    challengeList.innerHTML=
+      "<p>Could not load challenges.</p>";
+
+    return;
+
+  }
+
+  challengeList.innerHTML="";
+
+  data.forEach(challenge=>{
+
+    const isDone=
+      completed.has(
+        Number(challenge.id)
+      );
+
+    const card=
+      document.createElement(
+        "div"
+      );
+
+    card.className="challenge";
+
+    card.innerHTML=`
+
+      <div class="icon">
+        ${challenge.icon||"✨"}
+      </div>
+
+      <div class="category">
+        ${escapeHTML(challenge.category)}
+      </div>
+
+      <h3>
+        ${escapeHTML(challenge.title)}
+      </h3>
+
+      <p>
+        ${escapeHTML(challenge.description)}
+      </p>
+
+      <div class="challengeBottom">
+
+        <div class="reward">
+          +${challenge.points} points
+        </div>
+
+        <button
+          class="complete ${isDone?"done":""}"
+          ${isDone?"disabled":""}
+        >
+          ${isDone?"✓ Completed":"Complete"}
+        </button>
+
+      </div>
+    `;
+
+    challengeList.appendChild(card);
+
+    const button=
+      card.querySelector(".complete");
+
+    if(!isDone){
+
+      button.addEventListener(
+        "click",
+        ()=>completeChallenge(
+          challenge,
+          button
+        )
+      );
+
+    }
+
+  });
+
+}
+
+
+/* =====================================================
+   COMPLETE CHALLENGE
+===================================================== */
+
+async function completeChallenge(
+  challenge,
+  button
+){
+
+  if(!currentUser){
+
+    window.location.href=
+      "login.html";
+
+    return;
+
+  }
+
+  button.disabled=true;
+
+  button.textContent=
+    "Saving...";
+
+  try{
+
+    const {
+      data,
+      error
+    }=
+      await client.rpc(
+        "complete_challenge",
+        {
+          challenge_id_input:
+            challenge.id
+        }
+      );
+
+    if(error){
+      throw error;
+    }
+
+    if(data.success===false){
+
+      completed.add(
+        Number(challenge.id)
+      );
+
+      button.textContent=
+        "✓ Completed";
+
+      button.classList.add(
+        "done"
+      );
+
+      await loadProfile();
+
+      return;
+
+    }
+
+    const earned=
+      Number(
+        data.points||
+        challenge.points
+      );
+
+    currentPoints+=earned;
+
+    completed.add(
+      Number(challenge.id)
+    );
+
+    updatePoints();
+
+    button.textContent=
+      "✓ Completed";
+
+    button.classList.add(
+      "done"
+    );
+
+    showToast(
+      `✨ +${earned} Impact Points`
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    button.disabled=false;
+
+    button.textContent=
+      "Complete";
+
+    showToast(
+      "Something went wrong. Try again."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value){
+
+  return String(value??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+let toastTimer;
+
+function showToast(text){
+
+  toast.textContent=text;
+
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer=
+    setTimeout(
+      ()=>{
+        toast.classList.remove("show");
+      },
+      2500
+    );
+
+}
+
+
+/* =====================================================
+   PANEL
+===================================================== */
+
+document
+.getElementById("challengeButton")
+.addEventListener(
+  "click",
+  async ()=>{
+
+    panel.classList.add("open");
+
+    if(currentUser){
+
+      await loadChallenges();
+
+    }else{
+
+      challengeList.innerHTML=`
+
+        <div style="text-align:center;padding:25px 5px">
+
+          <h3>
+            🌎 Join Teen Map
+          </h3>
+
+          <p style="opacity:.7;line-height:1.5">
+            Create your profile to participate
+            in challenges and earn Impact Points.
+          </p>
+
+          <button
+            onclick="window.location.href='login.html'"
+            style="
+              border:0;
+              background:#ff78b7;
+              color:white;
+              padding:13px 20px;
+              border-radius:13px;
+              font-weight:bold;
+            "
+          >
+            Join Teen Map
+          </button>
+
+        </div>
+      `;
+
+    }
+
+  }
+);
+
+
+document
+.getElementById("close")
+.addEventListener(
+  "click",
+  ()=>{
+    panel.classList.remove("open");
+  }
+);
+
+
+document
+.getElementById("pointsButton")
+.addEventListener(
+  "click",
+  ()=>{
+    panel.classList.add("open");
+  }
+);
+
+
+/* =====================================================
+   START
+===================================================== */
+
+async function start(){
+
+  resize();
+
+  await loadWorld();
+
+  currentUser=
+    await getUser();
+
+  if(currentUser){
+
+    await loadProfile();
+
+  }
+
+  loading.classList.add(
+    "hide"
+  );
+
+}
+
+
+start();
 
 </script>
 
