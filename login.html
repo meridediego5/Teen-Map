@@ -6,7 +6,9 @@
 <title>Teen Map — Join</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -35,6 +37,10 @@ body{
 
 h1{
   margin:5px 0;
+  color:#222;
+}
+
+h2{
   color:#222;
 }
 
@@ -110,6 +116,7 @@ button{
   <div class="subtitle">
     See the world through teenage eyes.
   </div>
+
 
   <!-- LOGIN -->
 
@@ -240,7 +247,7 @@ const SUPABASE_KEY =
 
 
 /* =========================
-   MESSAGES
+   MENSAJES
 ========================= */
 
 function message(text){
@@ -253,7 +260,7 @@ function profileMessage(text){
 
 
 /* =========================
-   SUPABASE REQUEST
+   PETICIONES SUPABASE
 ========================= */
 
 async function supabaseRequest(path, options = {}){
@@ -269,6 +276,10 @@ async function supabaseRequest(path, options = {}){
   }else{
     headers["Authorization"] =
       "Bearer " + SUPABASE_KEY;
+  }
+
+  if(options.headers){
+    Object.assign(headers, options.headers);
   }
 
   const response = await fetch(
@@ -304,7 +315,7 @@ async function supabaseRequest(path, options = {}){
 
 
 /* =========================
-   CREATE ACCOUNT
+   CREAR CUENTA
 ========================= */
 
 async function createUser(){
@@ -312,12 +323,14 @@ async function createUser(){
   message("");
 
   const email =
-    document.getElementById("email").value
+    document.getElementById("email")
+      .value
       .trim()
       .toLowerCase();
 
   const password =
-    document.getElementById("password").value;
+    document.getElementById("password")
+      .value;
 
   if(!email){
     message("Please enter your email.");
@@ -342,6 +355,7 @@ async function createUser(){
       "/auth/v1/signup",
       {
         method:"POST",
+
         body:JSON.stringify({
           email:email,
           password:password
@@ -349,11 +363,6 @@ async function createUser(){
       }
     );
 
-
-    /*
-      Si Supabase devuelve una sesión,
-      guardamos inmediatamente el acceso.
-    */
 
     if(data.access_token && data.user){
 
@@ -372,12 +381,6 @@ async function createUser(){
       return;
     }
 
-
-    /*
-      Si no devuelve sesión, significa
-      que la cuenta se creó pero hay que
-      iniciar sesión.
-    */
 
     message(
       "Account created! You can now log in."
@@ -402,13 +405,14 @@ async function loginUser(){
   message("");
 
   const email =
-    document.getElementById("email").value
+    document.getElementById("email")
+      .value
       .trim()
       .toLowerCase();
 
   const password =
-    document.getElementById("password").value;
-
+    document.getElementById("password")
+      .value;
 
   if(!email){
     message("Please enter your email.");
@@ -420,9 +424,7 @@ async function loginUser(){
     return;
   }
 
-
   message("Logging in...");
-
 
   try{
 
@@ -430,6 +432,7 @@ async function loginUser(){
       "/auth/v1/token?grant_type=password",
       {
         method:"POST",
+
         body:JSON.stringify({
           email:email,
           password:password
@@ -446,10 +449,6 @@ async function loginUser(){
     }
 
 
-    /*
-      Guardamos la sesión.
-    */
-
     localStorage.setItem(
       "teenmap_access_token",
       data.access_token
@@ -462,10 +461,12 @@ async function loginUser(){
 
 
     /*
-      Entramos directamente al mapa.
+      El login correcto lleva directamente
+      al mapa.
     */
 
-    window.location.href = "index.html";
+    window.location.href =
+      "index.html";
 
 
   }catch(error){
@@ -479,7 +480,7 @@ async function loginUser(){
 
 
 /* =========================
-   GOOGLE LOGIN
+   GOOGLE
 ========================= */
 
 function googleLogin(){
@@ -488,7 +489,6 @@ function googleLogin(){
     window.location.origin +
     window.location.pathname;
 
-
   const url =
     SUPABASE_URL +
     "/auth/v1/authorize" +
@@ -496,13 +496,12 @@ function googleLogin(){
     "&redirect_to=" +
     encodeURIComponent(redirect);
 
-
   window.location.href = url;
 }
 
 
 /* =========================
-   SHOW PROFILE
+   MOSTRAR PERFIL
 ========================= */
 
 function showProfile(){
@@ -516,13 +515,12 @@ function showProfile(){
 
 
 /* =========================
-   SAVE PROFILE
+   GUARDAR PERFIL
 ========================= */
 
 async function saveProfile(){
 
   profileMessage("");
-
 
   const token =
     localStorage.getItem(
@@ -547,7 +545,8 @@ async function saveProfile(){
 
   const username =
     document.getElementById("username")
-      .value.trim();
+      .value
+      .trim();
 
   const age =
     Number(
@@ -556,35 +555,43 @@ async function saveProfile(){
 
   const country =
     document.getElementById("country")
-      .value.trim();
+      .value
+      .trim();
 
   const region =
     document.getElementById("region")
-      .value.trim();
+      .value
+      .trim();
 
   const languages =
     document.getElementById("languages")
-      .value.trim();
+      .value
+      .trim();
 
   const hobbies =
     document.getElementById("hobbies")
-      .value.trim();
+      .value
+      .trim();
 
   const interests =
     document.getElementById("interests")
-      .value.trim();
+      .value
+      .trim();
 
   const traditions =
     document.getElementById("traditions")
-      .value.trim();
+      .value
+      .trim();
 
   const funFact =
     document.getElementById("fun_fact")
-      .value.trim();
+      .value
+      .trim();
 
   const favoriteSong =
     document.getElementById("favorite_song")
-      .value.trim();
+      .value
+      .trim();
 
 
   if(!username){
@@ -614,27 +621,27 @@ async function saveProfile(){
 
   const profile = {
 
-    id:id,
+    id: id,
 
-    username:username,
+    username: username,
 
-    age:age,
+    age: age,
 
-    country:country,
+    country: country,
 
-    region:region,
+    region: region,
 
-    languages:languages,
+    languages: languages,
 
-    hobbies:hobbies,
+    hobbies: hobbies,
 
-    interests:interests,
+    interests: interests,
 
-    traditions:traditions,
+    traditions: traditions,
 
-    fun_fact:funFact,
+    fun_fact: funFact,
 
-    favorite_song:favoriteSong
+    favorite_song: favoriteSong
 
   };
 
@@ -658,11 +665,6 @@ async function saveProfile(){
     );
 
 
-    /*
-      Perfil guardado.
-      Vamos al mapa.
-    */
-
     window.location.href =
       "index.html";
 
@@ -675,36 +677,6 @@ async function saveProfile(){
     );
   }
 }
-
-
-/* =========================
-   CHECK EXISTING SESSION
-========================= */
-
-(function checkExistingSession(){
-
-  const token =
-    localStorage.getItem(
-      "teenmap_access_token"
-    );
-
-  const userId =
-    localStorage.getItem(
-      "teenmap_user_id"
-    );
-
-
-  /*
-    Si ya hay una sesión guardada,
-    mostramos el formulario de perfil.
-  */
-
-  if(token && userId){
-
-    showProfile();
-  }
-
-})();
 
 </script>
 
