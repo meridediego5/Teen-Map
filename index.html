@@ -1,397 +1,435 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+      content="width=device-width,
+      initial-scale=1,
+      maximum-scale=5,
+      user-scalable=yes">
 
 <title>Teen Map 🌎</title>
 
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#061426;
-  font-family:Arial,sans-serif;
-  color:white;
+* {
+  box-sizing: border-box;
 }
 
-canvas{
-  display:block;
-  width:100vw;
-  height:100vh;
-  touch-action:none;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #05030a;
+  color: white;
 }
 
-.title{
-  position:fixed;
-  top:16px;
-  left:16px;
-  z-index:20;
-  color:white;
-  font-size:23px;
-  font-weight:bold;
-  padding:10px 15px;
-  border-radius:15px;
-  background:rgba(0,0,0,.38);
-  backdrop-filter:blur(8px);
+#app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-.points{
-  position:fixed;
-  top:16px;
-  right:16px;
-  z-index:20;
-  background:rgba(0,0,0,.45);
-  backdrop-filter:blur(10px);
-  border-radius:15px;
-  padding:9px 14px;
-  text-align:center;
-  cursor:pointer;
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
 }
 
-.points small{
-  display:block;
-  font-size:10px;
-  opacity:.7;
+/* ---------- TOP ---------- */
+
+.topbar {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
 }
 
-.points strong{
-  display:block;
-  color:#ff78b7;
-  font-size:20px;
+.logo {
+  pointer-events: auto;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-.challengeButton{
-  position:fixed;
-  bottom:22px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:20;
-  border:0;
-  border-radius:17px;
-  padding:15px 24px;
-  background:#ff78b7;
-  color:white;
-  font-size:16px;
-  font-weight:bold;
-  box-shadow:0 8px 25px rgba(255,120,183,.35);
-  cursor:pointer;
+.logo span {
+  color: #ff72bd;
 }
 
-.panel{
-  position:fixed;
-  z-index:30;
-  top:0;
-  right:-450px;
-  width:min(430px,100%);
-  height:100%;
-  box-sizing:border-box;
-  background:rgba(5,20,36,.97);
-  backdrop-filter:blur(20px);
-  box-shadow:-10px 0 40px rgba(0,0,0,.4);
-  transition:right .3s ease;
-  overflow-y:auto;
-  padding:25px 20px 35px;
+.points-button {
+  pointer-events: auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 17px;
+  background: rgba(255,255,255,.94);
+  color: #111;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 5px 25px rgba(0,0,0,.3);
+  cursor: pointer;
 }
 
-.panel.open{
-  right:0;
+.points-button:active {
+  transform: scale(.97);
 }
 
-.panelHeader{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+/* ---------- BOTTOM ---------- */
+
+.bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
 }
 
-.panelHeader h2{
-  margin:0;
-  font-size:27px;
+.challenge-button {
+  pointer-events: auto;
+  border: 0;
+  background: #ff72bd;
+  color: white;
+  border-radius: 999px;
+  padding: 15px 25px;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 8px 30px rgba(255,114,189,.35);
+  cursor: pointer;
 }
 
-.close{
-  width:42px;
-  height:42px;
-  border:0;
-  border-radius:50%;
-  background:rgba(255,255,255,.12);
-  color:white;
-  font-size:24px;
-  cursor:pointer;
+.challenge-button:active {
+  transform: scale(.97);
 }
 
-.subtitle{
-  opacity:.7;
-  line-height:1.5;
+/* ---------- LOADING ---------- */
+
+.loading {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #05030a;
+  transition: opacity .4s ease;
 }
 
-.impact{
-  margin:20px 0;
-  padding:18px;
-  border-radius:20px;
-  background:linear-gradient(
-    135deg,
-    rgba(255,120,183,.22),
-    rgba(70,180,170,.18)
-  );
+.loading.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.impactNumber{
-  font-size:38px;
-  font-weight:bold;
-  color:#ff78b7;
+.loading-box {
+  text-align: center;
 }
 
-.impactText{
-  opacity:.7;
+.spinner {
+  width: 35px;
+  height: 35px;
+  margin: 0 auto 15px;
+  border: 3px solid rgba(255,255,255,.2);
+  border-top-color: #ff72bd;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
 }
 
-.challenge{
-  background:rgba(255,255,255,.08);
-  border-radius:20px;
-  padding:18px;
-  margin-bottom:15px;
-}
-
-.icon{
-  font-size:32px;
-}
-
-.category{
-  display:inline-block;
-  margin:8px 0;
-  padding:5px 9px;
-  border-radius:9px;
-  background:rgba(255,120,183,.15);
-  color:#ff9ac9;
-  font-size:12px;
-}
-
-.challenge h3{
-  margin:5px 0;
-  font-size:19px;
-}
-
-.challenge p{
-  opacity:.75;
-  line-height:1.45;
-  font-size:14px;
-}
-
-.challengeBottom{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.reward{
-  color:#ffd36b;
-  font-weight:bold;
-}
-
-.complete{
-  border:0;
-  border-radius:12px;
-  padding:10px 13px;
-  background:#ff78b6;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.complete.done{
-  background:rgba(100,210,160,.2);
-  color:#75e0ad;
-}
-
-.profilePanel{
-  position:fixed;
-  z-index:40;
-  left:50%;
-  bottom:25px;
-  transform:translate(-50%,120%);
-  width:min(390px,calc(100% - 30px));
-  max-height:70vh;
-  box-sizing:border-box;
-  overflow-y:auto;
-  background:rgba(5,20,36,.97);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:25px;
-  padding:22px;
-  box-shadow:0 15px 50px rgba(0,0,0,.5);
-  transition:transform .3s ease;
-}
-
-.profilePanel.open{
-  transform:translate(-50%,0);
-}
-
-.profileTop{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:18px;
-}
-
-.profileAvatar{
-  width:62px;
-  height:62px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#ff78b7,#7bdcff);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:29px;
-  flex-shrink:0;
-}
-
-.profileName{
-  font-size:22px;
-  font-weight:bold;
-}
-
-.profileCountry{
-  margin-top:4px;
-  opacity:.7;
-  font-size:14px;
-}
-
-.profileClose{
-  margin-left:auto;
-  width:36px;
-  height:36px;
-  border:0;
-  border-radius:50%;
-  background:rgba(255,255,255,.1);
-  color:white;
-  font-size:21px;
-  cursor:pointer;
-}
-
-.profileGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
-}
-
-.profileItem{
-  background:rgba(255,255,255,.07);
-  border-radius:14px;
-  padding:11px;
-  min-width:0;
-}
-
-.profileItem.full{
-  grid-column:1/-1;
-}
-
-.profileLabel{
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:.5px;
-  opacity:.5;
-  margin-bottom:5px;
-}
-
-.profileValue{
-  font-size:14px;
-  line-height:1.35;
-  word-break:break-word;
-}
-
-.impactBadge{
-  margin-top:15px;
-  padding:13px;
-  border-radius:15px;
-  background:rgba(255,120,183,.12);
-  text-align:center;
-}
-
-.impactBadge strong{
-  color:#ff78b7;
-  font-size:22px;
-}
-
-.message{
-  position:fixed;
-  z-index:50;
-  left:50%;
-  bottom:85px;
-  transform:translateX(-50%);
-  background:rgba(7,25,43,.95);
-  padding:13px 18px;
-  border-radius:15px;
-  opacity:0;
-  pointer-events:none;
-  transition:.3s;
-  text-align:center;
-}
-
-.message.show{
-  opacity:1;
-}
-
-.loading{
-  position:fixed;
-  inset:0;
-  z-index:100;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#061426;
-  transition:.4s;
-}
-
-.loading.hide{
-  opacity:0;
-  pointer-events:none;
-}
-
-.spinner{
-  width:23px;
-  height:23px;
-  border:3px solid rgba(255,255,255,.2);
-  border-top-color:#ff78b7;
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-  margin-right:12px;
-}
-
-@keyframes spin{
-  to{
-    transform:rotate(360deg);
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media(max-width:600px){
+/* ---------- PROFILE CARD ---------- */
 
-  .title{
-    font-size:19px;
-    padding:9px 12px;
+.profile-card {
+  position: absolute;
+  z-index: 50;
+  left: 50%;
+  bottom: 85px;
+  transform: translateX(-50%);
+  width: min(90%, 380px);
+  max-height: 65vh;
+  overflow-y: auto;
+  background: rgba(20,15,28,.96);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 25px;
+  padding: 22px;
+  box-shadow: 0 15px 60px rgba(0,0,0,.55);
+  display: none;
+}
+
+.profile-card.open {
+  display: block;
+}
+
+.close-profile {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  border: 0;
+  background: rgba(255,255,255,.1);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+
+.profile-name {
+  font-size: 25px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.profile-location {
+  color: #ff72bd;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.profile-row {
+  margin: 10px 0;
+}
+
+.profile-label {
+  color: rgba(255,255,255,.5);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 3px;
+}
+
+.profile-value {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.profile-points {
+  margin-top: 18px;
+  padding: 13px;
+  border-radius: 15px;
+  background: rgba(255,114,189,.12);
+  color: #ff9bd0;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* ---------- CHALLENGES PANEL ---------- */
+
+.panel {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(5,3,10,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transform: translateY(100%);
+  transition: transform .35s ease;
+  overflow-y: auto;
+  padding: 75px 18px 35px;
+}
+
+.panel.open {
+  transform: translateY(0);
+}
+
+.panel-inner {
+  width: min(100%, 650px);
+  margin: 0 auto;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.panel-title {
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.panel-subtitle {
+  color: rgba(255,255,255,.65);
+  margin-top: 4px;
+}
+
+.close-panel {
+  border: 0;
+  background: rgba(255,255,255,.1);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 22px;
+}
+
+.current-points {
+  background: rgba(255,114,189,.12);
+  border: 1px solid rgba(255,114,189,.2);
+  border-radius: 18px;
+  padding: 17px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.current-points-number {
+  font-size: 30px;
+  font-weight: 900;
+  color: #ff72bd;
+}
+
+.challenge {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  padding: 19px;
+  margin-bottom: 13px;
+}
+
+.challenge.done {
+  opacity: .62;
+}
+
+.challenge-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
+.challenge-description {
+  color: rgba(255,255,255,.7);
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.challenge-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.challenge-points {
+  color: #ff72bd;
+  font-weight: 900;
+}
+
+.complete-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #ff72bd;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.complete-button:disabled {
+  background: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.5);
+}
+
+/* ---------- JOIN ---------- */
+
+.join-box {
+  text-align: center;
+  padding: 35px 15px;
+}
+
+.join-box h2 {
+  font-size: 25px;
+}
+
+.join-box p {
+  color: rgba(255,255,255,.65);
+  line-height: 1.5;
+}
+
+.join-link {
+  display: inline-block;
+  margin-top: 10px;
+  background: #ff72bd;
+  color: white;
+  text-decoration: none;
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+/* ---------- TOAST ---------- */
+
+.toast {
+  position: absolute;
+  z-index: 200;
+  left: 50%;
+  bottom: 90px;
+  transform: translate(-50%, 20px);
+  background: rgba(25,20,30,.96);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .3s ease;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 600px) {
+  .topbar {
+    top: 12px;
+    left: 12px;
+    right: 12px;
   }
 
-  .points{
-    padding:8px 11px;
+  .logo {
+    font-size: 19px;
   }
 
-  .challengeButton{
-    width:calc(100% - 40px);
+  .points-button {
+    padding: 9px 13px;
+    font-size: 13px;
   }
 
-  .profilePanel{
-    bottom:15px;
-    max-height:75vh;
+  .bottom {
+    bottom: 15px;
+  }
+
+  .challenge-button {
+    padding: 13px 21px;
+    font-size: 15px;
+  }
+
+  .panel {
+    padding-top: 65px;
   }
 }
 </style>
@@ -399,296 +437,217 @@ canvas{
 
 <body>
 
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <span>Preparing your world...</span>
-</div>
+<div id="app">
 
-<canvas id="globe"></canvas>
+  <canvas id="globe"></canvas>
 
-<div class="title">
-  🌎 Teen Map
-</div>
+  <div class="topbar">
+    <div class="logo">
+      Teen <span>Map</span> 🌎
+    </div>
 
-<div class="points" id="pointsButton">
-  <small>IMPACT POINTS</small>
-  <strong id="points">0</strong>
-</div>
-
-<button class="challengeButton" id="challengeButton">
-  ✨ Explore Challenges
-</button>
-
-
-<!-- CHALLENGES -->
-
-<div class="panel" id="panel">
-
-  <div class="panelHeader">
-
-    <h2>🌍 Challenges</h2>
-
-    <button class="close" id="close">
-      ×
+    <button class="points-button" id="pointsButton">
+      ⭐ <span id="pointsTop">0</span> Impact Points
     </button>
-
   </div>
 
-  <p class="subtitle">
-    Small actions can create a bigger impact.
-    Choose a challenge and make your part count.
-  </p>
-
-  <div class="impact">
-
-    <div class="impactNumber" id="panelPoints">
-      0
-    </div>
-
-    <div class="impactText">
-      Your Impact Points
-    </div>
-
+  <div class="bottom">
+    <button class="challenge-button" id="challengeButton">
+      ✨ Explore Challenges
+    </button>
   </div>
 
-  <div id="challengeList">
-    Loading challenges...
-  </div>
+  <!-- PROFILE -->
+  <div class="profile-card" id="profileCard">
+    <button class="close-profile" id="closeProfile">×</button>
 
-</div>
+    <div class="profile-name" id="profileName"></div>
+    <div class="profile-location" id="profileLocation"></div>
 
-
-<!-- PROFILE -->
-
-<div class="profilePanel" id="profilePanel">
-
-  <div class="profileTop">
-
-    <div class="profileAvatar" id="profileAvatar">
-      🌎
+    <div class="profile-row">
+      <div class="profile-label">Age</div>
+      <div class="profile-value" id="profileAge"></div>
     </div>
 
-    <div>
+    <div class="profile-row">
+      <div class="profile-label">Region</div>
+      <div class="profile-value" id="profileRegion"></div>
+    </div>
 
-      <div class="profileName" id="profileName">
-        Teen Map
+    <div class="profile-row">
+      <div class="profile-label">Languages</div>
+      <div class="profile-value" id="profileLanguages"></div>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-label">Interests</div>
+      <div class="profile-value" id="profileInterests"></div>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-label">Hobbies</div>
+      <div class="profile-value" id="profileHobbies"></div>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-label">Traditions</div>
+      <div class="profile-value" id="profileTraditions"></div>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-label">Fun fact</div>
+      <div class="profile-value" id="profileFunFact"></div>
+    </div>
+
+    <div class="profile-row">
+      <div class="profile-label">Favorite song</div>
+      <div class="profile-value" id="profileSong"></div>
+    </div>
+
+    <div class="profile-points">
+      ⭐ <span id="profilePoints">0</span> Impact Points
+    </div>
+  </div>
+
+  <!-- CHALLENGES -->
+  <div class="panel" id="challengePanel">
+
+    <div class="panel-inner">
+
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Challenges ✨</div>
+          <div class="panel-subtitle">
+            Small actions. Real impact.
+          </div>
+        </div>
+
+        <button class="close-panel" id="closePanel">×</button>
       </div>
 
-      <div class="profileCountry" id="profileCountry">
-        🌍
+      <div class="current-points">
+        <div>Your Impact Points</div>
+        <div class="current-points-number" id="pointsPanel">0</div>
       </div>
 
+      <div id="challengeList"></div>
+
     </div>
-
-    <button class="profileClose" id="profileClose">
-      ×
-    </button>
-
   </div>
 
-  <div class="profileGrid">
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
-    <div class="profileItem">
-      <div class="profileLabel">Age</div>
-      <div class="profileValue" id="profileAge">—</div>
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div>Loading Teen Map...</div>
     </div>
-
-    <div class="profileItem">
-      <div class="profileLabel">Region</div>
-      <div class="profileValue" id="profileRegion">—</div>
-    </div>
-
-    <div class="profileItem full">
-      <div class="profileLabel">Languages</div>
-      <div class="profileValue" id="profileLanguages">—</div>
-    </div>
-
-    <div class="profileItem full">
-      <div class="profileLabel">Interests</div>
-      <div class="profileValue" id="profileInterests">—</div>
-    </div>
-
-    <div class="profileItem full">
-      <div class="profileLabel">Hobbies</div>
-      <div class="profileValue" id="profileHobbies">—</div>
-    </div>
-
-    <div class="profileItem full">
-      <div class="profileLabel">Traditions</div>
-      <div class="profileValue" id="profileTraditions">—</div>
-    </div>
-
-    <div class="profileItem full">
-      <div class="profileLabel">Fun fact</div>
-      <div class="profileValue" id="profileFunFact">—</div>
-    </div>
-
-    <div class="profileItem full">
-      <div class="profileLabel">Favorite song</div>
-      <div class="profileValue" id="profileSong">—</div>
-    </div>
-
-  </div>
-
-  <div class="impactBadge">
-    <div>Impact Points</div>
-    <strong id="profilePoints">0</strong>
   </div>
 
 </div>
-
-<div class="message" id="toast"></div>
-
 
 <script>
 
-/* =====================================================
+/* =========================================================
    SUPABASE
-===================================================== */
+========================================================= */
 
 const SUPABASE_URL =
-"https://wqzdzajhqoodtxauwqme.supabase.co";
+  "https://wqzdzajhqoodtxauwqme.supabase.co";
 
-/* ESTA ES LA CLAVE CORRECTA */
+/* IMPORTANT: THIS IS THE CORRECT KEY */
 const SUPABASE_KEY =
-"sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
+  "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
 
 
-/* =====================================================
-   ELEMENTOS
-===================================================== */
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
 
-const canvas =
-document.getElementById("globe");
+let currentUser = null;
+let currentProfile = null;
+let currentPoints = 0;
+let challenges = [];
+let completedChallenges = new Set();
 
-const ctx =
-canvas.getContext("2d",{
-  alpha:false
-});
+let worldFeatures = [];
+let profileMarkers = [];
 
-const loading =
-document.getElementById("loading");
+let rotation = [0, 0];
+let scale = 1;
 
-const panel =
-document.getElementById("panel");
+let canvas;
+let ctx;
 
-const challengeList =
-document.getElementById("challengeList");
+let width;
+let height;
 
-const points =
-document.getElementById("points");
+let projection;
+let path;
 
-const panelPoints =
-document.getElementById("panelPoints");
-
-const toast =
-document.getElementById("toast");
-
-const profilePanel =
-document.getElementById("profilePanel");
+let isDragging = false;
+let lastX = 0;
+let lastY = 0;
 
 
-/* =====================================================
-   GLOBE
-===================================================== */
+/* =========================================================
+   HELPERS
+========================================================= */
 
-let width=0;
-let height=0;
-let dpr=1;
+function getAccessToken() {
+  return localStorage.getItem("teenmap_access_token") || "";
+}
 
-let projection=null;
-let countries=null;
+function getSavedUserId() {
+  return localStorage.getItem("teenmap_user_id") || "";
+}
 
-let rotation=[0,-10,0];
-let zoom=1;
+function authHeaders() {
 
-let animationFrame=null;
-let needsDraw=true;
-
-const stars=[];
-
-let profiles=[];
-let profileLocations=[];
-
-
-/* =====================================================
-   USUARIO
-===================================================== */
-
-let currentUser=null;
-let currentPoints=0;
-let completed=new Set();
-
-const savedToken =
-localStorage.getItem(
-  "teenmap_access_token"
-);
-
-const savedUserId =
-localStorage.getItem(
-  "teenmap_user_id"
-);
-
-
-/* =====================================================
-   PETICIÓN SUPABASE AUTENTICADA
-===================================================== */
-
-async function authenticatedRequest(
-  path,
-  options={}
-){
-
-  const token =
-    localStorage.getItem(
-      "teenmap_access_token"
-    );
-
-  if(!token){
-    throw new Error(
-      "No active Teen Map session."
-    );
-  }
-
-  const headers={
-    "apikey":SUPABASE_KEY,
-    "Authorization":"Bearer "+token,
-    "Content-Type":"application/json"
+  const headers = {
+    "apikey": SUPABASE_KEY,
+    "Content-Type": "application/json"
   };
 
-  if(options.headers){
-    Object.assign(
-      headers,
-      options.headers
-    );
+  const token = getAccessToken();
+
+  if (token) {
+    headers["Authorization"] = "Bearer " + token;
   }
 
-  const response=
-    await fetch(
-      SUPABASE_URL+path,
-      {
-        method:options.method||"GET",
-        headers:headers,
-        body:options.body
-      }
-    );
+  return headers;
+}
 
-  let data={};
 
-  try{
-    data=await response.json();
-  }catch(e){
-    data={};
+async function supabaseGet(path) {
+
+  const response = await fetch(
+    SUPABASE_URL + path,
+    {
+      method: "GET",
+      headers: authHeaders()
+    }
+  );
+
+  const text = await response.text();
+
+  let data;
+
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
   }
 
-  if(!response.ok){
+  if (!response.ok) {
 
     throw new Error(
-      data.message||
-      data.msg||
-      data.error||
-      data.error_description||
-      "Supabase request failed."
+      data?.message ||
+      data?.error_description ||
+      data?.error ||
+      "Supabase request failed"
     );
   }
 
@@ -696,1581 +655,1413 @@ async function authenticatedRequest(
 }
 
 
-/* =====================================================
-   ESTRELLAS
-===================================================== */
+async function supabasePost(path, body) {
 
-function createStars(){
-
-  stars.length=0;
-
-  for(let i=0;i<100;i++){
-
-    stars.push({
-      x:Math.random(),
-      y:Math.random(),
-      size:Math.random()*1.4+.3
-    });
-
-  }
-}
-
-
-/* =====================================================
-   RESIZE
-===================================================== */
-
-function resize(){
-
-  width=window.innerWidth;
-  height=window.innerHeight;
-
-  dpr=Math.min(
-    window.devicePixelRatio||1,
-    2
+  const response = await fetch(
+    SUPABASE_URL + path,
+    {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(body)
+    }
   );
 
-  canvas.width=
-    Math.floor(width*dpr);
+  const text = await response.text();
 
-  canvas.height=
-    Math.floor(height*dpr);
+  let data;
 
-  canvas.style.width=
-    width+"px";
-
-  canvas.style.height=
-    height+"px";
-
-  ctx.setTransform(
-    dpr,0,0,dpr,0,0
-  );
-
-  createProjection();
-  createStars();
-  requestDraw();
-}
-
-window.addEventListener(
-  "resize",
-  resize
-);
-
-
-/* =====================================================
-   PROJECTION
-===================================================== */
-
-function createProjection(){
-
-  const globeSize=
-    Math.min(width,height)*
-    .37*
-    zoom;
-
-  projection=
-    d3.geoOrthographic()
-      .translate([
-        width/2,
-        height/2
-      ])
-      .scale(globeSize)
-      .rotate(rotation)
-      .clipAngle(90);
-}
-
-
-/* =====================================================
-   DRAW
-===================================================== */
-
-function requestDraw(){
-
-  needsDraw=true;
-
-  if(animationFrame!==null){
-    return;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
   }
 
-  animationFrame=
-    requestAnimationFrame(
-      render
+  if (!response.ok) {
+
+    throw new Error(
+      data?.message ||
+      data?.error_description ||
+      data?.error ||
+      "Supabase request failed"
     );
-}
-
-function render(){
-
-  animationFrame=null;
-
-  if(!needsDraw){
-    return;
   }
 
-  needsDraw=false;
-
-  draw();
+  return data;
 }
 
 
-/* =====================================================
-   BACKGROUND
-===================================================== */
+function showToast(message) {
 
-function drawBackground(){
+  const toast = document.getElementById("toast");
 
-  ctx.fillStyle="#061426";
+  toast.textContent = message;
+  toast.classList.add("show");
 
-  ctx.fillRect(
-    0,0,width,height
-  );
-
-  ctx.fillStyle=
-    "rgba(255,255,255,.7)";
-
-  for(const star of stars){
-
-    ctx.fillRect(
-      star.x*width,
-      star.y*height,
-      star.size,
-      star.size
-    );
-
-  }
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
 }
 
 
-/* =====================================================
-   GLOBE
-===================================================== */
+function escapeHTML(value) {
 
-function drawGlobe(){
-
-  if(!projection){
-    return;
+  if (value === null || value === undefined) {
+    return "";
   }
 
-  const path=
-    d3.geoPath(
-      projection,
-      ctx
-    );
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-  const sphere={
-    type:"Sphere"
+
+/* =========================================================
+   USER
+========================================================= */
+
+function getUser() {
+
+  const id = getSavedUserId();
+  const token = getAccessToken();
+
+  if (!id || !token) {
+    return null;
+  }
+
+  /*
+    IMPORTANT:
+    The login page stores the authenticated user's ID
+    and access token in localStorage.
+
+    We use those values instead of client.auth.getUser()
+    because login.html authenticates with fetch().
+  */
+
+  return {
+    id: id
   };
-
-  const r=
-    projection.scale();
-
-
-  /* OCEAN */
-
-  ctx.beginPath();
-  path(sphere);
-
-  const gradient=
-    ctx.createRadialGradient(
-      width/2-r*.35,
-      height/2-r*.4,
-      r*.08,
-      width/2,
-      height/2,
-      r
-    );
-
-  gradient.addColorStop(
-    0,
-    "#63d8ff"
-  );
-
-  gradient.addColorStop(
-    .5,
-    "#168bd0"
-  );
-
-  gradient.addColorStop(
-    1,
-    "#04335d"
-  );
-
-  ctx.fillStyle=gradient;
-  ctx.fill();
-
-
-  /* COUNTRIES */
-
-  if(countries){
-
-    ctx.beginPath();
-    path(countries);
-
-    ctx.fillStyle="#62c76c";
-    ctx.fill();
-
-    ctx.strokeStyle=
-      "rgba(20,75,40,.65)";
-
-    ctx.lineWidth=
-      zoom>1.5?.5:.7;
-
-    ctx.stroke();
-  }
-
-
-  /* GRID */
-
-  ctx.beginPath();
-
-  path(
-    d3.geoGraticule()
-      .step([30,30])()
-  );
-
-  ctx.strokeStyle=
-    "rgba(255,255,255,.14)";
-
-  ctx.lineWidth=.5;
-  ctx.stroke();
-
-
-  /* BORDER */
-
-  ctx.beginPath();
-  path(sphere);
-
-  ctx.strokeStyle=
-    "rgba(150,235,255,.9)";
-
-  ctx.lineWidth=2.5;
-  ctx.stroke();
-
-
-  drawProfilePoints();
 }
 
 
-/* =====================================================
-   PROFILE POINTS
-===================================================== */
+/* =========================================================
+   PROFILE
+========================================================= */
 
-function drawProfilePoints(){
+async function loadMyProfile() {
 
-  if(
-    !projection||
-    !profileLocations.length
-  ){
+  if (!currentUser) {
     return;
   }
 
-  const center=
-    projection.invert([
-      width/2,
-      height/2
-    ]);
+  try {
 
-  if(!center){
-    return;
-  }
+    const id =
+      encodeURIComponent(currentUser.id);
 
-  for(const item of profileLocations){
-
-    const coordinates=
-      item.coordinates;
-
-    if(!coordinates){
-      continue;
-    }
-
-    if(
-      d3.geoDistance(
-        center,
-        coordinates
-      )>=Math.PI/2
-    ){
-      continue;
-    }
-
-    const point=
-      projection(
-        coordinates
-      );
-
-    if(!point){
-      continue;
-    }
-
-    const size=
-      Math.max(
-        5,
-        Math.min(
-          9,
-          5.5*zoom
-        )
-      );
-
-
-    /* GLOW */
-
-    ctx.beginPath();
-
-    ctx.arc(
-      point[0],
-      point[1],
-      size+4,
-      0,
-      Math.PI*2
+    const data = await supabaseGet(
+      "/rest/v1/profiles" +
+      "?select=*" +
+      "&id=eq." +
+      id +
+      "&limit=1"
     );
 
-    ctx.fillStyle=
-      "rgba(255,120,183,.25)";
+    if (Array.isArray(data) && data.length) {
 
-    ctx.fill();
+      currentProfile = data[0];
 
+      currentPoints =
+        Number(currentProfile.impact_points || 0);
 
-    /* DOT */
+      updatePoints();
+    }
 
-    ctx.beginPath();
+  } catch (error) {
 
-    ctx.arc(
-      point[0],
-      point[1],
-      size,
-      0,
-      Math.PI*2
+    console.error(
+      "Could not load my profile:",
+      error
     );
-
-    ctx.fillStyle=
-      "#ff78b7";
-
-    ctx.fill();
-
-
-    ctx.strokeStyle="white";
-    ctx.lineWidth=1.5;
-    ctx.stroke();
-
   }
 }
 
 
-function draw(){
+function updatePoints() {
 
-  drawBackground();
-  drawGlobe();
+  document.getElementById("pointsTop")
+    .textContent = currentPoints;
+
+  document.getElementById("pointsPanel")
+    .textContent = currentPoints;
+
+  document.getElementById("profilePoints")
+    .textContent = currentPoints;
+}
+
+
+/* =========================================================
+   PROFILES ON MAP
+========================================================= */
+
+async function loadProfiles() {
+
+  try {
+
+    const data = await supabaseGet(
+      "/rest/v1/profiles" +
+      "?select=id,username,age,country,region,languages,hobbies,traditions,interests,fun_fact,favorite_song,impact_points"
+    );
+
+    profileMarkers = Array.isArray(data)
+      ? data
+      : [];
+
+    console.log(
+      "Profiles loaded:",
+      profileMarkers.length
+    );
+
+    buildProfileMarkers();
+
+  } catch (error) {
+
+    console.error(
+      "Could not load profiles:",
+      error
+    );
+
+    profileMarkers = [];
+  }
+}
+
+
+function buildProfileMarkers() {
+
+  profileMarkers = profileMarkers
+    .map(profile => {
+
+      if (!profile.country) {
+        return null;
+      }
+
+      const feature =
+        findCountryFeature(profile.country);
+
+      if (!feature) {
+        return null;
+      }
+
+      const centroid =
+        d3.geoCentroid(feature);
+
+      return {
+        profile,
+        coordinates: centroid
+      };
+
+    })
+    .filter(Boolean);
 
 }
 
 
-/* =====================================================
-   WORLD
-===================================================== */
+/* =========================================================
+   COUNTRY MATCHING
+========================================================= */
 
-async function loadWorld(){
+function normalizeCountry(value) {
 
-  try{
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
-    const response=
+
+const countryAliases = {
+
+  "spain": [
+    "spain",
+    "españa",
+    "espana"
+  ],
+
+  "united states": [
+    "united states",
+    "usa",
+    "us",
+    "estados unidos"
+  ],
+
+  "united kingdom": [
+    "united kingdom",
+    "uk",
+    "reino unido",
+    "england",
+    "inglaterra"
+  ],
+
+  "france": [
+    "france",
+    "francia"
+  ],
+
+  "italy": [
+    "italy",
+    "italia"
+  ],
+
+  "germany": [
+    "germany",
+    "alemania"
+  ],
+
+  "portugal": [
+    "portugal"
+  ],
+
+  "mexico": [
+    "mexico",
+    "méxico"
+  ],
+
+  "brazil": [
+    "brazil",
+    "brasil"
+  ],
+
+  "argentina": [
+    "argentina"
+  ],
+
+  "canada": [
+    "canada",
+    "canadá"
+  ]
+};
+
+
+function countryMatches(profileCountry, featureName) {
+
+  const a = normalizeCountry(profileCountry);
+  const b = normalizeCountry(featureName);
+
+  if (!a || !b) {
+    return false;
+  }
+
+  if (a === b) {
+    return true;
+  }
+
+  for (const key in countryAliases) {
+
+    const aliases =
+      countryAliases[key];
+
+    const aMatch =
+      aliases.includes(a);
+
+    const bMatch =
+      aliases.includes(b);
+
+    if (aMatch && bMatch) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+function findCountryFeature(country) {
+
+  for (const feature of worldFeatures) {
+
+    const props = feature.properties || {};
+
+    const names = [
+      props.name,
+      props.NAME,
+      props.ADMIN,
+      props.admin,
+      props.name_long
+    ];
+
+    for (const name of names) {
+
+      if (countryMatches(country, name)) {
+        return feature;
+      }
+    }
+  }
+
+  return null;
+}
+
+
+/* =========================================================
+   WORLD GLOBE
+========================================================= */
+
+async function loadWorld() {
+
+  canvas =
+    document.getElementById("globe");
+
+  ctx =
+    canvas.getContext("2d");
+
+  resizeCanvas();
+
+  window.addEventListener(
+    "resize",
+    resizeCanvas
+  );
+
+  try {
+
+    const response =
       await fetch(
         "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
       );
 
-    if(!response.ok){
-      throw new Error(
-        "Could not load map"
-      );
-    }
-
-    const world=
+    const world =
       await response.json();
 
-    countries=
+    worldFeatures =
       topojson.feature(
         world,
         world.objects.countries
-      );
+      ).features;
 
-    updateProfileLocations();
-    requestDraw();
+    setupProjection();
 
-  }catch(error){
+    drawGlobe();
+
+  } catch (error) {
 
     console.error(
-      "World map error:",
+      "World could not load:",
       error
     );
-
   }
 }
 
 
-/* =====================================================
-   COUNTRY
-===================================================== */
+function resizeCanvas() {
 
-function normalizeCountry(value){
-
-  return String(value||"")
-    .normalize("NFD")
-    .replace(
-      /[\u0300-\u036f]/g,
-      ""
-    )
-    .toLowerCase()
-    .trim();
-}
-
-const countryAliases={
-
-  "usa":
-    "United States of America",
-
-  "us":
-    "United States of America",
-
-  "united states":
-    "United States of America",
-
-  "estados unidos":
-    "United States of America",
-
-  "uk":
-    "United Kingdom",
-
-  "reino unido":
-    "United Kingdom",
-
-  "spain":
-    "Spain",
-
-  "españa":
-    "Spain",
-
-  "south korea":
-    "South Korea",
-
-  "corea del sur":
-    "South Korea",
-
-  "russia":
-    "Russia",
-
-  "rusia":
-    "Russia",
-
-  "czech republic":
-    "Czechia",
-
-  "republica checa":
-    "Czechia",
-
-  "netherlands":
-    "Netherlands",
-
-  "paises bajos":
-    "Netherlands",
-
-  "ivory coast":
-    "Côte d'Ivoire",
-
-  "costa de marfil":
-    "Côte d'Ivoire",
-
-  "dominican republic":
-    "Dominican Republic",
-
-  "republica dominicana":
-    "Dominican Republic"
-
-};
-
-
-function getCountryFeature(
-  countryName
-){
-
-  if(
-    !countries||
-    !countryName
-  ){
-    return null;
-  }
-
-  const normalized=
-    normalizeCountry(
-      countryName
+  const ratio =
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
     );
 
-  const target=
-    normalizeCountry(
-      countryAliases[normalized]||
-      countryName
-    );
+  width =
+    window.innerWidth;
 
-  return countries.features.find(
-    feature=>
-      normalizeCountry(
-        feature.properties?.name
-      )===target
-  )||null;
+  height =
+    window.innerHeight;
+
+  canvas.width =
+    width * ratio;
+
+  canvas.height =
+    height * ratio;
+
+  canvas.style.width =
+    width + "px";
+
+  canvas.style.height =
+    height + "px";
+
+  ctx.setTransform(
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+  );
+
+  setupProjection();
+
+  drawGlobe();
 }
 
 
-/* =====================================================
-   PROFILE LOCATIONS
-===================================================== */
+function setupProjection() {
 
-function updateProfileLocations(){
-
-  profileLocations=[];
-
-  if(
-    !countries||
-    !profiles.length
-  ){
-    requestDraw();
+  if (!width || !height) {
     return;
   }
 
-  for(
-    const profile
-    of profiles
-  ){
+  const radius =
+    Math.min(width, height) *
+    0.39 *
+    scale;
 
-    const feature=
-      getCountryFeature(
-        profile.country
-      );
+  projection =
+    d3.geoOrthographic()
+      .translate([
+        width / 2,
+        height / 2
+      ])
+      .scale(radius)
+      .rotate(rotation)
+      .clipAngle(90);
 
-    if(!feature){
-      continue;
-    }
-
-    try{
-
-      const coordinates=
-        d3.geoCentroid(
-          feature
-        );
-
-      profileLocations.push({
-        profile:profile,
-        coordinates:coordinates
-      });
-
-    }catch(e){}
-
-  }
-
-  requestDraw();
+  path =
+    d3.geoPath(
+      projection,
+      ctx
+    );
 }
 
 
-/* =====================================================
-   LOAD PROFILES
-===================================================== */
+function drawStars() {
 
-async function loadProfiles(){
+  ctx.save();
 
-  const result=
-    await fetch(
-      SUPABASE_URL+
-      "/rest/v1/profiles"+
-      "?select=id,username,age,country,region,languages,hobbies,traditions,interests,fun_fact,favorite_song,impact_points",
-      {
-        headers:{
-          "apikey":SUPABASE_KEY,
-          "Authorization":
-            "Bearer "+
-            (
-              savedToken||
-              SUPABASE_KEY
-            )
-        }
-      }
+  ctx.fillStyle = "#05030a";
+
+  ctx.fillRect(
+    0,
+    0,
+    width,
+    height
+  );
+
+  const count =
+    Math.floor(
+      Math.min(width * height / 5500, 220)
     );
 
-  let data={};
+  for (let i = 0; i < count; i++) {
 
-  try{
-    data=await result.json();
-  }catch(e){
-    data=[];
+    const x =
+      (i * 97.37) % width;
+
+    const y =
+      (i * 53.91) % height;
+
+    const size =
+      i % 5 === 0 ? 1.2 : .7;
+
+    ctx.globalAlpha =
+      .2 + ((i % 7) / 14);
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      size,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle = "white";
+
+    ctx.fill();
   }
 
-  if(!result.ok){
+  ctx.restore();
+}
 
-    console.error(
-      "Profiles error:",
-      data
-    );
 
+function drawGlobe() {
+
+  if (!ctx || !projection || !path) {
     return;
   }
 
-  profiles=
-    Array.isArray(data)
-    ?data
-    :[];
+  drawStars();
 
-  updateProfileLocations();
+  const center =
+    projection.translate();
+
+  const globeRadius =
+    projection.scale();
+
+  /* globe */
+
+  ctx.beginPath();
+
+  ctx.arc(
+    center[0],
+    center[1],
+    globeRadius,
+    0,
+    Math.PI * 2
+  );
+
+  const gradient =
+    ctx.createRadialGradient(
+      center[0] - globeRadius * .3,
+      center[1] - globeRadius * .35,
+      globeRadius * .1,
+      center[0],
+      center[1],
+      globeRadius
+    );
+
+  gradient.addColorStop(
+    0,
+    "#21152e"
+  );
+
+  gradient.addColorStop(
+    1,
+    "#0c0712"
+  );
+
+  ctx.fillStyle =
+    gradient;
+
+  ctx.fill();
+
+  /* countries */
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  for (const feature of worldFeatures) {
+
+    path(feature);
+  }
+
+  ctx.fillStyle =
+    "rgba(255,255,255,.045)";
+
+  ctx.fill();
+
+  ctx.strokeStyle =
+    "rgba(255,255,255,.14)";
+
+  ctx.lineWidth = .6;
+
+  ctx.stroke();
+
+  ctx.restore();
+
+  /* markers */
+
+  drawProfileMarkers();
 }
 
 
-/* =====================================================
-   PROFILE CLICK
-===================================================== */
+function drawProfileMarkers() {
 
-function findProfileAt(x,y){
-
-  if(!projection){
-    return null;
+  if (!profileMarkers.length) {
+    return;
   }
 
-  const center=
-    projection.invert([
-      width/2,
-      height/2
-    ]);
+  for (const marker of profileMarkers) {
 
-  let closest=null;
-  let closestDistance=Infinity;
-
-  for(
-    const item
-    of profileLocations
-  ){
-
-    if(
-      d3.geoDistance(
-        center,
-        item.coordinates
-      )>=Math.PI/2
-    ){
-      continue;
-    }
-
-    const point=
+    const point =
       projection(
-        item.coordinates
+        marker.coordinates
       );
 
-    if(!point){
+    if (!point) {
       continue;
     }
 
-    const dx=
-      point[0]-x;
+    const visible =
+      d3.geoDistance(
+        marker.coordinates,
+        [
+          -rotation[0],
+          -rotation[1]
+        ]
+      ) < Math.PI / 2;
 
-    const dy=
-      point[1]-y;
-
-    const distance=
-      Math.sqrt(
-        dx*dx+dy*dy
-      );
-
-    if(
-      distance<=18 &&
-      distance<closestDistance
-    ){
-
-      closest=
-        item.profile;
-
-      closestDistance=
-        distance;
-
+    if (!visible) {
+      continue;
     }
 
-  }
+    const x = point[0];
+    const y = point[1];
 
-  return closest;
+    ctx.save();
+
+    /* glow */
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      10,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle =
+      "rgba(255,114,189,.16)";
+
+    ctx.fill();
+
+    /* point */
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      5,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle =
+      "#ff72bd";
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+      "white";
+
+    ctx.lineWidth = 1.5;
+
+    ctx.stroke();
+
+    ctx.restore();
+  }
 }
 
 
-function formatValue(value){
+/* =========================================================
+   GLOBE INTERACTION
+========================================================= */
 
-  if(
-    value===null||
-    value===undefined||
-    value===""
-  ){
-    return "—";
-  }
+canvas =
+  document.getElementById("globe");
 
-  if(Array.isArray(value)){
-    return value.join(", ");
-  }
-
-  return String(value);
-}
-
-
-/* =====================================================
-   PROFILE PANEL
-===================================================== */
-
-function openProfile(profile){
-
-  if(!profile){
-    return;
-  }
-
-  document.getElementById(
-    "profileName"
-  ).textContent=
-    profile.username||
-    "Teen Map member";
-
-  document.getElementById(
-    "profileCountry"
-  ).textContent=
-    "🌍 "+
-    (
-      profile.country||
-      "Unknown country"
-    );
-
-  document.getElementById(
-    "profileAge"
-  ).textContent=
-    profile.age||"—";
-
-  document.getElementById(
-    "profileRegion"
-  ).textContent=
-    profile.region||"—";
-
-  document.getElementById(
-    "profileLanguages"
-  ).textContent=
-    formatValue(
-      profile.languages
-    );
-
-  document.getElementById(
-    "profileInterests"
-  ).textContent=
-    formatValue(
-      profile.interests
-    );
-
-  document.getElementById(
-    "profileHobbies"
-  ).textContent=
-    formatValue(
-      profile.hobbies
-    );
-
-  document.getElementById(
-    "profileTraditions"
-  ).textContent=
-    formatValue(
-      profile.traditions
-    );
-
-  document.getElementById(
-    "profileFunFact"
-  ).textContent=
-    formatValue(
-      profile.fun_fact
-    );
-
-  document.getElementById(
-    "profileSong"
-  ).textContent=
-    formatValue(
-      profile.favorite_song
-    );
-
-  document.getElementById(
-    "profilePoints"
-  ).textContent=
-    Number(
-      profile.impact_points||0
-    );
-
-  document.getElementById(
-    "profileAvatar"
-  ).textContent=
-    String(
-      profile.username||
-      "T"
-    )
-      .charAt(0)
-      .toUpperCase();
-
-  profilePanel.classList.add(
-    "open"
-  );
-}
-
-
-document
-  .getElementById(
-    "profileClose"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      profilePanel.classList.remove(
-        "open"
-      );
-    }
-  );
-
-
-/* =====================================================
-   DRAG
-===================================================== */
-
-let dragging=false;
-let lastX=0;
-let lastY=0;
-let moved=false;
 
 canvas.addEventListener(
   "pointerdown",
-  e=>{
+  event => {
 
-    dragging=true;
-    moved=false;
+    isDragging = true;
 
-    lastX=e.clientX;
-    lastY=e.clientY;
+    lastX =
+      event.clientX;
+
+    lastY =
+      event.clientY;
 
     canvas.setPointerCapture(
-      e.pointerId
+      event.pointerId
     );
-
   }
 );
 
+
 canvas.addEventListener(
   "pointermove",
-  e=>{
+  event => {
 
-    if(!dragging){
+    if (!isDragging) {
       return;
     }
 
-    const dx=
-      e.clientX-lastX;
+    const dx =
+      event.clientX - lastX;
 
-    const dy=
-      e.clientY-lastY;
+    const dy =
+      event.clientY - lastY;
 
-    if(
-      Math.abs(dx)>1||
-      Math.abs(dy)>1
-    ){
-      moved=true;
-    }
+    lastX =
+      event.clientX;
 
-    rotation[0]+=
-      dx*.38;
+    lastY =
+      event.clientY;
 
-    rotation[1]-=
-      dy*.28;
+    rotation[0] -=
+      dx * .35;
 
-    rotation[1]=
+    rotation[1] +=
+      dy * .25;
+
+    rotation[1] =
       Math.max(
-        -85,
+        -80,
         Math.min(
-          85,
+          80,
           rotation[1]
         )
       );
 
-    lastX=e.clientX;
-    lastY=e.clientY;
+    setupProjection();
 
-    createProjection();
-    requestDraw();
-
+    drawGlobe();
   }
 );
+
 
 canvas.addEventListener(
   "pointerup",
-  e=>{
+  event => {
 
-    if(!moved){
+    isDragging = false;
 
-      const rect=
-        canvas.getBoundingClientRect();
-
-      const profile=
-        findProfileAt(
-          e.clientX-rect.left,
-          e.clientY-rect.top
-        );
-
-      if(profile){
-        openProfile(profile);
-      }
-
-    }
-
-    dragging=false;
-
+    try {
+      canvas.releasePointerCapture(
+        event.pointerId
+      );
+    } catch {}
   }
 );
 
 
-/* =====================================================
-   ZOOM
-===================================================== */
+canvas.addEventListener(
+  "pointercancel",
+  () => {
+    isDragging = false;
+  }
+);
+
 
 canvas.addEventListener(
   "wheel",
-  e=>{
+  event => {
 
-    e.preventDefault();
+    event.preventDefault();
 
-    zoom*=
-      Math.exp(
-        -e.deltaY*.001
-      );
+    scale *=
+      event.deltaY > 0
+        ? .92
+        : 1.08;
 
-    zoom=
+    scale =
       Math.max(
         .65,
         Math.min(
-          2.5,
-          zoom
+          1.8,
+          scale
         )
       );
 
-    createProjection();
-    requestDraw();
+    setupProjection();
+
+    drawGlobe();
 
   },
   {
-    passive:false
+    passive: false
   }
 );
 
 
-/* =====================================================
-   USER
-===================================================== */
+/* =========================================================
+   CLICK ON PROFILE MARKER
+========================================================= */
 
-async function loadCurrentUser(){
+canvas.addEventListener(
+  "click",
+  event => {
 
-  if(!savedUserId){
-    currentUser=null;
-    return;
-  }
+    if (isDragging) {
+      return;
+    }
 
-  currentUser={
-    id:savedUserId
-  };
-}
+    const rect =
+      canvas.getBoundingClientRect();
 
+    const x =
+      event.clientX - rect.left;
 
-/* =====================================================
-   MY IMPACT POINTS
-===================================================== */
+    const y =
+      event.clientY - rect.top;
 
-async function loadMyPoints(){
+    let closest = null;
 
-  if(!currentUser){
-    currentPoints=0;
-    updatePoints();
-    return;
-  }
+    let distance = Infinity;
 
-  try{
+    for (const marker of profileMarkers) {
 
-    const data=
-      await authenticatedRequest(
-        "/rest/v1/profiles"+
-        "?select=impact_points"+
-        "&id=eq."+
-        encodeURIComponent(
-          currentUser.id
-        )+
-        "&limit=1"
-      );
-
-    if(
-      Array.isArray(data)&&
-      data.length
-    ){
-
-      currentPoints=
-        Number(
-          data[0].impact_points||0
+      const point =
+        projection(
+          marker.coordinates
         );
 
-    }else{
-
-      currentPoints=0;
-
-    }
-
-    updatePoints();
-
-  }catch(error){
-
-    console.error(
-      "Impact points error:",
-      error
-    );
-
-  }
-}
-
-
-function updatePoints(){
-
-  points.textContent=
-    currentPoints;
-
-  panelPoints.textContent=
-    currentPoints;
-}
-
-
-/* =====================================================
-   COMPLETED CHALLENGES
-===================================================== */
-
-async function loadCompleted(){
-
-  completed=
-    new Set();
-
-  if(!currentUser){
-    return;
-  }
-
-  try{
-
-    const data=
-      await authenticatedRequest(
-        "/rest/v1/challenge_completions"+
-        "?select=challenge_id"+
-        "&user_id=eq."+
-        encodeURIComponent(
-          currentUser.id
-        )
-      );
-
-    if(Array.isArray(data)){
-
-      data.forEach(
-        item=>{
-          completed.add(
-            Number(
-              item.challenge_id
-            )
-          );
-        }
-      );
-
-    }
-
-  }catch(error){
-
-    console.error(
-      "Completed challenges error:",
-      error
-    );
-
-  }
-}
-
-
-/* =====================================================
-   ESCAPE
-===================================================== */
-
-function escapeHTML(value){
-
-  return String(
-    value??""
-  )
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-
-/* =====================================================
-   CHALLENGES
-===================================================== */
-
-async function loadChallenges(){
-
-  challengeList.innerHTML=
-    "<p style='opacity:.6'>Loading challenges...</p>";
-
-  const result=
-    await fetch(
-      SUPABASE_URL+
-      "/rest/v1/challenges"+
-      "?select=id,title,description,category,points,icon"+
-      "&order=id.asc",
-      {
-        headers:{
-          "apikey":SUPABASE_KEY,
-          "Authorization":
-            "Bearer "+
-            (
-              savedToken||
-              SUPABASE_KEY
-            )
-        }
+      if (!point) {
+        continue;
       }
-    );
 
-  let data=[];
+      const dx =
+        point[0] - x;
 
-  try{
-    data=await result.json();
-  }catch(e){
-    data=[];
-  }
+      const dy =
+        point[1] - y;
 
-  if(!result.ok){
-
-    console.error(
-      "Challenges error:",
-      data
-    );
-
-    challengeList.innerHTML=
-      "<p>Could not load challenges.</p>";
-
-    return;
-  }
-
-
-  await loadCompleted();
-
-
-  if(!data.length){
-
-    challengeList.innerHTML=
-      "<p style='opacity:.6'>No challenges available yet.</p>";
-
-    return;
-  }
-
-
-  challengeList.innerHTML="";
-
-
-  data.forEach(
-    challenge=>{
-
-      const done=
-        completed.has(
-          Number(
-            challenge.id
-          )
+      const d =
+        Math.sqrt(
+          dx * dx +
+          dy * dy
         );
 
-      const card=
-        document.createElement(
-          "div"
-        );
+      if (d < distance) {
 
-      card.className=
-        "challenge";
+        distance = d;
+        closest = marker;
+      }
+    }
 
-      card.innerHTML=`
+    if (
+      closest &&
+      distance < 25
+    ) {
 
-        <div class="icon">
-          ${challenge.icon||"✨"}
-        </div>
+      openProfile(
+        closest.profile
+      );
+    }
+  }
+);
 
-        <div class="category">
-          ${escapeHTML(
-            challenge.category||
-            "Impact"
-          )}
-        </div>
 
-        <h3>
-          ${escapeHTML(
-            challenge.title
-          )}
-        </h3>
+/* =========================================================
+   PROFILE CARD
+========================================================= */
 
-        <p>
-          ${escapeHTML(
-            challenge.description
-          )}
-        </p>
+function openProfile(profile) {
 
-        <div class="challengeBottom">
+  document.getElementById("profileName")
+    .textContent =
+      profile.username || "Teen";
 
-          <div class="reward">
-            +${Number(
-              challenge.points||0
-            )} points
-          </div>
+  document.getElementById("profileLocation")
+    .textContent =
+      [profile.country, profile.region]
+        .filter(Boolean)
+        .join(" • ");
 
-          <button
-            class="complete ${done?"done":""}"
-            ${done?"disabled":""}
-          >
-            ${done?"✓ Completed":"Complete"}
-          </button>
+  document.getElementById("profileAge")
+    .textContent =
+      profile.age || "—";
 
+  document.getElementById("profileRegion")
+    .textContent =
+      profile.region || "—";
+
+  document.getElementById("profileLanguages")
+    .textContent =
+      profile.languages || "—";
+
+  document.getElementById("profileInterests")
+    .textContent =
+      profile.interests || "—";
+
+  document.getElementById("profileHobbies")
+    .textContent =
+      profile.hobbies || "—";
+
+  document.getElementById("profileTraditions")
+    .textContent =
+      profile.traditions || "—";
+
+  document.getElementById("profileFunFact")
+    .textContent =
+      profile.fun_fact || "—";
+
+  document.getElementById("profileSong")
+    .textContent =
+      profile.favorite_song || "—";
+
+  document.getElementById("profilePoints")
+    .textContent =
+      Number(profile.impact_points || 0);
+
+  document.getElementById("profileCard")
+    .classList.add("open");
+}
+
+
+document.getElementById("closeProfile")
+  .addEventListener(
+    "click",
+    () => {
+
+      document.getElementById("profileCard")
+        .classList.remove("open");
+    }
+  );
+
+
+/* =========================================================
+   CHALLENGES
+========================================================= */
+
+async function loadChallenges() {
+
+  const list =
+    document.getElementById(
+      "challengeList"
+    );
+
+  list.innerHTML =
+    `
+      <div class="challenge">
+        Loading challenges...
+      </div>
+    `;
+
+  if (!currentUser) {
+
+    list.innerHTML =
+      `
+        <div class="join-box">
+          <h2>Join Teen Map 🌎</h2>
+
+          <p>
+            Create your profile to take challenges
+            and collect Impact Points.
+          </p>
+
+          <a class="join-link"
+             href="login.html">
+             Join Teen Map
+          </a>
         </div>
       `;
 
-      challengeList.appendChild(
-        card
+    return;
+  }
+
+  try {
+
+    const data =
+      await supabaseGet(
+        "/rest/v1/challenges" +
+        "?select=*" +
+        "&order=id.asc"
       );
 
-      if(!done){
+    challenges =
+      Array.isArray(data)
+        ? data
+        : [];
 
-        card
-          .querySelector(".complete")
-          .addEventListener(
-            "click",
-            ()=>{
-              completeChallenge(
-                challenge,
-                card.querySelector(
-                  ".complete"
-                )
-              );
-            }
+    await loadCompletedChallenges();
+
+    renderChallenges();
+
+  } catch (error) {
+
+    console.error(
+      "Could not load challenges:",
+      error
+    );
+
+    list.innerHTML =
+      `
+        <div class="challenge">
+          <div class="challenge-title">
+            Couldn't load the challenges
+          </div>
+
+          <div class="challenge-description">
+            ${escapeHTML(error.message)}
+          </div>
+        </div>
+      `;
+  }
+}
+
+
+async function loadCompletedChallenges() {
+
+  completedChallenges =
+    new Set();
+
+  if (!currentUser) {
+    return;
+  }
+
+  const userId =
+    encodeURIComponent(
+      currentUser.id
+    );
+
+  try {
+
+    const data =
+      await supabaseGet(
+        "/rest/v1/challenge_completions" +
+        "?select=challenge_id" +
+        "&user_id=eq." +
+        userId
+      );
+
+    if (Array.isArray(data)) {
+
+      data.forEach(item => {
+
+        if (item.challenge_id !== undefined) {
+
+          completedChallenges.add(
+            String(item.challenge_id)
           );
+        }
 
-      }
-
+      });
     }
+
+  } catch (error) {
+
+    console.error(
+      "Could not load completed challenges:",
+      error
+    );
+  }
+}
+
+
+function getChallengeTitle(challenge) {
+
+  return (
+    challenge.title ||
+    challenge.name ||
+    challenge.challenge ||
+    "Teen Map Challenge"
   );
 }
 
 
-/* =====================================================
-   COMPLETE CHALLENGE
-===================================================== */
+function getChallengeDescription(challenge) {
 
-async function completeChallenge(
-  challenge,
-  button
-){
+  return (
+    challenge.description ||
+    challenge.text ||
+    challenge.details ||
+    "Complete this challenge and make an impact."
+  );
+}
 
-  if(!currentUser){
 
-    window.location.href=
-      "login.html";
+function getChallengePoints(challenge) {
+
+  return Number(
+    challenge.points ||
+    challenge.impact_points ||
+    10
+  );
+}
+
+
+function renderChallenges() {
+
+  const list =
+    document.getElementById(
+      "challengeList"
+    );
+
+  if (!challenges.length) {
+
+    list.innerHTML =
+      `
+        <div class="challenge">
+          <div class="challenge-title">
+            No challenges yet
+          </div>
+
+          <div class="challenge-description">
+            There aren't any challenges in the database yet.
+          </div>
+        </div>
+      `;
 
     return;
   }
 
-  button.disabled=true;
-  button.textContent=
-    "Saving...";
+  list.innerHTML = "";
 
+  challenges.forEach(
+    challenge => {
 
-  try{
+      const id =
+        String(challenge.id);
 
-    const result=
-      await authenticatedRequest(
-        "/rest/v1/rpc/complete_challenge",
-        {
-          method:"POST",
-          body:JSON.stringify({
-            challenge_id_input:
-              challenge.id
-          })
-        }
-      );
+      const done =
+        completedChallenges.has(id);
 
+      const article =
+        document.createElement("div");
 
-    let earned=
-      Number(
-        challenge.points||0
-      );
+      article.className =
+        "challenge" +
+        (done ? " done" : "");
 
+      article.innerHTML =
+        `
+          <div class="challenge-title">
+            ${escapeHTML(
+              getChallengeTitle(challenge)
+            )}
+          </div>
 
-    if(
-      result&&
-      typeof result==="object"
-    ){
+          <div class="challenge-description">
+            ${escapeHTML(
+              getChallengeDescription(challenge)
+            )}
+          </div>
 
-      if(
-        result.points!==undefined
-      ){
+          <div class="challenge-footer">
 
-        earned=
-          Number(
-            result.points
-          );
-
-      }
-
-      if(
-        result.impact_points!==undefined
-      ){
-
-        currentPoints=
-          Number(
-            result.impact_points
-          );
-
-      }
-
-    }
-
-
-    completed.add(
-      Number(
-        challenge.id
-      )
-    );
-
-
-    /*
-      Si la función no devuelve
-      el nuevo total, lo volvemos
-      a cargar desde profiles.
-    */
-
-    if(
-      !result||
-      result.impact_points===undefined
-    ){
-
-      await loadMyPoints();
-
-    }else{
-
-      updatePoints();
-
-    }
-
-
-    button.textContent=
-      "✓ Completed";
-
-    button.classList.add(
-      "done"
-    );
-
-
-    showToast(
-      "✨ +"+
-      earned+
-      " Impact Points"
-    );
-
-
-  }catch(error){
-
-    console.error(
-      "Complete challenge error:",
-      error
-    );
-
-    button.disabled=false;
-
-    button.textContent=
-      "Complete";
-
-    showToast(
-      "Could not complete challenge."
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   TOAST
-===================================================== */
-
-let toastTimer=null;
-
-function showToast(text){
-
-  toast.textContent=
-    text;
-
-  toast.classList.add(
-    "show"
-  );
-
-  clearTimeout(
-    toastTimer
-  );
-
-  toastTimer=
-    setTimeout(
-      ()=>{
-        toast.classList.remove(
-          "show"
-        );
-      },
-      2500
-    );
-
-}
-
-
-/* =====================================================
-   CHALLENGE PANEL
-===================================================== */
-
-document
-  .getElementById(
-    "challengeButton"
-  )
-  .addEventListener(
-    "click",
-    async ()=>{
-
-      panel.classList.add(
-        "open"
-      );
-
-      if(currentUser){
-
-        await loadChallenges();
-
-      }else{
-
-        challengeList.innerHTML=`
-
-          <div
-            style="
-              text-align:center;
-              padding:25px 5px
-            "
-          >
-
-            <h3>
-              🌎 Join Teen Map
-            </h3>
-
-            <p
-              style="
-                opacity:.7;
-                line-height:1.5
-              "
-            >
-              Create your profile to
-              participate in challenges
-              and earn Impact Points.
-            </p>
+            <div class="challenge-points">
+              +${getChallengePoints(challenge)} ⭐
+            </div>
 
             <button
-              id="joinButton"
-              style="
-                border:0;
-                background:#ff78b7;
-                color:white;
-                padding:13px 20px;
-                border-radius:13px;
-                font-weight:bold;
-              "
+              class="complete-button"
+              data-challenge-id="${escapeHTML(id)}"
+              ${done ? "disabled" : ""}
             >
-              Join Teen Map
+              ${done ? "Completed ✓" : "Complete"}
             </button>
 
           </div>
         `;
 
-        document
-          .getElementById(
-            "joinButton"
-          )
-          .addEventListener(
-            "click",
-            ()=>{
-              window.location.href=
-                "login.html";
-            }
-          );
-
-      }
-
+      list.appendChild(article);
     }
   );
 
+  list
+    .querySelectorAll(".complete-button")
+    .forEach(button => {
 
-document
-  .getElementById("close")
-  .addEventListener(
-    "click",
-    ()=>{
-      panel.classList.remove(
-        "open"
+      button.addEventListener(
+        "click",
+        () => {
+
+          const id =
+            button.dataset.challengeId;
+
+          const challenge =
+            challenges.find(
+              item =>
+                String(item.id) === id
+            );
+
+          if (challenge) {
+            completeChallenge(
+              challenge,
+              button
+            );
+          }
+        }
+      );
+    });
+}
+
+
+/* =========================================================
+   COMPLETE CHALLENGE
+========================================================= */
+
+async function completeChallenge(
+  challenge,
+  button
+) {
+
+  if (!currentUser) {
+
+    showToast(
+      "Please join Teen Map first."
+    );
+
+    return;
+  }
+
+  button.disabled = true;
+
+  button.textContent =
+    "Saving...";
+
+  try {
+
+    /*
+      IMPORTANT:
+      We call the Supabase RPC directly with
+      the logged-in user's access token.
+    */
+
+    const result =
+      await supabasePost(
+        "/rest/v1/rpc/complete_challenge",
+        {
+          challenge_id_input:
+            challenge.id
+        }
+      );
+
+    const responseData =
+      Array.isArray(result)
+        ? result[0]
+        : result;
+
+    if (
+      responseData &&
+      responseData.success === false
+    ) {
+
+      throw new Error(
+        responseData.message ||
+        "Challenge could not be completed."
       );
     }
-  );
 
+    completedChallenges.add(
+      String(challenge.id)
+    );
 
-document
-  .getElementById("pointsButton")
-  .addEventListener(
-    "click",
-    async ()=>{
+    /*
+      Reload the profile so the new
+      Impact Points come directly from DB.
+    */
 
-      panel.classList.add(
-        "open"
-      );
+    await loadMyProfile();
 
-      if(currentUser){
+    renderChallenges();
 
-        await loadChallenges();
+    showToast(
+      "Challenge completed! +" +
+      getChallengePoints(challenge) +
+      " Impact Points ⭐"
+    );
 
-      }
-
-    }
-  );
-
-
-/* =====================================================
-   START
-===================================================== */
-
-async function start(){
-
-  try{
-
-    resize();
-
-    await loadWorld();
-
-    await loadProfiles();
-
-    await loadCurrentUser();
-
-    await loadMyPoints();
-
-  }catch(error){
+  } catch (error) {
 
     console.error(
-      "Teen Map startup error:",
+      "Challenge error:",
       error
     );
 
-  }finally{
+    button.disabled = false;
 
-    loading.classList.add(
-      "hide"
+    button.textContent =
+      "Complete";
+
+    showToast(
+      "Could not complete challenge."
     );
+  }
+}
 
-    requestDraw();
 
+/* =========================================================
+   PANELS
+========================================================= */
+
+const challengePanel =
+  document.getElementById(
+    "challengePanel"
+  );
+
+
+document.getElementById(
+  "challengeButton"
+)
+.addEventListener(
+  "click",
+  async () => {
+
+    challengePanel
+      .classList.add("open");
+
+    await loadChallenges();
+  }
+);
+
+
+document.getElementById(
+  "pointsButton"
+)
+.addEventListener(
+  "click",
+  async () => {
+
+    challengePanel
+      .classList.add("open");
+
+    await loadChallenges();
+  }
+);
+
+
+document.getElementById(
+  "closePanel"
+)
+.addEventListener(
+  "click",
+  () => {
+
+    challengePanel
+      .classList.remove("open");
+  }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+async function start() {
+
+  /*
+    FIRST:
+    Read the exact account that login.html stored.
+  */
+
+  currentUser =
+    getUser();
+
+  console.log(
+    "Current Teen Map user:",
+    currentUser
+  );
+
+  /*
+    Load world first so the globe appears.
+  */
+
+  await loadWorld();
+
+  /*
+    Load profiles separately.
+  */
+
+  await loadProfiles();
+
+  /*
+    Load ONLY the current user's profile
+    for Impact Points.
+  */
+
+  if (currentUser) {
+
+    await loadMyProfile();
   }
 
+  /*
+    Finish loading screen.
+  */
+
+  setTimeout(() => {
+
+    document.getElementById("loading")
+      .classList.add("hidden");
+
+  }, 500);
 }
 
 
