@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,
-      initial-scale=1,
-      maximum-scale=5,
-      user-scalable=yes">
+      content="width=device-width, initial-scale=1,
+      maximum-scale=5, user-scalable=yes">
 
 <title>Teen Map 🌎</title>
 
@@ -15,421 +13,364 @@
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#020714;
+  color:white;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #05030a;
-  color: white;
+#app{
+  width:100%;
+  height:100%;
+  position:relative;
+  overflow:hidden;
 }
 
-#app {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
+canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  touch-action:none;
 }
 
-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
+.topbar{
+  position:absolute;
+  top:18px;
+  left:18px;
+  right:18px;
+  z-index:20;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  pointer-events:none;
 }
 
-/* ---------- TOP ---------- */
-
-.topbar {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  right: 18px;
-  z-index: 20;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none;
+.logo{
+  pointer-events:auto;
+  font-size:22px;
+  font-weight:800;
 }
 
-.logo {
-  pointer-events: auto;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.logo span{color:#ff72bd}
+
+.points-button{
+  pointer-events:auto;
+  border:0;
+  border-radius:999px;
+  padding:11px 17px;
+  background:rgba(255,255,255,.95);
+  color:#111;
+  font-size:14px;
+  font-weight:800;
+  box-shadow:0 5px 25px rgba(0,0,0,.3);
 }
 
-.logo span {
-  color: #ff72bd;
+.bottom{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:22px;
+  z-index:20;
+  display:flex;
+  justify-content:center;
+  pointer-events:none;
 }
 
-.points-button {
-  pointer-events: auto;
-  border: 0;
-  border-radius: 999px;
-  padding: 11px 17px;
-  background: rgba(255,255,255,.94);
-  color: #111;
-  font-size: 14px;
-  font-weight: 800;
-  box-shadow: 0 5px 25px rgba(0,0,0,.3);
-  cursor: pointer;
+.challenge-button{
+  pointer-events:auto;
+  border:0;
+  background:#ff72bd;
+  color:white;
+  border-radius:999px;
+  padding:15px 25px;
+  font-size:16px;
+  font-weight:800;
+  box-shadow:0 8px 30px rgba(255,114,189,.4);
 }
 
-.points-button:active {
-  transform: scale(.97);
+.loading{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#020714;
+  transition:opacity .4s;
 }
 
-/* ---------- BOTTOM ---------- */
-
-.bottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 22px;
-  z-index: 20;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
+.loading.hidden{
+  opacity:0;
+  pointer-events:none;
 }
 
-.challenge-button {
-  pointer-events: auto;
-  border: 0;
-  background: #ff72bd;
-  color: white;
-  border-radius: 999px;
-  padding: 15px 25px;
-  font-size: 16px;
-  font-weight: 800;
-  box-shadow: 0 8px 30px rgba(255,114,189,.35);
-  cursor: pointer;
+.loading-box{text-align:center}
+
+.spinner{
+  width:35px;
+  height:35px;
+  margin:0 auto 15px;
+  border:3px solid rgba(255,255,255,.2);
+  border-top-color:#ff72bd;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
 }
 
-.challenge-button:active {
-  transform: scale(.97);
+@keyframes spin{
+  to{transform:rotate(360deg)}
 }
 
-/* ---------- LOADING ---------- */
-
-.loading {
-  position: absolute;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #05030a;
-  transition: opacity .4s ease;
+.profile-card{
+  position:absolute;
+  z-index:50;
+  left:50%;
+  bottom:85px;
+  transform:translateX(-50%);
+  width:min(90%,380px);
+  max-height:65vh;
+  overflow-y:auto;
+  background:rgba(15,18,32,.97);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:25px;
+  padding:22px;
+  box-shadow:0 15px 60px rgba(0,0,0,.55);
+  display:none;
 }
 
-.loading.hidden {
-  opacity: 0;
-  pointer-events: none;
+.profile-card.open{display:block}
+
+.close-profile,
+.close-panel{
+  border:0;
+  background:rgba(255,255,255,.1);
+  color:white;
+  border-radius:50%;
+  font-size:20px;
 }
 
-.loading-box {
-  text-align: center;
+.close-profile{
+  position:absolute;
+  right:14px;
+  top:12px;
+  width:32px;
+  height:32px;
 }
 
-.spinner {
-  width: 35px;
-  height: 35px;
-  margin: 0 auto 15px;
-  border: 3px solid rgba(255,255,255,.2);
-  border-top-color: #ff72bd;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
+.profile-name{
+  font-size:25px;
+  font-weight:900;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.profile-location{
+  color:#ff72bd;
+  font-weight:700;
+  margin:4px 0 18px;
 }
 
-/* ---------- PROFILE CARD ---------- */
+.profile-row{margin:10px 0}
 
-.profile-card {
-  position: absolute;
-  z-index: 50;
-  left: 50%;
-  bottom: 85px;
-  transform: translateX(-50%);
-  width: min(90%, 380px);
-  max-height: 65vh;
-  overflow-y: auto;
-  background: rgba(20,15,28,.96);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 25px;
-  padding: 22px;
-  box-shadow: 0 15px 60px rgba(0,0,0,.55);
-  display: none;
+.profile-label{
+  color:rgba(255,255,255,.5);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  margin-bottom:3px;
 }
 
-.profile-card.open {
-  display: block;
+.profile-value{
+  font-size:15px;
+  line-height:1.35;
 }
 
-.close-profile {
-  position: absolute;
-  right: 14px;
-  top: 12px;
-  border: 0;
-  background: rgba(255,255,255,.1);
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 18px;
+.profile-points{
+  margin-top:18px;
+  padding:13px;
+  border-radius:15px;
+  background:rgba(255,114,189,.12);
+  color:#ff9bd0;
+  font-weight:800;
+  text-align:center;
 }
 
-.profile-name {
-  font-size: 25px;
-  font-weight: 900;
-  margin-bottom: 4px;
+.panel{
+  position:absolute;
+  inset:0;
+  z-index:40;
+  background:rgba(3,7,20,.84);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  transform:translateY(100%);
+  transition:transform .35s ease;
+  overflow-y:auto;
+  padding:75px 18px 35px;
 }
 
-.profile-location {
-  color: #ff72bd;
-  font-weight: 700;
-  margin-bottom: 18px;
+.panel.open{transform:translateY(0)}
+
+.panel-inner{
+  width:min(100%,650px);
+  margin:0 auto;
 }
 
-.profile-row {
-  margin: 10px 0;
+.panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:22px;
 }
 
-.profile-label {
-  color: rgba(255,255,255,.5);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .8px;
-  margin-bottom: 3px;
+.panel-title{
+  font-size:30px;
+  font-weight:900;
 }
 
-.profile-value {
-  font-size: 15px;
-  line-height: 1.35;
+.panel-subtitle{
+  color:rgba(255,255,255,.65);
+  margin-top:4px;
 }
 
-.profile-points {
-  margin-top: 18px;
-  padding: 13px;
-  border-radius: 15px;
-  background: rgba(255,114,189,.12);
-  color: #ff9bd0;
-  font-weight: 800;
-  text-align: center;
+.close-panel{
+  width:40px;
+  height:40px;
 }
 
-/* ---------- CHALLENGES PANEL ---------- */
-
-.panel {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  background: rgba(5,3,10,.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  transform: translateY(100%);
-  transition: transform .35s ease;
-  overflow-y: auto;
-  padding: 75px 18px 35px;
+.current-points{
+  background:rgba(255,114,189,.12);
+  border:1px solid rgba(255,114,189,.2);
+  border-radius:18px;
+  padding:17px;
+  margin-bottom:20px;
+  text-align:center;
 }
 
-.panel.open {
-  transform: translateY(0);
+.current-points-number{
+  font-size:30px;
+  font-weight:900;
+  color:#ff72bd;
 }
 
-.panel-inner {
-  width: min(100%, 650px);
-  margin: 0 auto;
+.challenge{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;
+  padding:19px;
+  margin-bottom:13px;
 }
 
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 22px;
+.challenge.done{opacity:.62}
+
+.challenge-title{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:7px;
 }
 
-.panel-title {
-  font-size: 30px;
-  font-weight: 900;
+.challenge-description{
+  color:rgba(255,255,255,.7);
+  line-height:1.4;
+  font-size:14px;
 }
 
-.panel-subtitle {
-  color: rgba(255,255,255,.65);
-  margin-top: 4px;
+.challenge-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:15px;
 }
 
-.close-panel {
-  border: 0;
-  background: rgba(255,255,255,.1);
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 22px;
+.challenge-points{
+  color:#ff72bd;
+  font-weight:900;
 }
 
-.current-points {
-  background: rgba(255,114,189,.12);
-  border: 1px solid rgba(255,114,189,.2);
-  border-radius: 18px;
-  padding: 17px;
-  margin-bottom: 20px;
-  text-align: center;
+.complete-button{
+  border:0;
+  border-radius:999px;
+  padding:10px 16px;
+  background:#ff72bd;
+  color:white;
+  font-weight:800;
 }
 
-.current-points-number {
-  font-size: 30px;
-  font-weight: 900;
-  color: #ff72bd;
+.complete-button:disabled{
+  background:rgba(255,255,255,.15);
+  color:rgba(255,255,255,.5);
 }
 
-.challenge {
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 20px;
-  padding: 19px;
-  margin-bottom: 13px;
+.join-box{
+  text-align:center;
+  padding:35px 15px;
 }
 
-.challenge.done {
-  opacity: .62;
+.join-box h2{font-size:25px}
+
+.join-box p{
+  color:rgba(255,255,255,.65);
+  line-height:1.5;
 }
 
-.challenge-title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 7px;
+.join-link{
+  display:inline-block;
+  margin-top:10px;
+  background:#ff72bd;
+  color:white;
+  text-decoration:none;
+  padding:13px 22px;
+  border-radius:999px;
+  font-weight:800;
 }
 
-.challenge-description {
-  color: rgba(255,255,255,.7);
-  line-height: 1.4;
-  font-size: 14px;
+.toast{
+  position:absolute;
+  z-index:200;
+  left:50%;
+  bottom:90px;
+  transform:translate(-50%,20px);
+  background:rgba(15,18,32,.97);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:12px 18px;
+  font-size:14px;
+  font-weight:700;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  white-space:nowrap;
 }
 
-.challenge-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 15px;
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
 }
 
-.challenge-points {
-  color: #ff72bd;
-  font-weight: 900;
-}
-
-.complete-button {
-  border: 0;
-  border-radius: 999px;
-  padding: 10px 16px;
-  background: #ff72bd;
-  color: white;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.complete-button:disabled {
-  background: rgba(255,255,255,.15);
-  color: rgba(255,255,255,.5);
-}
-
-/* ---------- JOIN ---------- */
-
-.join-box {
-  text-align: center;
-  padding: 35px 15px;
-}
-
-.join-box h2 {
-  font-size: 25px;
-}
-
-.join-box p {
-  color: rgba(255,255,255,.65);
-  line-height: 1.5;
-}
-
-.join-link {
-  display: inline-block;
-  margin-top: 10px;
-  background: #ff72bd;
-  color: white;
-  text-decoration: none;
-  padding: 13px 22px;
-  border-radius: 999px;
-  font-weight: 800;
-}
-
-/* ---------- TOAST ---------- */
-
-.toast {
-  position: absolute;
-  z-index: 200;
-  left: 50%;
-  bottom: 90px;
-  transform: translate(-50%, 20px);
-  background: rgba(25,20,30,.96);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 999px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  opacity: 0;
-  pointer-events: none;
-  transition: all .3s ease;
-  white-space: nowrap;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-/* ---------- MOBILE ---------- */
-
-@media (max-width: 600px) {
-  .topbar {
-    top: 12px;
-    left: 12px;
-    right: 12px;
+@media(max-width:600px){
+  .topbar{
+    top:12px;
+    left:12px;
+    right:12px;
   }
 
-  .logo {
-    font-size: 19px;
+  .logo{font-size:19px}
+
+  .points-button{
+    padding:9px 13px;
+    font-size:13px;
   }
 
-  .points-button {
-    padding: 9px 13px;
-    font-size: 13px;
-  }
+  .bottom{bottom:15px}
 
-  .bottom {
-    bottom: 15px;
-  }
-
-  .challenge-button {
-    padding: 13px 21px;
-    font-size: 15px;
-  }
-
-  .panel {
-    padding-top: 65px;
+  .challenge-button{
+    padding:13px 21px;
+    font-size:15px;
   }
 }
 </style>
@@ -439,144 +380,146 @@ canvas {
 
 <div id="app">
 
-  <canvas id="globe"></canvas>
+<canvas id="globe"></canvas>
 
-  <div class="topbar">
-    <div class="logo">
-      Teen <span>Map</span> 🌎
-    </div>
-
-    <button class="points-button" id="pointsButton">
-      ⭐ <span id="pointsTop">0</span> Impact Points
-    </button>
+<div class="topbar">
+  <div class="logo">
+    Teen <span>Map</span> 🌎
   </div>
 
-  <div class="bottom">
-    <button class="challenge-button" id="challengeButton">
-      ✨ Explore Challenges
-    </button>
+  <button class="points-button" id="pointsButton">
+    ⭐ <span id="pointsTop">0</span> Impact Points
+  </button>
+</div>
+
+<div class="bottom">
+  <button class="challenge-button" id="challengeButton">
+    ✨ Explore Challenges
+  </button>
+</div>
+
+<div class="profile-card" id="profileCard">
+
+  <button class="close-profile" id="closeProfile">×</button>
+
+  <div class="profile-name" id="profileName"></div>
+  <div class="profile-location" id="profileLocation"></div>
+
+  <div class="profile-row">
+    <div class="profile-label">Age</div>
+    <div class="profile-value" id="profileAge"></div>
   </div>
 
-  <!-- PROFILE -->
-  <div class="profile-card" id="profileCard">
-    <button class="close-profile" id="closeProfile">×</button>
-
-    <div class="profile-name" id="profileName"></div>
-    <div class="profile-location" id="profileLocation"></div>
-
-    <div class="profile-row">
-      <div class="profile-label">Age</div>
-      <div class="profile-value" id="profileAge"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Region</div>
-      <div class="profile-value" id="profileRegion"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Languages</div>
-      <div class="profile-value" id="profileLanguages"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Interests</div>
-      <div class="profile-value" id="profileInterests"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Hobbies</div>
-      <div class="profile-value" id="profileHobbies"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Traditions</div>
-      <div class="profile-value" id="profileTraditions"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Fun fact</div>
-      <div class="profile-value" id="profileFunFact"></div>
-    </div>
-
-    <div class="profile-row">
-      <div class="profile-label">Favorite song</div>
-      <div class="profile-value" id="profileSong"></div>
-    </div>
-
-    <div class="profile-points">
-      ⭐ <span id="profilePoints">0</span> Impact Points
-    </div>
+  <div class="profile-row">
+    <div class="profile-label">Region</div>
+    <div class="profile-value" id="profileRegion"></div>
   </div>
 
-  <!-- CHALLENGES -->
-  <div class="panel" id="challengePanel">
+  <div class="profile-row">
+    <div class="profile-label">Languages</div>
+    <div class="profile-value" id="profileLanguages"></div>
+  </div>
 
-    <div class="panel-inner">
+  <div class="profile-row">
+    <div class="profile-label">Interests</div>
+    <div class="profile-value" id="profileInterests"></div>
+  </div>
 
-      <div class="panel-header">
-        <div>
-          <div class="panel-title">Challenges ✨</div>
-          <div class="panel-subtitle">
-            Small actions. Real impact.
-          </div>
+  <div class="profile-row">
+    <div class="profile-label">Hobbies</div>
+    <div class="profile-value" id="profileHobbies"></div>
+  </div>
+
+  <div class="profile-row">
+    <div class="profile-label">Traditions</div>
+    <div class="profile-value" id="profileTraditions"></div>
+  </div>
+
+  <div class="profile-row">
+    <div class="profile-label">Fun fact</div>
+    <div class="profile-value" id="profileFunFact"></div>
+  </div>
+
+  <div class="profile-row">
+    <div class="profile-label">Favorite song</div>
+    <div class="profile-value" id="profileSong"></div>
+  </div>
+
+  <div class="profile-points">
+    ⭐ <span id="profilePoints">0</span> Impact Points
+  </div>
+
+</div>
+
+<div class="panel" id="challengePanel">
+
+  <div class="panel-inner">
+
+    <div class="panel-header">
+
+      <div>
+        <div class="panel-title">Challenges ✨</div>
+        <div class="panel-subtitle">
+          Small actions. Real impact.
         </div>
-
-        <button class="close-panel" id="closePanel">×</button>
       </div>
 
-      <div class="current-points">
-        <div>Your Impact Points</div>
-        <div class="current-points-number" id="pointsPanel">0</div>
+      <button class="close-panel" id="closePanel">
+        ×
+      </button>
+
+    </div>
+
+    <div class="current-points">
+      <div>Your Impact Points</div>
+      <div class="current-points-number" id="pointsPanel">
+        0
       </div>
-
-      <div id="challengeList"></div>
-
     </div>
+
+    <div id="challengeList"></div>
+
   </div>
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
+</div>
 
-  <!-- LOADING -->
-  <div class="loading" id="loading">
-    <div class="loading-box">
-      <div class="spinner"></div>
-      <div>Loading Teen Map...</div>
-    </div>
+<div class="toast" id="toast"></div>
+
+<div class="loading" id="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div>Loading Teen Map...</div>
   </div>
+</div>
 
 </div>
 
 <script>
 
-/* =========================================================
+/* ================================
    SUPABASE
-========================================================= */
+================================ */
 
 const SUPABASE_URL =
-  "https://wqzdzajhqoodtxauwqme.supabase.co";
+"https://wqzdzajhqoodtxauwqme.supabase.co";
 
-/* IMPORTANT: THIS IS THE CORRECT KEY */
 const SUPABASE_KEY =
-  "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
+"sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
 
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
+/* ================================
+   STATE
+================================ */
 
-let currentUser = null;
-let currentProfile = null;
-let currentPoints = 0;
-let challenges = [];
-let completedChallenges = new Set();
+let currentUser=null;
+let currentProfile=null;
+let currentPoints=0;
 
-let worldFeatures = [];
-let profileMarkers = [];
+let challenges=[];
+let completedChallenges=new Set();
 
-let rotation = [0, 0];
-let scale = 1;
+let worldFeatures=[];
+let profileMarkers=[];
 
 let canvas;
 let ctx;
@@ -587,61 +530,83 @@ let height;
 let projection;
 let path;
 
-let isDragging = false;
-let lastX = 0;
-let lastY = 0;
+let rotation=[0,0];
+let scale=1;
+
+let isDragging=false;
+let moved=false;
+let lastX=0;
+let lastY=0;
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* ================================
+   AUTH
+================================ */
 
-function getAccessToken() {
-  return localStorage.getItem("teenmap_access_token") || "";
+function getAccessToken(){
+  return localStorage.getItem(
+    "teenmap_access_token"
+  ) || "";
 }
 
-function getSavedUserId() {
-  return localStorage.getItem("teenmap_user_id") || "";
+function getSavedUserId(){
+  return localStorage.getItem(
+    "teenmap_user_id"
+  ) || "";
 }
 
-function authHeaders() {
+function getUser(){
 
-  const headers = {
-    "apikey": SUPABASE_KEY,
-    "Content-Type": "application/json"
+  const id=getSavedUserId();
+  const token=getAccessToken();
+
+  if(!id || !token) return null;
+
+  return {id};
+}
+
+function authHeaders(){
+
+  const headers={
+    "apikey":SUPABASE_KEY,
+    "Content-Type":"application/json"
   };
 
-  const token = getAccessToken();
+  const token=getAccessToken();
 
-  if (token) {
-    headers["Authorization"] = "Bearer " + token;
+  if(token){
+    headers.Authorization=
+      "Bearer "+token;
   }
 
   return headers;
 }
 
 
-async function supabaseGet(path) {
+/* ================================
+   SUPABASE REQUESTS
+================================ */
 
-  const response = await fetch(
-    SUPABASE_URL + path,
+async function supabaseGet(path){
+
+  const response=await fetch(
+    SUPABASE_URL+path,
     {
-      method: "GET",
-      headers: authHeaders()
+      headers:authHeaders()
     }
   );
 
-  const text = await response.text();
+  const text=await response.text();
 
   let data;
 
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
+  try{
+    data=text ? JSON.parse(text):null;
+  }catch{
+    data=text;
   }
 
-  if (!response.ok) {
+  if(!response.ok){
 
     throw new Error(
       data?.message ||
@@ -655,28 +620,28 @@ async function supabaseGet(path) {
 }
 
 
-async function supabasePost(path, body) {
+async function supabasePost(path,body){
 
-  const response = await fetch(
-    SUPABASE_URL + path,
+  const response=await fetch(
+    SUPABASE_URL+path,
     {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify(body)
+      method:"POST",
+      headers:authHeaders(),
+      body:JSON.stringify(body)
     }
   );
 
-  const text = await response.text();
+  const text=await response.text();
 
   let data;
 
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
+  try{
+    data=text ? JSON.parse(text):null;
+  }catch{
+    data=text;
   }
 
-  if (!response.ok) {
+  if(!response.ok){
 
     throw new Error(
       data?.message ||
@@ -690,330 +655,72 @@ async function supabasePost(path, body) {
 }
 
 
-function showToast(message) {
+/* ================================
+   POINTS
+================================ */
 
-  const toast = document.getElementById("toast");
+function updatePoints(){
 
-  toast.textContent = message;
-  toast.classList.add("show");
+  document.getElementById("pointsTop")
+    .textContent=currentPoints;
 
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2500);
+  document.getElementById("pointsPanel")
+    .textContent=currentPoints;
+
+  document.getElementById("profilePoints")
+    .textContent=currentPoints;
 }
 
 
-function escapeHTML(value) {
+async function loadMyProfile(){
 
-  if (value === null || value === undefined) {
-    return "";
-  }
+  if(!currentUser)return;
 
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+  try{
 
+    const id=encodeURIComponent(
+      currentUser.id
+    );
 
-/* =========================================================
-   USER
-========================================================= */
-
-function getUser() {
-
-  const id = getSavedUserId();
-  const token = getAccessToken();
-
-  if (!id || !token) {
-    return null;
-  }
-
-  /*
-    IMPORTANT:
-    The login page stores the authenticated user's ID
-    and access token in localStorage.
-
-    We use those values instead of client.auth.getUser()
-    because login.html authenticates with fetch().
-  */
-
-  return {
-    id: id
-  };
-}
-
-
-/* =========================================================
-   PROFILE
-========================================================= */
-
-async function loadMyProfile() {
-
-  if (!currentUser) {
-    return;
-  }
-
-  try {
-
-    const id =
-      encodeURIComponent(currentUser.id);
-
-    const data = await supabaseGet(
-      "/rest/v1/profiles" +
-      "?select=*" +
-      "&id=eq." +
-      id +
+    const data=await supabaseGet(
+      "/rest/v1/profiles"+
+      "?select=*"+
+      "&id=eq."+id+
       "&limit=1"
     );
 
-    if (Array.isArray(data) && data.length) {
+    if(Array.isArray(data)&&data.length){
 
-      currentProfile = data[0];
+      currentProfile=data[0];
 
-      currentPoints =
-        Number(currentProfile.impact_points || 0);
+      currentPoints=
+        Number(
+          currentProfile.impact_points||0
+        );
 
       updatePoints();
     }
 
-  } catch (error) {
+  }catch(error){
 
     console.error(
-      "Could not load my profile:",
+      "Profile error:",
       error
     );
   }
 }
 
 
-function updatePoints() {
+/* ================================
+   WORLD
+================================ */
 
-  document.getElementById("pointsTop")
-    .textContent = currentPoints;
+async function loadWorld(){
 
-  document.getElementById("pointsPanel")
-    .textContent = currentPoints;
-
-  document.getElementById("profilePoints")
-    .textContent = currentPoints;
-}
-
-
-/* =========================================================
-   PROFILES ON MAP
-========================================================= */
-
-async function loadProfiles() {
-
-  try {
-
-    const data = await supabaseGet(
-      "/rest/v1/profiles" +
-      "?select=id,username,age,country,region,languages,hobbies,traditions,interests,fun_fact,favorite_song,impact_points"
-    );
-
-    profileMarkers = Array.isArray(data)
-      ? data
-      : [];
-
-    console.log(
-      "Profiles loaded:",
-      profileMarkers.length
-    );
-
-    buildProfileMarkers();
-
-  } catch (error) {
-
-    console.error(
-      "Could not load profiles:",
-      error
-    );
-
-    profileMarkers = [];
-  }
-}
-
-
-function buildProfileMarkers() {
-
-  profileMarkers = profileMarkers
-    .map(profile => {
-
-      if (!profile.country) {
-        return null;
-      }
-
-      const feature =
-        findCountryFeature(profile.country);
-
-      if (!feature) {
-        return null;
-      }
-
-      const centroid =
-        d3.geoCentroid(feature);
-
-      return {
-        profile,
-        coordinates: centroid
-      };
-
-    })
-    .filter(Boolean);
-
-}
-
-
-/* =========================================================
-   COUNTRY MATCHING
-========================================================= */
-
-function normalizeCountry(value) {
-
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-
-const countryAliases = {
-
-  "spain": [
-    "spain",
-    "españa",
-    "espana"
-  ],
-
-  "united states": [
-    "united states",
-    "usa",
-    "us",
-    "estados unidos"
-  ],
-
-  "united kingdom": [
-    "united kingdom",
-    "uk",
-    "reino unido",
-    "england",
-    "inglaterra"
-  ],
-
-  "france": [
-    "france",
-    "francia"
-  ],
-
-  "italy": [
-    "italy",
-    "italia"
-  ],
-
-  "germany": [
-    "germany",
-    "alemania"
-  ],
-
-  "portugal": [
-    "portugal"
-  ],
-
-  "mexico": [
-    "mexico",
-    "méxico"
-  ],
-
-  "brazil": [
-    "brazil",
-    "brasil"
-  ],
-
-  "argentina": [
-    "argentina"
-  ],
-
-  "canada": [
-    "canada",
-    "canadá"
-  ]
-};
-
-
-function countryMatches(profileCountry, featureName) {
-
-  const a = normalizeCountry(profileCountry);
-  const b = normalizeCountry(featureName);
-
-  if (!a || !b) {
-    return false;
-  }
-
-  if (a === b) {
-    return true;
-  }
-
-  for (const key in countryAliases) {
-
-    const aliases =
-      countryAliases[key];
-
-    const aMatch =
-      aliases.includes(a);
-
-    const bMatch =
-      aliases.includes(b);
-
-    if (aMatch && bMatch) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-
-function findCountryFeature(country) {
-
-  for (const feature of worldFeatures) {
-
-    const props = feature.properties || {};
-
-    const names = [
-      props.name,
-      props.NAME,
-      props.ADMIN,
-      props.admin,
-      props.name_long
-    ];
-
-    for (const name of names) {
-
-      if (countryMatches(country, name)) {
-        return feature;
-      }
-    }
-  }
-
-  return null;
-}
-
-
-/* =========================================================
-   WORLD GLOBE
-========================================================= */
-
-async function loadWorld() {
-
-  canvas =
+  canvas=
     document.getElementById("globe");
 
-  ctx =
+  ctx=
     canvas.getContext("2d");
 
   resizeCanvas();
@@ -1023,149 +730,126 @@ async function loadWorld() {
     resizeCanvas
   );
 
-  try {
+  try{
 
-    const response =
-      await fetch(
-        "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-      );
+    const response=await fetch(
+      "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
+    );
 
-    const world =
-      await response.json();
+    const world=await response.json();
 
-    worldFeatures =
+    worldFeatures=
       topojson.feature(
         world,
         world.objects.countries
       ).features;
 
     setupProjection();
-
     drawGlobe();
 
-  } catch (error) {
+  }catch(error){
 
     console.error(
-      "World could not load:",
+      "World error:",
       error
     );
   }
 }
 
 
-function resizeCanvas() {
+function resizeCanvas(){
 
-  const ratio =
+  if(!canvas)return;
+
+  const ratio=
     Math.min(
-      window.devicePixelRatio || 1,
+      window.devicePixelRatio||1,
       2
     );
 
-  width =
-    window.innerWidth;
+  width=window.innerWidth;
+  height=window.innerHeight;
 
-  height =
-    window.innerHeight;
+  canvas.width=width*ratio;
+  canvas.height=height*ratio;
 
-  canvas.width =
-    width * ratio;
-
-  canvas.height =
-    height * ratio;
-
-  canvas.style.width =
-    width + "px";
-
-  canvas.style.height =
-    height + "px";
+  canvas.style.width=width+"px";
+  canvas.style.height=height+"px";
 
   ctx.setTransform(
-    ratio,
-    0,
-    0,
-    ratio,
-    0,
-    0
+    ratio,0,0,ratio,0,0
   );
 
   setupProjection();
-
   drawGlobe();
 }
 
 
-function setupProjection() {
+function setupProjection(){
 
-  if (!width || !height) {
-    return;
-  }
+  if(!width||!height)return;
 
-  const radius =
-    Math.min(width, height) *
-    0.39 *
+  const radius=
+    Math.min(width,height)*
+    .39*
     scale;
 
-  projection =
+  projection=
     d3.geoOrthographic()
       .translate([
-        width / 2,
-        height / 2
+        width/2,
+        height/2
       ])
       .scale(radius)
       .rotate(rotation)
       .clipAngle(90);
 
-  path =
-    d3.geoPath(
-      projection,
-      ctx
-    );
+  path=d3.geoPath(
+    projection,
+    ctx
+  );
 }
 
 
-function drawStars() {
+/* ================================
+   GLOBE DRAWING
+================================ */
+
+function drawStars(){
 
   ctx.save();
 
-  ctx.fillStyle = "#05030a";
+  ctx.fillStyle="#020714";
 
   ctx.fillRect(
-    0,
-    0,
-    width,
-    height
+    0,0,width,height
   );
 
-  const count =
+  const count=Math.min(
     Math.floor(
-      Math.min(width * height / 5500, 220)
-    );
+      width*height/5000
+    ),
+    220
+  );
 
-  for (let i = 0; i < count; i++) {
+  for(let i=0;i<count;i++){
 
-    const x =
-      (i * 97.37) % width;
-
-    const y =
-      (i * 53.91) % height;
-
-    const size =
-      i % 5 === 0 ? 1.2 : .7;
-
-    ctx.globalAlpha =
-      .2 + ((i % 7) / 14);
+    const x=(i*97.37)%width;
+    const y=(i*53.91)%height;
 
     ctx.beginPath();
 
     ctx.arc(
       x,
       y,
-      size,
+      i%5===0?1.1:.6,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle=
+      "rgba(255,255,255,"+
+      (.25+(i%7)/15)+")";
 
     ctx.fill();
   }
@@ -1174,162 +858,393 @@ function drawStars() {
 }
 
 
-function drawGlobe() {
+function drawGlobe(){
 
-  if (!ctx || !projection || !path) {
-    return;
-  }
+  if(!ctx||!projection||!path)return;
 
   drawStars();
 
-  const center =
+  const center=
     projection.translate();
 
-  const globeRadius =
+  const radius=
     projection.scale();
 
-  /* globe */
+  /*
+    OCEAN
+    This is the important fix.
+    The globe itself now has a clearly visible
+    blue/purple fill instead of black.
+  */
+
+  ctx.save();
 
   ctx.beginPath();
 
   ctx.arc(
     center[0],
     center[1],
-    globeRadius,
+    radius,
     0,
-    Math.PI * 2
+    Math.PI*2
   );
 
-  const gradient =
+  const oceanGradient=
     ctx.createRadialGradient(
-      center[0] - globeRadius * .3,
-      center[1] - globeRadius * .35,
-      globeRadius * .1,
+      center[0]-radius*.35,
+      center[1]-radius*.4,
+      radius*.05,
       center[0],
       center[1],
-      globeRadius
+      radius
     );
 
-  gradient.addColorStop(
+  oceanGradient.addColorStop(
     0,
-    "#21152e"
+    "#315b86"
   );
 
-  gradient.addColorStop(
+  oceanGradient.addColorStop(
+    .45,
+    "#193b62"
+  );
+
+  oceanGradient.addColorStop(
+    .8,
+    "#102b4c"
+  );
+
+  oceanGradient.addColorStop(
     1,
-    "#0c0712"
+    "#07182f"
   );
 
-  ctx.fillStyle =
-    gradient;
+  ctx.fillStyle=oceanGradient;
 
   ctx.fill();
 
-  /* countries */
+  /*
+    SUBTLE ATMOSPHERE
+  */
+
+  ctx.beginPath();
+
+  ctx.arc(
+    center[0],
+    center[1],
+    radius,
+    0,
+    Math.PI*2
+  );
+
+  const atmosphere=
+    ctx.createRadialGradient(
+      center[0]-radius*.4,
+      center[1]-radius*.5,
+      radius*.2,
+      center[0],
+      center[1],
+      radius*1.05
+    );
+
+  atmosphere.addColorStop(
+    0,
+    "rgba(120,190,255,.08)"
+  );
+
+  atmosphere.addColorStop(
+    .75,
+    "rgba(80,150,255,.02)"
+  );
+
+  atmosphere.addColorStop(
+    1,
+    "rgba(255,114,189,.18)"
+  );
+
+  ctx.fillStyle=atmosphere;
+  ctx.fill();
+
+  ctx.restore();
+
+
+  /*
+    CONTINENTS
+    Clearly visible instead of black.
+  */
 
   ctx.save();
 
   ctx.beginPath();
 
-  for (const feature of worldFeatures) {
-
+  for(const feature of worldFeatures){
     path(feature);
   }
 
-  ctx.fillStyle =
-    "rgba(255,255,255,.045)";
-
+  ctx.fillStyle="#5c806f";
   ctx.fill();
 
-  ctx.strokeStyle =
-    "rgba(255,255,255,.14)";
+  ctx.strokeStyle=
+    "rgba(220,240,255,.55)";
 
-  ctx.lineWidth = .6;
+  ctx.lineWidth=.65;
+  ctx.stroke();
+
+  ctx.restore();
+
+
+  /*
+    GLOBE OUTLINE
+  */
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    center[0],
+    center[1],
+    radius,
+    0,
+    Math.PI*2
+  );
+
+  ctx.strokeStyle=
+    "rgba(170,215,255,.45)";
+
+  ctx.lineWidth=1.5;
 
   ctx.stroke();
 
   ctx.restore();
 
-  /* markers */
 
   drawProfileMarkers();
 }
 
 
-function drawProfileMarkers() {
+/* ================================
+   COUNTRY MATCHING
+================================ */
 
-  if (!profileMarkers.length) {
-    return;
+function normalizeCountry(value){
+
+  return String(value||"")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"");
+}
+
+const countryAliases={
+
+  "spain":[
+    "spain","españa","espana"
+  ],
+
+  "united states":[
+    "united states",
+    "usa",
+    "us",
+    "estados unidos"
+  ],
+
+  "united kingdom":[
+    "united kingdom",
+    "uk",
+    "reino unido",
+    "england",
+    "inglaterra"
+  ],
+
+  "france":[
+    "france","francia"
+  ],
+
+  "italy":[
+    "italy","italia"
+  ],
+
+  "germany":[
+    "germany","alemania"
+  ],
+
+  "portugal":[
+    "portugal"
+  ],
+
+  "mexico":[
+    "mexico","méxico"
+  ],
+
+  "brazil":[
+    "brazil","brasil"
+  ],
+
+  "canada":[
+    "canada","canadá"
+  ],
+
+  "argentina":[
+    "argentina"
+  ]
+};
+
+
+function countryMatches(a,b){
+
+  a=normalizeCountry(a);
+  b=normalizeCountry(b);
+
+  if(!a||!b)return false;
+
+  if(a===b)return true;
+
+  for(const key in countryAliases){
+
+    const aliases=
+      countryAliases[key];
+
+    if(
+      aliases.includes(a)&&
+      aliases.includes(b)
+    ){
+      return true;
+    }
   }
 
-  for (const marker of profileMarkers) {
+  return false;
+}
 
-    const point =
+
+function findCountryFeature(country){
+
+  for(const feature of worldFeatures){
+
+    const props=
+      feature.properties||{};
+
+    const names=[
+      props.name,
+      props.NAME,
+      props.ADMIN,
+      props.admin,
+      props.name_long
+    ];
+
+    for(const name of names){
+
+      if(countryMatches(
+        country,
+        name
+      )){
+        return feature;
+      }
+    }
+  }
+
+  return null;
+}
+
+
+/* ================================
+   PROFILES ON MAP
+================================ */
+
+async function loadProfiles(){
+
+  try{
+
+    const data=await supabaseGet(
+      "/rest/v1/profiles"+
+      "?select=id,username,age,country,region,languages,hobbies,traditions,interests,fun_fact,favorite_song,impact_points"
+    );
+
+    profileMarkers=[];
+
+    if(Array.isArray(data)){
+
+      for(const profile of data){
+
+        if(!profile.country)continue;
+
+        const feature=
+          findCountryFeature(
+            profile.country
+          );
+
+        if(!feature)continue;
+
+        profileMarkers.push({
+          profile:profile,
+          coordinates:
+            d3.geoCentroid(feature)
+        });
+      }
+    }
+
+    drawGlobe();
+
+  }catch(error){
+
+    console.error(
+      "Profiles error:",
+      error
+    );
+  }
+}
+
+
+function drawProfileMarkers(){
+
+  for(const marker of profileMarkers){
+
+    const point=
       projection(
         marker.coordinates
       );
 
-    if (!point) {
-      continue;
-    }
+    if(!point)continue;
 
-    const visible =
+    const visible=
       d3.geoDistance(
         marker.coordinates,
-        [
-          -rotation[0],
-          -rotation[1]
-        ]
-      ) < Math.PI / 2;
+        [-rotation[0],-rotation[1]]
+      )<Math.PI/2;
 
-    if (!visible) {
-      continue;
-    }
+    if(!visible)continue;
 
-    const x = point[0];
-    const y = point[1];
+    const x=point[0];
+    const y=point[1];
 
     ctx.save();
 
-    /* glow */
+    ctx.beginPath();
+
+    ctx.arc(
+      x,y,10,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+      "rgba(255,114,189,.18)";
+
+    ctx.fill();
 
     ctx.beginPath();
 
     ctx.arc(
-      x,
-      y,
-      10,
+      x,y,5,
       0,
-      Math.PI * 2
+      Math.PI*2
     );
 
-    ctx.fillStyle =
-      "rgba(255,114,189,.16)";
-
+    ctx.fillStyle="#ff72bd";
     ctx.fill();
 
-    /* point */
-
-    ctx.beginPath();
-
-    ctx.arc(
-      x,
-      y,
-      5,
-      0,
-      Math.PI * 2
-    );
-
-    ctx.fillStyle =
-      "#ff72bd";
-
-    ctx.fill();
-
-    ctx.strokeStyle =
-      "white";
-
-    ctx.lineWidth = 1.5;
-
+    ctx.strokeStyle="white";
+    ctx.lineWidth=1.5;
     ctx.stroke();
 
     ctx.restore();
@@ -1337,25 +1252,21 @@ function drawProfileMarkers() {
 }
 
 
-/* =========================================================
-   GLOBE INTERACTION
-========================================================= */
+/* ================================
+   GLOBE CONTROLS
+================================ */
 
-canvas =
-  document.getElementById("globe");
-
+canvas=document.getElementById("globe");
 
 canvas.addEventListener(
   "pointerdown",
-  event => {
+  event=>{
 
-    isDragging = true;
+    isDragging=true;
+    moved=false;
 
-    lastX =
-      event.clientX;
-
-    lastY =
-      event.clientY;
+    lastX=event.clientX;
+    lastY=event.clientY;
 
     canvas.setPointerCapture(
       event.pointerId
@@ -1366,41 +1277,35 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "pointermove",
-  event => {
+  event=>{
 
-    if (!isDragging) {
-      return;
+    if(!isDragging)return;
+
+    const dx=
+      event.clientX-lastX;
+
+    const dy=
+      event.clientY-lastY;
+
+    if(
+      Math.abs(dx)>2||
+      Math.abs(dy)>2
+    ){
+      moved=true;
     }
 
-    const dx =
-      event.clientX - lastX;
+    lastX=event.clientX;
+    lastY=event.clientY;
 
-    const dy =
-      event.clientY - lastY;
+    rotation[0]-=dx*.35;
+    rotation[1]+=dy*.25;
 
-    lastX =
-      event.clientX;
-
-    lastY =
-      event.clientY;
-
-    rotation[0] -=
-      dx * .35;
-
-    rotation[1] +=
-      dy * .25;
-
-    rotation[1] =
-      Math.max(
-        -80,
-        Math.min(
-          80,
-          rotation[1]
-        )
-      );
+    rotation[1]=Math.max(
+      -80,
+      Math.min(80,rotation[1])
+    );
 
     setupProjection();
-
     drawGlobe();
   }
 );
@@ -1408,118 +1313,99 @@ canvas.addEventListener(
 
 canvas.addEventListener(
   "pointerup",
-  event => {
+  event=>{
 
-    isDragging = false;
+    isDragging=false;
 
-    try {
+    try{
       canvas.releasePointerCapture(
         event.pointerId
       );
-    } catch {}
+    }catch{}
   }
 );
 
 
 canvas.addEventListener(
   "pointercancel",
-  () => {
-    isDragging = false;
+  ()=>{
+    isDragging=false;
   }
 );
 
 
 canvas.addEventListener(
   "wheel",
-  event => {
+  event=>{
 
     event.preventDefault();
 
-    scale *=
-      event.deltaY > 0
-        ? .92
-        : 1.08;
+    scale*=
+      event.deltaY>0?.92:1.08;
 
-    scale =
-      Math.max(
-        .65,
-        Math.min(
-          1.8,
-          scale
-        )
-      );
+    scale=Math.max(
+      .65,
+      Math.min(1.8,scale)
+    );
 
     setupProjection();
-
     drawGlobe();
 
   },
-  {
-    passive: false
-  }
+  {passive:false}
 );
 
 
-/* =========================================================
-   CLICK ON PROFILE MARKER
-========================================================= */
+/* ================================
+   PROFILE CLICK
+================================ */
 
 canvas.addEventListener(
   "click",
-  event => {
+  event=>{
 
-    if (isDragging) {
-      return;
-    }
+    if(moved)return;
 
-    const rect =
+    const rect=
       canvas.getBoundingClientRect();
 
-    const x =
-      event.clientX - rect.left;
+    const x=
+      event.clientX-rect.left;
 
-    const y =
-      event.clientY - rect.top;
+    const y=
+      event.clientY-rect.top;
 
-    let closest = null;
+    let closest=null;
+    let distance=Infinity;
 
-    let distance = Infinity;
+    for(const marker of profileMarkers){
 
-    for (const marker of profileMarkers) {
-
-      const point =
+      const point=
         projection(
           marker.coordinates
         );
 
-      if (!point) {
-        continue;
-      }
+      if(!point)continue;
 
-      const dx =
-        point[0] - x;
+      const dx=point[0]-x;
+      const dy=point[1]-y;
 
-      const dy =
-        point[1] - y;
-
-      const d =
+      const d=
         Math.sqrt(
-          dx * dx +
-          dy * dy
+          dx*dx+dy*dy
         );
 
-      if (d < distance) {
+      if(d<distance){
 
-        distance = d;
-        closest = marker;
+        distance=d;
+        closest=marker;
       }
     }
 
-    if (
-      closest &&
-      distance < 25
-    ) {
-
+    if(
+      closest&&
+      distance<25
+    ){
       openProfile(
         closest.profile
       );
@@ -1528,352 +1414,339 @@ canvas.addEventListener(
 );
 
 
-/* =========================================================
+/* ================================
    PROFILE CARD
-========================================================= */
+================================ */
 
-function openProfile(profile) {
+function openProfile(profile){
 
-  document.getElementById("profileName")
-    .textContent =
-      profile.username || "Teen";
+  document.getElementById(
+    "profileName"
+  ).textContent=
+    profile.username||"Teen";
 
-  document.getElementById("profileLocation")
-    .textContent =
-      [profile.country, profile.region]
-        .filter(Boolean)
-        .join(" • ");
+  document.getElementById(
+    "profileLocation"
+  ).textContent=
+    [profile.country,profile.region]
+      .filter(Boolean)
+      .join(" • ");
 
-  document.getElementById("profileAge")
-    .textContent =
-      profile.age || "—";
+  document.getElementById(
+    "profileAge"
+  ).textContent=
+    profile.age||"—";
 
-  document.getElementById("profileRegion")
-    .textContent =
-      profile.region || "—";
+  document.getElementById(
+    "profileRegion"
+  ).textContent=
+    profile.region||"—";
 
-  document.getElementById("profileLanguages")
-    .textContent =
-      profile.languages || "—";
+  document.getElementById(
+    "profileLanguages"
+  ).textContent=
+    profile.languages||"—";
 
-  document.getElementById("profileInterests")
-    .textContent =
-      profile.interests || "—";
+  document.getElementById(
+    "profileInterests"
+  ).textContent=
+    profile.interests||"—";
 
-  document.getElementById("profileHobbies")
-    .textContent =
-      profile.hobbies || "—";
+  document.getElementById(
+    "profileHobbies"
+  ).textContent=
+    profile.hobbies||"—";
 
-  document.getElementById("profileTraditions")
-    .textContent =
-      profile.traditions || "—";
+  document.getElementById(
+    "profileTraditions"
+  ).textContent=
+    profile.traditions||"—";
 
-  document.getElementById("profileFunFact")
-    .textContent =
-      profile.fun_fact || "—";
+  document.getElementById(
+    "profileFunFact"
+  ).textContent=
+    profile.fun_fact||"—";
 
-  document.getElementById("profileSong")
-    .textContent =
-      profile.favorite_song || "—";
+  document.getElementById(
+    "profileSong"
+  ).textContent=
+    profile.favorite_song||"—";
 
-  document.getElementById("profilePoints")
-    .textContent =
-      Number(profile.impact_points || 0);
+  document.getElementById(
+    "profilePoints"
+  ).textContent=
+    Number(profile.impact_points||0);
 
-  document.getElementById("profileCard")
-    .classList.add("open");
+  document.getElementById(
+    "profileCard"
+  ).classList.add("open");
 }
 
 
-document.getElementById("closeProfile")
-  .addEventListener(
-    "click",
-    () => {
+document.getElementById(
+  "closeProfile"
+).addEventListener(
+  "click",
+  ()=>{
+    document.getElementById(
+      "profileCard"
+    ).classList.remove("open");
+  }
+);
 
-      document.getElementById("profileCard")
-        .classList.remove("open");
-    }
-  );
 
-
-/* =========================================================
+/* ================================
    CHALLENGES
-========================================================= */
+================================ */
 
-async function loadChallenges() {
+async function loadChallenges(){
 
-  const list =
+  const list=
     document.getElementById(
       "challengeList"
     );
 
-  list.innerHTML =
-    `
-      <div class="challenge">
-        Loading challenges...
-      </div>
-    `;
+  list.innerHTML=
+    `<div class="challenge">
+      Loading challenges...
+    </div>`;
 
-  if (!currentUser) {
+  if(!currentUser){
 
-    list.innerHTML =
-      `
-        <div class="join-box">
-          <h2>Join Teen Map 🌎</h2>
-
-          <p>
-            Create your profile to take challenges
-            and collect Impact Points.
-          </p>
-
-          <a class="join-link"
-             href="login.html">
-             Join Teen Map
-          </a>
-        </div>
-      `;
+    list.innerHTML=
+      `<div class="join-box">
+        <h2>Join Teen Map 🌎</h2>
+        <p>
+          Create your profile to take challenges
+          and collect Impact Points.
+        </p>
+        <a class="join-link"
+           href="login.html">
+           Join Teen Map
+        </a>
+      </div>`;
 
     return;
   }
 
-  try {
+  try{
 
-    const data =
-      await supabaseGet(
-        "/rest/v1/challenges" +
-        "?select=*" +
-        "&order=id.asc"
-      );
+    const data=await supabaseGet(
+      "/rest/v1/challenges"+
+      "?select=*"+
+      "&order=id.asc"
+    );
 
-    challenges =
-      Array.isArray(data)
-        ? data
-        : [];
+    challenges=
+      Array.isArray(data)?data:[];
 
     await loadCompletedChallenges();
 
     renderChallenges();
 
-  } catch (error) {
+  }catch(error){
 
     console.error(
-      "Could not load challenges:",
+      "Challenges error:",
       error
     );
 
-    list.innerHTML =
-      `
-        <div class="challenge">
-          <div class="challenge-title">
-            Couldn't load the challenges
-          </div>
-
-          <div class="challenge-description">
-            ${escapeHTML(error.message)}
-          </div>
+    list.innerHTML=
+      `<div class="challenge">
+        <div class="challenge-title">
+          Couldn't load the challenges
         </div>
-      `;
+        <div class="challenge-description">
+          ${escapeHTML(error.message)}
+        </div>
+      </div>`;
   }
 }
 
 
-async function loadCompletedChallenges() {
+async function loadCompletedChallenges(){
 
-  completedChallenges =
+  completedChallenges=
     new Set();
 
-  if (!currentUser) {
-    return;
-  }
+  if(!currentUser)return;
 
-  const userId =
+  const userId=
     encodeURIComponent(
       currentUser.id
     );
 
-  try {
+  try{
 
-    const data =
-      await supabaseGet(
-        "/rest/v1/challenge_completions" +
-        "?select=challenge_id" +
-        "&user_id=eq." +
-        userId
-      );
+    const data=await supabaseGet(
+      "/rest/v1/challenge_completions"+
+      "?select=challenge_id"+
+      "&user_id=eq."+userId
+    );
 
-    if (Array.isArray(data)) {
+    if(Array.isArray(data)){
 
-      data.forEach(item => {
+      data.forEach(item=>{
 
-        if (item.challenge_id !== undefined) {
+        if(item.challenge_id!==undefined){
 
           completedChallenges.add(
             String(item.challenge_id)
           );
         }
-
       });
     }
 
-  } catch (error) {
+  }catch(error){
 
     console.error(
-      "Could not load completed challenges:",
+      "Completed challenges error:",
       error
     );
   }
 }
 
 
-function getChallengeTitle(challenge) {
+function challengeTitle(challenge){
 
-  return (
-    challenge.title ||
-    challenge.name ||
-    challenge.challenge ||
-    "Teen Map Challenge"
-  );
+  return challenge.title||
+         challenge.name||
+         challenge.challenge||
+         "Teen Map Challenge";
 }
 
 
-function getChallengeDescription(challenge) {
+function challengeDescription(challenge){
 
-  return (
-    challenge.description ||
-    challenge.text ||
-    challenge.details ||
-    "Complete this challenge and make an impact."
-  );
+  return challenge.description||
+         challenge.text||
+         challenge.details||
+         "Complete this challenge and make an impact.";
 }
 
 
-function getChallengePoints(challenge) {
+function challengePoints(challenge){
 
   return Number(
-    challenge.points ||
-    challenge.impact_points ||
+    challenge.points||
+    challenge.impact_points||
     10
   );
 }
 
 
-function renderChallenges() {
+function renderChallenges(){
 
-  const list =
+  const list=
     document.getElementById(
       "challengeList"
     );
 
-  if (!challenges.length) {
+  if(!challenges.length){
 
-    list.innerHTML =
-      `
-        <div class="challenge">
-          <div class="challenge-title">
-            No challenges yet
-          </div>
-
-          <div class="challenge-description">
-            There aren't any challenges in the database yet.
-          </div>
+    list.innerHTML=
+      `<div class="challenge">
+        <div class="challenge-title">
+          No challenges yet
         </div>
-      `;
+        <div class="challenge-description">
+          There aren't any challenges in the database yet.
+        </div>
+      </div>`;
 
     return;
   }
 
-  list.innerHTML = "";
+  list.innerHTML="";
 
   challenges.forEach(
-    challenge => {
+    challenge=>{
 
-      const id =
+      const id=
         String(challenge.id);
 
-      const done =
+      const done=
         completedChallenges.has(id);
 
-      const article =
+      const article=
         document.createElement("div");
 
-      article.className =
-        "challenge" +
-        (done ? " done" : "");
+      article.className=
+        "challenge"+
+        (done?" done":"");
 
-      article.innerHTML =
-        `
-          <div class="challenge-title">
-            ${escapeHTML(
-              getChallengeTitle(challenge)
-            )}
+      article.innerHTML=
+        `<div class="challenge-title">
+          ${escapeHTML(
+            challengeTitle(challenge)
+          )}
+        </div>
+
+        <div class="challenge-description">
+          ${escapeHTML(
+            challengeDescription(challenge)
+          )}
+        </div>
+
+        <div class="challenge-footer">
+
+          <div class="challenge-points">
+            +${challengePoints(challenge)} ⭐
           </div>
 
-          <div class="challenge-description">
-            ${escapeHTML(
-              getChallengeDescription(challenge)
-            )}
-          </div>
+          <button
+            class="complete-button"
+            data-id="${escapeHTML(id)}"
+            ${done?"disabled":""}>
+            ${done?"Completed ✓":"Complete"}
+          </button>
 
-          <div class="challenge-footer">
-
-            <div class="challenge-points">
-              +${getChallengePoints(challenge)} ⭐
-            </div>
-
-            <button
-              class="complete-button"
-              data-challenge-id="${escapeHTML(id)}"
-              ${done ? "disabled" : ""}
-            >
-              ${done ? "Completed ✓" : "Complete"}
-            </button>
-
-          </div>
-        `;
+        </div>`;
 
       list.appendChild(article);
     }
   );
 
-  list
-    .querySelectorAll(".complete-button")
-    .forEach(button => {
+  list.querySelectorAll(
+    ".complete-button"
+  ).forEach(button=>{
 
-      button.addEventListener(
-        "click",
-        () => {
+    button.addEventListener(
+      "click",
+      ()=>{
 
-          const id =
-            button.dataset.challengeId;
+        const id=
+          button.dataset.id;
 
-          const challenge =
-            challenges.find(
-              item =>
-                String(item.id) === id
-            );
+        const challenge=
+          challenges.find(
+            item=>
+              String(item.id)===id
+          );
 
-          if (challenge) {
-            completeChallenge(
-              challenge,
-              button
-            );
-          }
+        if(challenge){
+
+          completeChallenge(
+            challenge,
+            button
+          );
         }
-      );
-    });
+      }
+    );
+  });
 }
 
 
-/* =========================================================
+/* ================================
    COMPLETE CHALLENGE
-========================================================= */
+================================ */
 
 async function completeChallenge(
   challenge,
   button
-) {
+){
 
-  if (!currentUser) {
+  if(!currentUser){
 
     showToast(
       "Please join Teen Map first."
@@ -1882,20 +1755,12 @@ async function completeChallenge(
     return;
   }
 
-  button.disabled = true;
+  button.disabled=true;
+  button.textContent="Saving...";
 
-  button.textContent =
-    "Saving...";
+  try{
 
-  try {
-
-    /*
-      IMPORTANT:
-      We call the Supabase RPC directly with
-      the logged-in user's access token.
-    */
-
-    const result =
+    const result=
       await supabasePost(
         "/rest/v1/rpc/complete_challenge",
         {
@@ -1904,18 +1769,18 @@ async function completeChallenge(
         }
       );
 
-    const responseData =
+    const responseData=
       Array.isArray(result)
-        ? result[0]
-        : result;
+        ?result[0]
+        :result;
 
-    if (
-      responseData &&
-      responseData.success === false
-    ) {
+    if(
+      responseData&&
+      responseData.success===false
+    ){
 
       throw new Error(
-        responseData.message ||
+        responseData.message||
         "Challenge could not be completed."
       );
     }
@@ -1924,32 +1789,25 @@ async function completeChallenge(
       String(challenge.id)
     );
 
-    /*
-      Reload the profile so the new
-      Impact Points come directly from DB.
-    */
-
     await loadMyProfile();
 
     renderChallenges();
 
     showToast(
-      "Challenge completed! +" +
-      getChallengePoints(challenge) +
+      "Challenge completed! +"+
+      challengePoints(challenge)+
       " Impact Points ⭐"
     );
 
-  } catch (error) {
+  }catch(error){
 
     console.error(
-      "Challenge error:",
+      "Challenge completion error:",
       error
     );
 
-    button.disabled = false;
-
-    button.textContent =
-      "Complete";
+    button.disabled=false;
+    button.textContent="Complete";
 
     showToast(
       "Could not complete challenge."
@@ -1958,11 +1816,11 @@ async function completeChallenge(
 }
 
 
-/* =========================================================
-   PANELS
-========================================================= */
+/* ================================
+   UI
+================================ */
 
-const challengePanel =
+const challengePanel=
   document.getElementById(
     "challengePanel"
   );
@@ -1970,13 +1828,12 @@ const challengePanel =
 
 document.getElementById(
   "challengeButton"
-)
-.addEventListener(
+).addEventListener(
   "click",
-  async () => {
-
-    challengePanel
-      .classList.add("open");
+  async()=>{
+    challengePanel.classList.add(
+      "open"
+    );
 
     await loadChallenges();
   }
@@ -1985,13 +1842,12 @@ document.getElementById(
 
 document.getElementById(
   "pointsButton"
-)
-.addEventListener(
+).addEventListener(
   "click",
-  async () => {
-
-    challengePanel
-      .classList.add("open");
+  async()=>{
+    challengePanel.classList.add(
+      "open"
+    );
 
     await loadChallenges();
   }
@@ -2000,70 +1856,67 @@ document.getElementById(
 
 document.getElementById(
   "closePanel"
-)
-.addEventListener(
+).addEventListener(
   "click",
-  () => {
-
-    challengePanel
-      .classList.remove("open");
+  ()=>{
+    challengePanel.classList.remove(
+      "open"
+    );
   }
 );
 
 
-/* =========================================================
+/* ================================
+   ESCAPE HTML
+================================ */
+
+function escapeHTML(value){
+
+  if(value===null||
+     value===undefined){
+    return "";
+  }
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+
+/* ================================
    START
-========================================================= */
+================================ */
 
-async function start() {
+async function start(){
 
-  /*
-    FIRST:
-    Read the exact account that login.html stored.
-  */
-
-  currentUser =
-    getUser();
+  currentUser=getUser();
 
   console.log(
-    "Current Teen Map user:",
+    "Current user:",
     currentUser
   );
 
-  /*
-    Load world first so the globe appears.
-  */
-
   await loadWorld();
-
-  /*
-    Load profiles separately.
-  */
 
   await loadProfiles();
 
-  /*
-    Load ONLY the current user's profile
-    for Impact Points.
-  */
-
-  if (currentUser) {
+  if(currentUser){
 
     await loadMyProfile();
   }
 
-  /*
-    Finish loading screen.
-  */
-
-  setTimeout(() => {
-
-    document.getElementById("loading")
-      .classList.add("hidden");
-
-  }, 500);
+  setTimeout(
+    ()=>{
+      document.getElementById(
+        "loading"
+      ).classList.add("hidden");
+    },
+    500
+  );
 }
-
 
 start();
 
