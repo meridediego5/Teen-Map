@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -180,24 +180,12 @@ Share only what you feel comfortable sharing.
 You don't need to explain anything personal.
 </p>
 <select id="well_being">
-<option value="">
-Choose an option
-</option>
-<option value="Great">
-😊 Great
-</option>
-<option value="Good">
-🙂 Good
-</option>
-<option value="Okay">
-😐 Okay
-</option>
-<option value="A little down">
-😕 A little down
-</option>
-<option value="I could use some support">
-💗 I could use some support
-</option>
+<option value="">Choose an option</option>
+<option value="Great">😊 Great</option>
+<option value="Good">🙂 Good</option>
+<option value="Okay">😐 Okay</option>
+<option value="A little down">😕 A little down</option>
+<option value="I could use some support">💗 I could use some support</option>
 </select>
 
 ✨ Fun fact
@@ -219,10 +207,12 @@ phone number or other private information.
 <div id="message"></div>
 </div>
 <script>
+/* SUPABASE */
 const SUPABASE_URL =
 "https://wqzdzajhqoodtxauwqme.supabase.co";
 const SUPABASE_KEY =
 "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
+/* ELEMENTS */
 const message =
 document.getElementById("message");
 const createButton =
@@ -237,24 +227,25 @@ const countrySelect =
 document.getElementById("country");
 const regionSelect =
 document.getElementById("region");
-let client = null;
+/* SUPABASE CLIENT */
+let client=null;
 try{
 if(
 !window.supabase ||
-typeof window.supabase.createClient !== "function"
+typeof window.supabase.createClient!=="function"
 ){
 throw new Error("Supabase library did not load.");
 }
-client =
-window.supabase.createClient(
+client=window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY
 );
 }catch(error){
 console.error(error);
-message.textContent =
-"Supabase error: " + error.message;
+message.textContent=
+"Supabase error: "+error.message;
 }
+/* SHOW PROFILE */
 function showProfile(){
 document
 .getElementById("auth")
@@ -264,122 +255,103 @@ document
 .getElementById("profile")
 .classList
 .remove("hidden");
-message.textContent = "";
+message.textContent="";
 }
+/* GO TO MAP */
 function goToMap(){
-window.location.href = "index.html";
+window.location.href="index.html";
 }
-let countries = [];
+/* COUNTRIES */
+let countries=[];
 async function loadCountries(){
 try{
-const response =
-await fetch(
+const response=await fetch(
 "https://countriesnow.space/api/v0.1/countries/states"
 );
 if(!response.ok){
 throw new Error("Could not load countries.");
 }
-const result =
-await response.json();
+const result=await response.json();
 if(
 !result ||
 !Array.isArray(result.data)
 ){
 throw new Error("Invalid country data.");
 }
-countries = result.data;
-countries.sort(
-function(a,b){
+countries=result.data;
+countries.sort(function(a,b){
 return a.name.localeCompare(b.name);
-}
-);
-countrySelect.innerHTML =
+});
+countrySelect.innerHTML=
 '<option value="">Select your country</option>';
-countries.forEach(
-function(country){
-const option =
-document.createElement("option");
-option.value = country.name;
-option.textContent = country.name;
+countries.forEach(function(country){
+const option=document.createElement("option");
+option.value=country.name;
+option.textContent=country.name;
 countrySelect.appendChild(option);
-}
-);
+});
 }catch(error){
 console.error(error);
-message.textContent =
+message.textContent=
 "Could not load the country list. Please refresh.";
 }
 }
+/* REGION */
 countrySelect.addEventListener(
 "change",
 function(){
-const selectedCountry =
-countries.find(
-function(country){
-return country.name === countrySelect.value;
-}
-);
-regionSelect.innerHTML =
+const selectedCountry=
+countries.find(function(country){
+return country.name===countrySelect.value;
+});
+regionSelect.innerHTML=
 '<option value="">Select your region</option>';
 if(
 !selectedCountry ||
 !Array.isArray(selectedCountry.states)
 ){
-regionSelect.disabled = true;
+regionSelect.disabled=true;
 return;
 }
-selectedCountry.states.forEach(
-function(region){
-const option =
-document.createElement("option");
-option.value = region.name;
-option.textContent = region.name;
+selectedCountry.states.forEach(function(region){
+const option=document.createElement("option");
+option.value=region.name;
+option.textContent=region.name;
 regionSelect.appendChild(option);
+});
+regionSelect.disabled=false;
 }
 );
-regionSelect.disabled = false;
-}
-);
+/* CREATE ACCOUNT */
 createButton.addEventListener(
 "click",
 async function(){
-const email =
-document
-.getElementById("email")
-.value
-.trim();
-const password =
-document
-.getElementById("password")
-.value;
+const email=
+document.getElementById("email").value.trim();
+const password=
+document.getElementById("password").value;
 if(!email){
-message.textContent =
-"Please enter your email.";
+message.textContent="Please enter your email.";
 return;
 }
 if(!password){
-message.textContent =
-"Please enter your password.";
+message.textContent="Please enter your password.";
 return;
 }
-if(password.length < 6){
-message.textContent =
+if(password.length<6){
+message.textContent=
 "Password must have at least 6 characters.";
 return;
 }
 if(!client){
-message.textContent =
+message.textContent=
 "Supabase is not connected.";
 return;
 }
-createButton.disabled = true;
-message.textContent =
-"Creating account...";
+createButton.disabled=true;
+message.textContent="Creating account...";
 try{
-const {
-data,
-error
-} =
+const {data,error}=
 await client.auth.signUp({
 email:email,
 password:password,
@@ -389,63 +361,55 @@ emailRedirectTo:
 }
 });
 if(error){
-message.textContent =
-"Supabase: " + error.message;
-createButton.disabled = false;
+message.textContent=
+"Supabase: "+error.message;
+createButton.disabled=false;
 return;
 }
 if(data.session){
 showProfile();
 }else{
-message.textContent =
+message.textContent=
 "🎉 Account created! Check your email to confirm it.";
 }
 }catch(error){
 console.error(error);
-message.textContent =
-"Error: " + error.message;
+message.textContent=
+"Error: "+error.message;
 }
-createButton.disabled = false;
+createButton.disabled=false;
 }
 );
+/* LOGIN */
 loginButton.addEventListener(
 "click",
 async function(){
-const email =
-document
-.getElementById("email")
-.value
-.trim();
-const password =
-document
-.getElementById("password")
-.value;
+const email=
+document.getElementById("email").value.trim();
+const password=
+document.getElementById("password").value;
 if(!email || !password){
-message.textContent =
+message.textContent=
 "Please enter your email and password.";
 return;
 }
 if(!client){
-message.textContent =
+message.textContent=
 "Supabase is not connected.";
 return;
 }
-loginButton.disabled = true;
-message.textContent =
-"Logging in...";
+loginButton.disabled=true;
+message.textContent="Logging in...";
 try{
-const {
-data,
-error
-} =
+const {data,error}=
 await client.auth.signInWithPassword({
 email:email,
 password:password
 });
 if(error){
-message.textContent =
-"Supabase: " + error.message;
-loginButton.disabled = false;
+message.textContent=
+"Supabase: "+error.message;
+loginButton.disabled=false;
 return;
 }
 if(data.session){
@@ -453,29 +417,23 @@ await openCorrectScreen();
 }
 }catch(error){
 console.error(error);
-message.textContent =
-"Error: " + error.message;
+message.textContent=
+"Error: "+error.message;
 }
-loginButton.disabled = false;
+loginButton.disabled=false;
 }
 );
+/* CHECK PROFILE */
 async function openCorrectScreen(){
 try{
-const {
-data:{
-user
-}
-} =
+const {data:{user}}=
 await client.auth.getUser();
 if(!user){
-message.textContent =
+message.textContent=
 "Please log in again.";
 return;
 }
-const {
-data:profile,
-error
-} =
+const {data:profile,error}=
 await client
 .from("profiles")
 .select("id")
@@ -493,25 +451,24 @@ showProfile();
 }
 }catch(error){
 console.error(error);
-message.textContent =
-"Profile check error: " + error.message;
+message.textContent=
+"Profile check error: "+error.message;
 }
 }
+/* GOOGLE */
 googleButton.addEventListener(
 "click",
 async function(){
 if(!client){
-message.textContent =
+message.textContent=
 "Supabase is not connected.";
 return;
 }
-googleButton.disabled = true;
-message.textContent =
+googleButton.disabled=true;
+message.textContent=
 "Connecting to Google...";
 try{
-const {
-error
-} =
+const {error}=
 await client.auth.signInWithOAuth({
 provider:"google",
 options:{
@@ -520,73 +477,47 @@ redirectTo:
 }
 });
 if(error){
-message.textContent =
-"Google error: " + error.message;
-googleButton.disabled = false;
+message.textContent=
+"Google error: "+error.message;
+googleButton.disabled=false;
 }
 }catch(error){
 console.error(error);
-message.textContent =
-"Google error: " + error.message;
-googleButton.disabled = false;
+message.textContent=
+"Google error: "+error.message;
+googleButton.disabled=false;
 }
 }
 );
+/* SAVE PROFILE */
 saveProfileButton.addEventListener(
 "click",
 async function(){
 if(!client){
-message.textContent =
+message.textContent=
 "Supabase is not connected.";
 return;
 }
-const username =
-document
-.getElementById("username")
-.value
-.trim();
-const age =
-document
-.getElementById("age")
-.value;
-const country =
-countrySelect.value;
-const region =
-regionSelect.value;
-const languages =
-document
-.getElementById("languages")
-.value
-.trim();
-const interests =
-document
-.getElementById("interests")
-.value
-.trim();
-const hobbies =
-document
-.getElementById("hobbies")
-.value
-.trim();
-const traditions =
-document
-.getElementById("traditions")
-.value
-.trim();
-const wellBeing =
-document
-.getElementById("well_being")
-.value;
-const funFact =
-document
-.getElementById("fun_fact")
-.value
-.trim();
-const favoriteSong =
-document
-.getElementById("favorite_song")
-.value
-.trim();
+const username=
+document.getElementById("username").value.trim();
+const age=
+document.getElementById("age").value;
+const country=countrySelect.value;
+const region=regionSelect.value;
+const languages=
+document.getElementById("languages").value.trim();
+const interests=
+document.getElementById("interests").value.trim();
+const hobbies=
+document.getElementById("hobbies").value.trim();
+const traditions=
+document.getElementById("traditions").value.trim();
+const wellBeing=
+document.getElementById("well_being").value;
+const funFact=
+document.getElementById("fun_fact").value.trim();
+const favoriteSong=
+document.getElementById("favorite_song").value.trim();
 if(
 !username ||
 !age ||
@@ -600,7 +531,7 @@ if(
 !funFact ||
 !favoriteSong
 ){
-message.textContent =
+message.textContent=
 "Please complete your profile.";
 return;
 }
@@ -608,29 +539,23 @@ if(
 Number(age)<13 ||
 Number(age)>17
 ){
-message.textContent =
+message.textContent=
 "Teen Map is for ages 13–17.";
 return;
 }
-saveProfileButton.disabled = true;
-message.textContent =
+saveProfileButton.disabled=true;
+message.textContent=
 "Saving your profile...";
 try{
-const {
-data:{
-user
-}
-} =
+const {data:{user}}=
 await client.auth.getUser();
 if(!user){
-message.textContent =
+message.textContent=
 "Please log in again.";
-saveProfileButton.disabled = false;
+saveProfileButton.disabled=false;
 return;
 }
-const {
-error
-} =
+const {error}=
 await client
 .from("profiles")
 .upsert({
@@ -650,45 +575,36 @@ impact_points:0
 });
 if(error){
 console.error(error);
-message.textContent =
-"Profile error: " + error.message;
-saveProfileButton.disabled = false;
+message.textContent=
+"Profile error: "+error.message;
+saveProfileButton.disabled=false;
 return;
 }
-message.textContent =
+message.textContent=
 "🎉 Welcome to Teen Map!";
-setTimeout(
-function(){
+setTimeout(function(){
 goToMap();
-},
-700
-);
+},700);
 }catch(error){
 console.error(error);
-message.textContent =
-"Error: " + error.message;
-saveProfileButton.disabled = false;
+message.textContent=
+"Error: "+error.message;
+saveProfileButton.disabled=false;
 }
 }
 );
+/* START */
 loadCountries();
 async function checkSession(){
-if(!client){
-return;
-}
+if(!client)return;
 try{
-const {
-data
-} =
+const {data}=
 await client.auth.getSession();
 if(data.session){
 await openCorrectScreen();
 }
 }catch(error){
-console.error(
-"Session error:",
-error
-);
+console.error("Session error:",error);
 }
 }
 checkSession();
