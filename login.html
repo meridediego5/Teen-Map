@@ -3,611 +3,1195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Teen Map</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+}
+
 body{
-margin:0;
-min-height:100vh;
-font-family:Arial,sans-serif;
-background:linear-gradient(135deg,#071a2b,#164b68);
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#071a2b,#164b68);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
 }
+
 .card{
-width:100%;
-max-width:430px;
-background:rgba(255,255,255,.10);
-backdrop-filter:blur(15px);
-border-radius:25px;
-padding:30px;
-box-shadow:0 15px 50px rgba(0,0,0,.30)
+  width:100%;
+  max-width:440px;
+  background:rgba(255,255,255,.12);
+  border-radius:25px;
+  padding:30px;
+  box-shadow:0 15px 50px rgba(0,0,0,.35);
+  backdrop-filter:blur(15px);
 }
+
 h1{
-text-align:center;
-margin:0 0 10px;
-font-size:32px
+  text-align:center;
+  margin:0 0 10px;
+  font-size:32px;
 }
+
 .subtitle{
-text-align:center;
-opacity:.85;
-line-height:1.5;
-margin-bottom:25px
+  text-align:center;
+  opacity:.85;
+  line-height:1.5;
+  margin:0 0 25px;
 }
+
 label{
-display:block;
-margin-top:14px;
-margin-bottom:7px;
-font-size:14px;
-font-weight:bold
+  display:block;
+  margin-top:15px;
+  margin-bottom:7px;
+  font-size:14px;
+  font-weight:bold;
 }
-input,select,textarea{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-font-size:16px;
-font-family:Arial,sans-serif;
-outline:none
-}
+
+input,
+select,
 textarea{
-min-height:80px;
-resize:vertical
+  display:block;
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:white;
+  color:#222;
+  font-size:16px;
+  font-family:Arial,sans-serif;
+  outline:none;
 }
-select:disabled{opacity:.55}
+
+textarea{
+  min-height:85px;
+  resize:vertical;
+}
+
+select:disabled{
+  opacity:.6;
+}
+
 button{
-width:100%;
-padding:15px;
-margin-top:15px;
-border:none;
-border-radius:13px;
-background:#ff78b7;
-color:white;
-font-size:17px;
-font-weight:bold;
-cursor:pointer
+  display:block;
+  width:100%;
+  padding:15px;
+  margin-top:15px;
+  border:0;
+  border-radius:13px;
+  background:#ff78b7;
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
 }
+
 button:disabled{
-opacity:.6;
-cursor:default
+  opacity:.6;
 }
-.secondary{
-background:rgba(255,255,255,.18)
-}
+
 .google{
-background:white;
-color:#222
+  background:white;
+  color:#222;
 }
-.hidden{display:none}
+
+.secondary{
+  background:rgba(255,255,255,.18);
+}
+
+.hidden{
+  display:none !important;
+}
+
+.divider{
+  text-align:center;
+  opacity:.7;
+  margin:18px 0;
+}
+
 #message{
-margin-top:20px;
-text-align:center;
-font-weight:bold;
-line-height:1.5;
-overflow-wrap:anywhere
+  margin-top:20px;
+  text-align:center;
+  font-weight:bold;
+  line-height:1.5;
+  overflow-wrap:anywhere;
 }
+
 .privacy{
-font-size:12px;
-opacity:.7;
-line-height:1.5;
-margin-top:20px;
-text-align:center
+  text-align:center;
+  font-size:12px;
+  opacity:.7;
+  line-height:1.5;
+  margin-top:20px;
 }
-.sectionTitle{
-margin-top:25px;
-margin-bottom:5px;
-font-size:18px;
-font-weight:bold
+
+.section-title{
+  margin-top:25px;
+  font-size:18px;
+  font-weight:bold;
 }
-.smallText{
-font-size:12px;
-opacity:.65;
-line-height:1.4
+
+.small{
+  font-size:12px;
+  opacity:.7;
+  line-height:1.4;
 }
+
 </style>
 </head>
+
 <body>
+
 <div class="card">
-<section id="auth">
+
+<!-- ================= LOGIN ================= -->
+
+<section id="authScreen">
+
 <h1>🌎 Teen Map</h1>
+
 <p class="subtitle">
 See the world through teenagers' eyes.
 </p>
-<button type="button" id="googleButton" class="google">
-Continue with Google
+
+<button
+  type="button"
+  id="googleButton"
+  class="google">
+  Continue with Google
 </button>
-<p style="text-align:center;opacity:.7;margin:18px 0;">
+
+<div class="divider">
 or
-</p>
+</div>
 
+<label for="email">
 Email
+</label>
 
+<input
+  id="email"
+  type="email"
+  placeholder="your@email.com"
+  autocomplete="email">
+
+<label for="password">
 Password
+</label>
 
-<button type="button" id="createButton">
-Create account
+<input
+  id="password"
+  type="password"
+  placeholder="Your password"
+  autocomplete="current-password">
+
+<button
+  type="button"
+  id="createButton">
+  Create account
 </button>
-<button type="button" id="loginButton" class="secondary">
-Log in
+
+<button
+  type="button"
+  id="loginButton"
+  class="secondary">
+  Log in
 </button>
+
 <p class="privacy">
-🔒 Teen Map uses general regions only.
-We never collect exact GPS locations.
+🔒 Teen Map only uses general location information.
+We never collect your exact GPS location.
 </p>
+
 </section>
-<section id="profile" class="hidden">
-<h1>👤 Your Teen Map profile</h1>
+
+
+<!-- ================= PROFILE ================= -->
+
+<section id="profileScreen" class="hidden">
+
+<h1>👤 Your profile</h1>
+
 <p class="subtitle">
 Tell the world a little about you.
 </p>
 
+<label for="username">
 Username
+</label>
 
+<input
+  id="username"
+  type="text"
+  placeholder="Choose a username"
+  maxlength="30">
+
+<label for="age">
 Age
+</label>
 
+<input
+  id="age"
+  type="number"
+  min="13"
+  max="17"
+  placeholder="Your age">
+
+<label for="country">
 🌎 Country
+</label>
 
 <select id="country">
-<option value="">Select your country</option>
+<option value="">
+Select your country
+</option>
 </select>
 
+<label for="region">
 📍 Region
+</label>
 
 <select id="region" disabled>
-<option value="">Select your country first</option>
+<option value="">
+Select your country first
+</option>
 </select>
 
+<label for="languages">
 🗣️ Languages
+</label>
 
+<input
+  id="languages"
+  type="text"
+  placeholder="e.g. Spanish, English">
+
+<label for="interests">
 💗 Interests
+</label>
 
+<input
+  id="interests"
+  type="text"
+  placeholder="e.g. music, fashion, sport">
+
+<label for="hobbies">
 🎨 Hobbies
+</label>
 
+<input
+  id="hobbies"
+  type="text"
+  placeholder="What do you enjoy doing?">
+
+<label for="traditions">
 🏛️ Traditions
+</label>
 
 <textarea
-id="traditions"
-placeholder="Tell us about a tradition from your culture..."></textarea>
-<div class="sectionTitle">
+  id="traditions"
+  placeholder="Tell us about a tradition from your culture..."></textarea>
+
+<div class="section-title">
 💗 Well-being
 </div>
-<p class="smallText">
+
+<p class="small">
 Share only what you feel comfortable sharing.
-You don't need to explain anything personal.
 </p>
+
 <select id="well_being">
-<option value="">Choose an option</option>
-<option value="Great">😊 Great</option>
-<option value="Good">🙂 Good</option>
-<option value="Okay">😐 Okay</option>
-<option value="A little down">😕 A little down</option>
-<option value="I could use some support">💗 I could use some support</option>
+
+<option value="">
+Choose an option
+</option>
+
+<option value="Great">
+😊 Great
+</option>
+
+<option value="Good">
+🙂 Good
+</option>
+
+<option value="Okay">
+😐 Okay
+</option>
+
+<option value="A little down">
+😕 A little down
+</option>
+
+<option value="I could use some support">
+💗 I could use some support
+</option>
+
 </select>
 
+<label for="fun_fact">
 ✨ Fun fact
+</label>
 
 <textarea
-id="fun_fact"
-placeholder="Tell us something interesting about you..."></textarea>
+  id="fun_fact"
+  placeholder="Tell us something interesting about you..."></textarea>
 
+<label for="favorite_song">
 🎵 Favorite song
+</label>
 
-<button type="button" id="saveProfileButton">
-🌎 Join Teen Map
+<input
+  id="favorite_song"
+  type="text"
+  placeholder="What's your favorite song?">
+
+<button
+  type="button"
+  id="saveProfileButton">
+  🌎 Join Teen Map
 </button>
+
 <p class="privacy">
-🔒 Never include your address, school,
-phone number or other private information.
+🔒 Never include your address, school, phone number
+or other private information.
 </p>
+
 </section>
+
+
 <div id="message"></div>
+
 </div>
+
+
 <script>
-/* SUPABASE */
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
 const SUPABASE_URL =
 "https://wqzdzajhqoodtxauwqme.supabase.co";
+
 const SUPABASE_KEY =
 "sb_publishable_bxqnNgnkTDJcsMVcvAEtcg_Jk3J9VnQ";
-/* ELEMENTS */
+
+
+const supabaseClient =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const authScreen =
+document.getElementById("authScreen");
+
+const profileScreen =
+document.getElementById("profileScreen");
+
+const emailInput =
+document.getElementById("email");
+
+const passwordInput =
+document.getElementById("password");
+
 const message =
 document.getElementById("message");
+
 const createButton =
 document.getElementById("createButton");
+
 const loginButton =
 document.getElementById("loginButton");
+
 const googleButton =
 document.getElementById("googleButton");
+
 const saveProfileButton =
 document.getElementById("saveProfileButton");
+
 const countrySelect =
 document.getElementById("country");
+
 const regionSelect =
 document.getElementById("region");
-/* SUPABASE CLIENT */
-let client=null;
-try{
-if(
-!window.supabase ||
-typeof window.supabase.createClient!=="function"
-){
-throw new Error("Supabase library did not load.");
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(text){
+
+  message.textContent = text;
+
 }
-client=window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-}catch(error){
-console.error(error);
-message.textContent=
-"Supabase error: "+error.message;
-}
-/* SHOW PROFILE */
+
+
+/* =====================================================
+   SHOW PROFILE
+===================================================== */
+
 function showProfile(){
-document
-.getElementById("auth")
-.classList
-.add("hidden");
-document
-.getElementById("profile")
-.classList
-.remove("hidden");
-message.textContent="";
+
+  authScreen.classList.add("hidden");
+
+  profileScreen.classList.remove("hidden");
+
+  showMessage("");
+
 }
-/* GO TO MAP */
+
+
+/* =====================================================
+   GO TO INDEX
+===================================================== */
+
 function goToMap(){
-window.location.href="index.html";
+
+  window.location.href = "index.html";
+
 }
-/* COUNTRIES */
-let countries=[];
-async function loadCountries(){
-try{
-const response=await fetch(
-"https://countriesnow.space/api/v0.1/countries/states"
-);
-if(!response.ok){
-throw new Error("Could not load countries.");
+
+
+/* =====================================================
+   CHECK CURRENT USER
+===================================================== */
+
+async function checkCurrentSession(){
+
+  try{
+
+    const {
+      data,
+      error
+    } = await supabaseClient.auth.getSession();
+
+    if(error){
+
+      console.error(error);
+
+      return;
+
+    }
+
+    if(data.session){
+
+      await checkProfile(data.session.user);
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
 }
-const result=await response.json();
-if(
-!result ||
-!Array.isArray(result.data)
-){
-throw new Error("Invalid country data.");
+
+
+/* =====================================================
+   CHECK PROFILE
+===================================================== */
+
+async function checkProfile(user){
+
+  try{
+
+    const {
+      data:profile,
+      error
+    } = await supabaseClient
+      .from("profiles")
+      .select("id")
+      .eq("id",user.id)
+      .maybeSingle();
+
+    if(error){
+
+      console.error("Profile check:",error);
+
+      showProfile();
+
+      return;
+
+    }
+
+    if(profile){
+
+      goToMap();
+
+    }else{
+
+      showProfile();
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    showProfile();
+
+  }
+
 }
-countries=result.data;
-countries.sort(function(a,b){
-return a.name.localeCompare(b.name);
-});
-countrySelect.innerHTML=
-'<option value="">Select your country</option>';
-countries.forEach(function(country){
-const option=document.createElement("option");
-option.value=country.name;
-option.textContent=country.name;
-countrySelect.appendChild(option);
-});
-}catch(error){
-console.error(error);
-message.textContent=
-"Could not load the country list. Please refresh.";
-}
-}
-/* REGION */
-countrySelect.addEventListener(
-"change",
-function(){
-const selectedCountry=
-countries.find(function(country){
-return country.name===countrySelect.value;
-});
-regionSelect.innerHTML=
-'<option value="">Select your region</option>';
-if(
-!selectedCountry ||
-!Array.isArray(selectedCountry.states)
-){
-regionSelect.disabled=true;
-return;
-}
-selectedCountry.states.forEach(function(region){
-const option=document.createElement("option");
-option.value=region.name;
-option.textContent=region.name;
-regionSelect.appendChild(option);
-});
-regionSelect.disabled=false;
-}
-);
-/* CREATE ACCOUNT */
+
+
+/* =====================================================
+   CREATE ACCOUNT
+===================================================== */
+
 createButton.addEventListener(
 "click",
 async function(){
-const email=
-document.getElementById("email").value.trim();
-const password=
-document.getElementById("password").value;
-if(!email){
-message.textContent="Please enter your email.";
-return;
-}
-if(!password){
-message.textContent="Please enter your password.";
-return;
-}
-if(password.length<6){
-message.textContent=
-"Password must have at least 6 characters.";
-return;
-}
-if(!client){
-message.textContent=
-"Supabase is not connected.";
-return;
-}
-createButton.disabled=true;
-message.textContent="Creating account...";
-try{
-const {data,error}=
-await client.auth.signUp({
-email:email,
-password:password,
-options:{
-emailRedirectTo:
-"https://meridediego5.github.io/Teen-Map/login.html"
-}
+
+  const email =
+    emailInput.value.trim();
+
+  const password =
+    passwordInput.value;
+
+
+  if(!email){
+
+    showMessage("Please enter your email.");
+
+    emailInput.focus();
+
+    return;
+
+  }
+
+
+  if(!password){
+
+    showMessage("Please enter your password.");
+
+    passwordInput.focus();
+
+    return;
+
+  }
+
+
+  if(password.length < 6){
+
+    showMessage(
+      "Your password must have at least 6 characters."
+    );
+
+    return;
+
+  }
+
+
+  createButton.disabled = true;
+
+  loginButton.disabled = true;
+
+  showMessage("Creating your account...");
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient.auth.signUp({
+
+      email:email,
+
+      password:password,
+
+      options:{
+        emailRedirectTo:
+        "https://meridediego5.github.io/Teen-Map/login.html"
+      }
+
+    });
+
+
+    if(error){
+
+      showMessage(
+        "Supabase: " + error.message
+      );
+
+      createButton.disabled = false;
+
+      loginButton.disabled = false;
+
+      return;
+
+    }
+
+
+    if(data.session){
+
+      showMessage(
+        "🎉 Account created!"
+      );
+
+      showProfile();
+
+    }else{
+
+      showMessage(
+        "🎉 Account created! Check your email to confirm your account."
+      );
+
+    }
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      "Error: " + error.message
+    );
+
+  }
+
+
+  createButton.disabled = false;
+
+  loginButton.disabled = false;
+
 });
-if(error){
-message.textContent=
-"Supabase: "+error.message;
-createButton.disabled=false;
-return;
-}
-if(data.session){
-showProfile();
-}else{
-message.textContent=
-"🎉 Account created! Check your email to confirm it.";
-}
-}catch(error){
-console.error(error);
-message.textContent=
-"Error: "+error.message;
-}
-createButton.disabled=false;
-}
-);
-/* LOGIN */
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
 loginButton.addEventListener(
 "click",
 async function(){
-const email=
-document.getElementById("email").value.trim();
-const password=
-document.getElementById("password").value;
-if(!email || !password){
-message.textContent=
-"Please enter your email and password.";
-return;
-}
-if(!client){
-message.textContent=
-"Supabase is not connected.";
-return;
-}
-loginButton.disabled=true;
-message.textContent="Logging in...";
-try{
-const {data,error}=
-await client.auth.signInWithPassword({
-email:email,
-password:password
+
+  const email =
+    emailInput.value.trim();
+
+  const password =
+    passwordInput.value;
+
+
+  if(!email){
+
+    showMessage("Please enter your email.");
+
+    emailInput.focus();
+
+    return;
+
+  }
+
+
+  if(!password){
+
+    showMessage("Please enter your password.");
+
+    passwordInput.focus();
+
+    return;
+
+  }
+
+
+  loginButton.disabled = true;
+
+  createButton.disabled = true;
+
+  showMessage("Logging in...");
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient.auth.signInWithPassword({
+
+      email:email,
+
+      password:password
+
+    });
+
+
+    if(error){
+
+      showMessage(
+        "Supabase: " + error.message
+      );
+
+      loginButton.disabled = false;
+
+      createButton.disabled = false;
+
+      return;
+
+    }
+
+
+    if(data.session){
+
+      showMessage("Welcome back! 🌎");
+
+      await checkProfile(data.session.user);
+
+    }
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      "Error: " + error.message
+    );
+
+  }
+
+
+  loginButton.disabled = false;
+
+  createButton.disabled = false;
+
 });
-if(error){
-message.textContent=
-"Supabase: "+error.message;
-loginButton.disabled=false;
-return;
-}
-if(data.session){
-await openCorrectScreen();
-}
-}catch(error){
-console.error(error);
-message.textContent=
-"Error: "+error.message;
-}
-loginButton.disabled=false;
-}
-);
-/* CHECK PROFILE */
-async function openCorrectScreen(){
-try{
-const {data:{user}}=
-await client.auth.getUser();
-if(!user){
-message.textContent=
-"Please log in again.";
-return;
-}
-const {data:profile,error}=
-await client
-.from("profiles")
-.select("id")
-.eq("id",user.id)
-.maybeSingle();
-if(error){
-console.error(error);
-showProfile();
-return;
-}
-if(profile){
-goToMap();
-}else{
-showProfile();
-}
-}catch(error){
-console.error(error);
-message.textContent=
-"Profile check error: "+error.message;
-}
-}
-/* GOOGLE */
+
+
+/* =====================================================
+   GOOGLE
+===================================================== */
+
 googleButton.addEventListener(
 "click",
 async function(){
-if(!client){
-message.textContent=
-"Supabase is not connected.";
-return;
-}
-googleButton.disabled=true;
-message.textContent=
-"Connecting to Google...";
-try{
-const {error}=
-await client.auth.signInWithOAuth({
-provider:"google",
-options:{
-redirectTo:
-"https://meridediego5.github.io/Teen-Map/login.html"
-}
+
+  googleButton.disabled = true;
+
+  showMessage("Connecting to Google...");
+
+
+  try{
+
+    const {
+      error
+    } =
+    await supabaseClient.auth.signInWithOAuth({
+
+      provider:"google",
+
+      options:{
+
+        redirectTo:
+        "https://meridediego5.github.io/Teen-Map/login.html"
+
+      }
+
+    });
+
+
+    if(error){
+
+      showMessage(
+        "Google error: " + error.message
+      );
+
+      googleButton.disabled = false;
+
+    }
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      "Google error: " + error.message
+    );
+
+    googleButton.disabled = false;
+
+  }
+
 });
-if(error){
-message.textContent=
-"Google error: "+error.message;
-googleButton.disabled=false;
+
+
+/* =====================================================
+   COUNTRIES
+===================================================== */
+
+let countries = [];
+
+
+async function loadCountries(){
+
+  try{
+
+    const response =
+      await fetch(
+        "https://countriesnow.space/api/v0.1/countries/states"
+      );
+
+
+    if(!response.ok){
+
+      throw new Error(
+        "Could not load countries."
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    countries =
+      Array.isArray(result.data)
+      ? result.data
+      : [];
+
+
+    countries.sort(
+      function(a,b){
+
+        return a.name.localeCompare(b.name);
+
+      }
+    );
+
+
+    countrySelect.innerHTML =
+      '<option value="">Select your country</option>';
+
+
+    countries.forEach(
+      function(country){
+
+        const option =
+          document.createElement("option");
+
+        option.value =
+          country.name;
+
+        option.textContent =
+          country.name;
+
+        countrySelect.appendChild(option);
+
+      }
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      "Could not load the country list. Please refresh."
+    );
+
+  }
+
 }
-}catch(error){
-console.error(error);
-message.textContent=
-"Google error: "+error.message;
-googleButton.disabled=false;
-}
-}
-);
-/* SAVE PROFILE */
+
+
+/* =====================================================
+   REGION
+===================================================== */
+
+countrySelect.addEventListener(
+"change",
+function(){
+
+  const selected =
+    countries.find(
+      function(country){
+
+        return country.name ===
+          countrySelect.value;
+
+      }
+    );
+
+
+  regionSelect.innerHTML =
+    '<option value="">Select your region</option>';
+
+
+  if(
+    !selected ||
+    !Array.isArray(selected.states)
+  ){
+
+    regionSelect.disabled = true;
+
+    return;
+
+  }
+
+
+  selected.states.forEach(
+    function(region){
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        region.name;
+
+      option.textContent =
+        region.name;
+
+      regionSelect.appendChild(option);
+
+    }
+  );
+
+
+  regionSelect.disabled = false;
+
+});
+
+
+/* =====================================================
+   SAVE PROFILE
+===================================================== */
+
 saveProfileButton.addEventListener(
 "click",
 async function(){
-if(!client){
-message.textContent=
-"Supabase is not connected.";
-return;
-}
-const username=
-document.getElementById("username").value.trim();
-const age=
-document.getElementById("age").value;
-const country=countrySelect.value;
-const region=regionSelect.value;
-const languages=
-document.getElementById("languages").value.trim();
-const interests=
-document.getElementById("interests").value.trim();
-const hobbies=
-document.getElementById("hobbies").value.trim();
-const traditions=
-document.getElementById("traditions").value.trim();
-const wellBeing=
-document.getElementById("well_being").value;
-const funFact=
-document.getElementById("fun_fact").value.trim();
-const favoriteSong=
-document.getElementById("favorite_song").value.trim();
-if(
-!username ||
-!age ||
-!country ||
-!region ||
-!languages ||
-!interests ||
-!hobbies ||
-!traditions ||
-!wellBeing ||
-!funFact ||
-!favoriteSong
-){
-message.textContent=
-"Please complete your profile.";
-return;
-}
-if(
-Number(age)<13 ||
-Number(age)>17
-){
-message.textContent=
-"Teen Map is for ages 13–17.";
-return;
-}
-saveProfileButton.disabled=true;
-message.textContent=
-"Saving your profile...";
-try{
-const {data:{user}}=
-await client.auth.getUser();
-if(!user){
-message.textContent=
-"Please log in again.";
-saveProfileButton.disabled=false;
-return;
-}
-const {error}=
-await client
-.from("profiles")
-.upsert({
-id:user.id,
-username:username,
-age:Number(age),
-country:country,
-region:region,
-languages:languages,
-interests:interests,
-hobbies:hobbies,
-traditions:traditions,
-well_being:wellBeing,
-fun_fact:funFact,
-favorite_song:favoriteSong,
-impact_points:0
+
+  const username =
+    document.getElementById("username")
+    .value.trim();
+
+  const age =
+    document.getElementById("age")
+    .value;
+
+  const country =
+    countrySelect.value;
+
+  const region =
+    regionSelect.value;
+
+  const languages =
+    document.getElementById("languages")
+    .value.trim();
+
+  const interests =
+    document.getElementById("interests")
+    .value.trim();
+
+  const hobbies =
+    document.getElementById("hobbies")
+    .value.trim();
+
+  const traditions =
+    document.getElementById("traditions")
+    .value.trim();
+
+  const wellBeing =
+    document.getElementById("well_being")
+    .value;
+
+  const funFact =
+    document.getElementById("fun_fact")
+    .value.trim();
+
+  const favoriteSong =
+    document.getElementById("favorite_song")
+    .value.trim();
+
+
+  if(
+    !username ||
+    !age ||
+    !country ||
+    !region ||
+    !languages ||
+    !interests ||
+    !hobbies ||
+    !traditions ||
+    !wellBeing ||
+    !funFact ||
+    !favoriteSong
+  ){
+
+    showMessage(
+      "Please complete your profile."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    Number(age) < 13 ||
+    Number(age) > 17
+  ){
+
+    showMessage(
+      "Teen Map is for ages 13–17."
+    );
+
+    return;
+
+  }
+
+
+  saveProfileButton.disabled = true;
+
+  showMessage(
+    "Saving your profile..."
+  );
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient.auth.getUser();
+
+
+    if(error || !data.user){
+
+      showMessage(
+        "Please log in again."
+      );
+
+      saveProfileButton.disabled = false;
+
+      return;
+
+    }
+
+
+    const user =
+      data.user;
+
+
+    const {
+      error:profileError
+    } =
+    await supabaseClient
+      .from("profiles")
+      .upsert({
+
+        id:user.id,
+
+        username:username,
+
+        age:Number(age),
+
+        country:country,
+
+        region:region,
+
+        languages:languages,
+
+        interests:interests,
+
+        hobbies:hobbies,
+
+        traditions:traditions,
+
+        well_being:wellBeing,
+
+        fun_fact:funFact,
+
+        favorite_song:favoriteSong,
+
+        impact_points:0
+
+      });
+
+
+    if(profileError){
+
+      console.error(profileError);
+
+      showMessage(
+        "Profile error: " +
+        profileError.message
+      );
+
+      saveProfileButton.disabled = false;
+
+      return;
+
+    }
+
+
+    showMessage(
+      "🎉 Welcome to Teen Map!"
+    );
+
+
+    setTimeout(
+      function(){
+
+        goToMap();
+
+      },
+      700
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      "Error: " + error.message
+    );
+
+    saveProfileButton.disabled = false;
+
+  }
+
 });
-if(error){
-console.error(error);
-message.textContent=
-"Profile error: "+error.message;
-saveProfileButton.disabled=false;
-return;
-}
-message.textContent=
-"🎉 Welcome to Teen Map!";
-setTimeout(function(){
-goToMap();
-},700);
-}catch(error){
-console.error(error);
-message.textContent=
-"Error: "+error.message;
-saveProfileButton.disabled=false;
-}
-}
-);
-/* START */
+
+
+/* =====================================================
+   START
+===================================================== */
+
 loadCountries();
-async function checkSession(){
-if(!client)return;
-try{
-const {data}=
-await client.auth.getSession();
-if(data.session){
-await openCorrectScreen();
-}
-}catch(error){
-console.error("Session error:",error);
-}
-}
-checkSession();
+
+checkCurrentSession();
+
+
 </script>
+
 </body>
 </html>
